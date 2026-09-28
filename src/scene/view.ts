@@ -43,7 +43,7 @@ export interface Scales { half: number[]; wide: number[] }
 export function chapterScales(f: Frame): Scales {
   const half = VIEWS.map((v) => {
     if (f.mobile) return Math.min((v.hFracMobile * f.visH) / v.h, (0.9 * f.visW) / v.w);
-    return Math.min((v.hFracDesktop * f.visH) / v.h, (0.455 * f.visW) / v.w);
+    return Math.min((v.hFracDesktop * f.visH) / v.h, (0.44 * f.visW) / v.w);
   });
   const wide = VIEWS.map((v, i) => {
     if (f.mobile) return half[i]!;

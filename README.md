@@ -38,3 +38,24 @@ docs/                  # playbook SEO/GEO, lead capture, TODO właściciela, pop
 4. Po publikacji: `docs/seo-geo-playbook.md` (Search Console, Bing Webmaster, IndexNow, linki zwrotne).
 
 Co musisz dostarczyć/potwierdzić: `docs/owner-todo.md`. Co poprawić na obu produktach: `docs/product-site-fixes.md`.
+
+## Zweryfikowane (2026-09-28, build produkcyjny na `astro preview`)
+| Sprawdzenie | Wynik |
+|---|---|
+| `astro check` (typy) | 0 błędów, 0 ostrzeżeń |
+| `scripts/validate-seo.mjs` | 0 błędów, 0 ostrzeżeń (14 stron indeksowalnych) |
+| `scripts/test-lead.mjs` | 29/29 przypadków |
+| axe-core (WCAG 2.1 AA + best practice) | 0 naruszeń na 10 stronach |
+| Lighthouse (headless, programowy GL) | A11y 100 · Best Practices 100 · SEO 100 |
+| CLS | 0,005 (mobile i desktop) |
+| Performance **bez WebGL** | 99 mobile / 100 desktop, TBT 0 ms |
+| Payload | JS strony ~2 KB gz, scena 143 KB gz (osobny chunk, ładowany po `load` + idle), CSS 5,7 KB gz, 0 zewnętrznych requestów, 0 cookies |
+| Tryby | reduced-motion (1 statyczna klatka), brak WebGL (poster + HTML), brak JS (cała treść widoczna) — bez błędów w konsoli |
+
+### Znane ograniczenia (uczciwie)
+- **Performance z włączoną sceną 3D wynosi ~68–69 w Lighthouse** — ale tylko w środowisku testowym, gdzie WebGL jest renderowany
+  programowo (SwiftShader): kompilacja shaderów blokuje wątek (~2,7 s), czego nie ma na GPU. Scena używa `compileAsync`
+  (`KHR_parallel_shader_compile`) tam, gdzie rozszerzenie istnieje, oraz oddaje wątek między etapami budowy kształtów.
+  **Nie zmierzono jej na prawdziwym GPU/telefonie** — zrób to po wdrożeniu (PageSpeed Insights + Chrome DevTools na realnym telefonie).
+- Kształt Polski to wielokąt ~113 wierzchołków (dokładność ok. 0,1°), a klatki przejściowe wyglądają jak wirująca mgła (losowe parowanie punktów) — świadomy kompromis.
+- Analityka wyłączona (zero cookies). Włączenie Umami/Plausible wymaga aktualizacji polityki prywatności.

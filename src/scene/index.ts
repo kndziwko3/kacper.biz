@@ -149,7 +149,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
   try {
     // ------------------------------------------------------------------ geometry
     const n = cfg.count;
-    const targets = buildTargets(n);
+    const targets = await buildTargets(n, undefined, () => new Promise<void>((r) => window.setTimeout(r, 0)));
     const geo = new BufferGeometry();
     geo.setAttribute('position', new BufferAttribute(targets.pos[0]!, 3));
     const map = new BufferAttribute(targets.pos[1]!, 3);
@@ -241,7 +241,8 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
     const sample: Sample = { c: 1, side: 1 };
     const frame: Frame = { visW: VIS_H, visH: VIS_H, mobile: false };
     let scales: Scales = chapterScales(frame);
-    let dpr = Math.min(window.devicePixelRatio || 1, cfg.dpr);
+    let dprCap = cfg.dpr;
+    let dpr = Math.min(window.devicePixelRatio || 1, dprCap);
     let width = 1, height = 1;
     let ready = false;
     let destroyed = false;
@@ -258,6 +259,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
     try { finePointer = window.matchMedia('(pointer: fine)').matches; } catch { finePointer = false; }
 
     const applySize = (): void => {
+      dpr = Math.min(window.devicePixelRatio || 1, dprCap);
       width = Math.max(1, canvas.clientWidth || window.innerWidth);
       height = Math.max(1, canvas.clientHeight || window.innerHeight);
       renderer.setPixelRatio(dpr);
@@ -328,8 +330,8 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       level++;
       drawCount = Math.max(2500, Math.floor(drawCount * 0.62));
       geo.setDrawRange(0, drawCount);
-      const capped = level === 1 ? Math.max(1, Math.min(dpr, 1.25)) : 1;
-      if (capped !== dpr) { dpr = capped; applySize(); }
+      const capped = level === 1 ? Math.max(1, Math.min(dprCap, 1.25)) : 1;
+      if (capped !== dprCap) { dprCap = capped; applySize(); }
       windowFrames = 0; windowMs = 0; frames = 0;
     };
 
@@ -415,6 +417,16 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
     // ------------------------------------------------------------------ first frame (before we return)
     tracker.start();
     applySize();
+    // Link all programs up front (traffic layers included) so the first scroll into chapter 2 doesn't hitch.
+    packetPts.visible = ripplePts.visible = true;
+    try {
+      if (gl.getExtension('KHR_parallel_shader_compile')) {
+        await Promise.race([renderer.compileAsync(scene, camera), new Promise<void>((r) => window.setTimeout(r, 2500))]);
+      } else {
+        renderer.compile(scene, camera);
+      }
+    } catch { /* the first render compiles synchronously instead */ }
+    packetPts.visible = ripplePts.visible = false;
     if (staticMode) {
       ready = true;
       renderStatic();

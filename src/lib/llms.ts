@@ -104,7 +104,7 @@ export function buildLlmsTxt(): string {
     '',
     `- ${PERSON.disambiguation.en}`,
     `- OutreachPilot.pl (Poland, Gliwice) is not affiliated with ${OP.notAffiliatedWith.join(', ')}.`,
-    `- Identity confirmations that link back to ${SITE.domain}: ${personSameAs().join(', ')}.`,
+    `- Other pages that describe him (kacper.biz is his own site; the product sites and LinkedIn are separate properties): ${personSameAs().join(", ")}.`,
     '',
   );
 

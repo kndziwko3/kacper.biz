@@ -7,7 +7,7 @@
  * Point "style" is one float: integer part = palette id, fractional part = brightness/2 (palette 7 = sweep,
  * where the fractional part is the sweep coordinate instead). Decoded in the vertex shader.
  */
-import { CITIES, GLIWICE, MAP_H, pointInPolygon, polygonArea, polygonXY, project, unproject } from './poland';
+import { CITIES, GLIWICE, pointInPolygon, polygonArea, polygonXY, project, unproject } from './poland';
 
 export const CHAPTER_COUNT = 6;
 
@@ -621,16 +621,25 @@ export interface Targets {
   rand: Float32Array;
 }
 
-export function buildTargets(n: number, seed = 20260928): Targets {
+/**
+ * Builds all chapter targets. Generation is ~200ms of pure JS at 32k points, so it can yield to the main
+ * thread between chapters (pass a `yieldToMain`) instead of blocking input in one long task.
+ */
+export async function buildTargets(n: number, seed = 20260928, yieldToMain?: () => Promise<void>): Promise<Targets> {
   const mk = (salt: number): Ctx => ({ rng: makeRng(seed + salt * 7919), sink: new Sink(n) });
+  const pause = async (): Promise<void> => { if (yieldToMain) await yieldToMain(); };
   const chapters: Chapter[] = [];
   chapters.push(buildCloud(n, mk(1)));
+  await pause();
   const map = buildMap(n, mk(2));
   chapters.push(map);
   chapters.push({ pos: map.pos, style: map.style.map((s) => dimStyle(s, 0.82)), flag: map.flag });
+  await pause();
   chapters.push(buildPage(n, mk(4)));
+  await pause();
   const chat = buildChat(n, mk(5));
   chapters.push(chat);
+  await pause();
   const fin = buildFinale(n, mk(6));
   chapters.push(fin);
 
@@ -643,4 +652,3 @@ export function buildTargets(n: number, seed = 20260928): Targets {
   return { count: n, pos: chapters.map((ch) => ch.pos), style: chapters.map((ch) => ch.style), rand };
 }
 
-export { MAP_H };
