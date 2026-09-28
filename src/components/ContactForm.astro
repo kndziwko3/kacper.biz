@@ -5,7 +5,7 @@
  * this file is the markup only. Safe to render twice on one page: every id is prefixed with `idPrefix`
  * (use different prefixes for the two instances).
  *
- * The component bundles its own <script> (Astro dedupes it per page), so the form works even if the layout
+ * The component bundles its own client script (Astro dedupes it per page), so the form works even if the layout
  * does not call initLeadForms(). Both init functions are idempotent.
  *
  * `ts` is deliberately empty in the HTML: this is a static build, so the render time is stamped by JS in the browser.
