@@ -14,7 +14,7 @@
   font-family: 'Bricolage Grotesque';
   font-style: normal;
   font-weight: 200 800;
-  font-display: swap;
+  font-display: block;
   src: url('../../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-ext-wght-normal.woff2') format('woff2-variations');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
@@ -22,7 +22,7 @@
   font-family: 'Bricolage Grotesque';
   font-style: normal;
   font-weight: 200 800;
-  font-display: swap;
+  font-display: block;
   src: url('../../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2') format('woff2-variations');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
@@ -46,7 +46,7 @@
   font-family: 'Instrument Serif';
   font-style: italic;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
   src: url('../../node_modules/@fontsource/instrument-serif/files/instrument-serif-latin-ext-400-italic.woff2') format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
@@ -54,7 +54,7 @@
   font-family: 'Instrument Serif';
   font-style: italic;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
   src: url('../../node_modules/@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
@@ -200,8 +200,8 @@
     pointer-events: auto; max-width: var(--maxw); margin-inline: auto; min-height: 52px;
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
     padding: 0.4rem 0.5rem 0.4rem 1.1rem; border-radius: 999px;
-    background: rgb(13 13 19 / 0.62); border: 1px solid var(--line);
-    backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%);
+    background: rgb(11 11 16 / 0.82); border: 1px solid var(--line);
+    backdrop-filter: blur(22px) saturate(150%);
   }
   .brand { display: inline-flex; align-items: center; gap: 0.6rem; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.03em; font-size: 1.05rem; }
   .brand__mark {
@@ -275,7 +275,7 @@
     position: relative; border-radius: var(--radius); padding: clamp(1.25rem, 2.4vw, 1.9rem);
     background: linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.02));
     border: 1px solid var(--line);
-    backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
   }
   .card--link { display: block; transition: transform 0.45s var(--ease), border-color 0.3s, background 0.3s; }
   .card--link:hover { transform: translateY(-4px); border-color: var(--line-strong); }

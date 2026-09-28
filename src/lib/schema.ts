@@ -172,17 +172,19 @@ function productKeyFor(path: string): ProductKey | null {
   return last === 'outreachpilot' || last === 'fastlanding' ? last : null;
 }
 
-function outreachpilotSoftwareNode(lang: Lang): Node {
-  // No offers / rating: pricing lives on outreachpilot.pl/cennik and is not mirrored in site.ts.
+function outreachpilotServiceNode(lang: Lang): Node {
+  // Typed Service (semantics of software via additionalType) on purpose: a literal SoftwareApplication needs offers AND a
+  // rating/review for Google's "Software app" rich result, and we neither invent ratings nor mirror pricing that is not in
+  // site.ts, so it would only produce invalid-item noise in Search Console. Pricing lives on outreachpilot.pl/cennik.
   return {
-    '@type': 'SoftwareApplication',
+    '@type': 'Service',
     '@id': PRODUCTS.outreachpilot.id,
+    additionalType: 'https://schema.org/SoftwareApplication',
     name: PRODUCTS.outreachpilot.name,
     url: PRODUCTS.outreachpilot.url,
     description: PRODUCTS.outreachpilot.tagline[lang],
-    applicationCategory: 'BusinessApplication',
-    creator: ref(ORG_IDS.outreachpilot),
-    publisher: ref(ORG_IDS.outreachpilot),
+    serviceType: 'B2B cold outreach',
+    provider: ref(ORG_IDS.outreachpilot),
   };
 }
 
@@ -377,7 +379,7 @@ export function buildJsonLd(o: JsonLdOptions): string {
     pageNode(o, canonical, hasBreadcrumb, productKey),
   ];
 
-  if (productKey === 'outreachpilot') graph.push(outreachpilotSoftwareNode(o.lang));
+  if (productKey === 'outreachpilot') graph.push(outreachpilotServiceNode(o.lang));
   if (productKey === 'fastlanding') graph.push(fastlandingServiceNode(o.lang));
   if (o.kind === 'work') graph.push(projectsListNode(canonical, o.lang));
   if (hasBreadcrumb && o.breadcrumbs) graph.push(breadcrumbNode(canonical, o.breadcrumbs));

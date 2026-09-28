@@ -29,7 +29,10 @@ vec3 rodrigues(vec3 v, vec3 k, float a) {
 }
 `;
 
-/** Shared round-sprite fragment: soft core + falloff, premultiplied, clamped for the screen blend. */
+/**
+ * Shared round-sprite fragment. The profile is deliberately flat-topped: 2-3px sprites only ever sample it
+ * around d ~ 0.5-0.7, so a sharp core would leave them nearly black.
+ */
 export const SPRITE_FRAG = /* glsl */ `
 varying vec3 vCol;
 varying float vA;
@@ -37,9 +40,22 @@ void main() {
   vec2 q = gl_PointCoord - 0.5;
   float d = length(q) * 2.0;
   if (d >= 1.0) discard;
-  float core = smoothstep(0.55, 0.0, d);
-  float halo = pow(1.0 - d, 2.4);
-  float I = (0.62 * core + 0.5 * halo) * vA;
+  float body = pow(1.0 - d * d, 1.4);
+  float core = smoothstep(0.42, 0.0, d);
+  float I = (0.72 * body + 0.4 * core) * vA;
+  vec3 c = min(vCol * I, vec3(0.97));
+  gl_FragColor = vec4(c, max(c.r, max(c.g, c.b)));
+}
+`;
+
+/** Wide gaussian used by the cheap "bloom" layer (same points, drawn bigger and dimmer). */
+export const BLOOM_FRAG = /* glsl */ `
+varying vec3 vCol;
+varying float vA;
+void main() {
+  float d = length(gl_PointCoord - 0.5) * 2.0;
+  if (d >= 1.0) discard;
+  float I = exp(-d * d * 3.2) * (1.0 - smoothstep(0.68, 1.0, d)) * vA;
   vec3 c = min(vCol * I, vec3(0.97));
   gl_FragColor = vec4(c, max(c.r, max(c.g, c.b)));
 }
@@ -54,8 +70,10 @@ uniform float uPx;
 uniform float uRef;
 uniform float uMaxPt;
 uniform float uDim;
+uniform float uBloom;
 uniform float uSize[6];
 uniform float uDrift[6];
+uniform float uBloomK[6];
 uniform vec3 uPal[8];
 uniform vec3 uAxis[3];
 uniform float uSpin[3];
@@ -112,7 +130,8 @@ vec3 chapterTarget(int i, vec3 p, float flag) {
 void main() {
   float ci = clamp(uC, 0.0, 5.0);
   float kf = min(floor(ci), 4.0);
-  float t = ci - kf;
+  // each chapter holds still for the first/last ~12% of its segment, so shapes read while their text is on screen
+  float t = clamp((ci - kf - 0.12) / 0.76, 0.0, 1.0);
   int k = int(kf);
 
   vec3 a; vec3 b; float sa; float sb;
@@ -146,7 +165,8 @@ void main() {
   float far = smoothstep(0.15, 2.5, dd);
   vec3 flow = curl(p * 0.5 + vec3(0.0, uTime * 0.07, 0.0) + aRand.xyz * 0.35);
   p += flow * mid * far * dispK * 0.62;
-  p = rotY(p, mid * (aRand.y - 0.5) * 1.0 * smoothstep(0.5, 3.0, dd));
+  // a coherent vortex: the whole swarm turns while it re-forms (direction alternates per segment)
+  p = rotY(p, mid * (0.6 + 1.0 * aRand.y) * ((k & 1) == 0 ? 1.0 : -1.0) * smoothstep(0.5, 3.0, dd));
 
   // idle drift (never fully still)
   float drift = mix(uDrift[k], uDrift[k + 1], e);
@@ -168,7 +188,7 @@ void main() {
 
   // chat: the three typing dots pulse
   float dotIdx = mod(flag, 10.0);
-  float w4 = max(0.0, 1.0 - abs(ci - 4.0));
+  float w4 = clamp(1.6 - abs(ci - 4.0) * 1.6, 0.0, 1.0);
   float isDot = step(0.5, dotIdx) * w4;
   float ph = 0.5 + 0.5 * sin(uTime * 5.2 - dotIdx * 1.15);
   br *= mix(1.0, 0.3 + 1.1 * ph, isDot);
@@ -179,24 +199,27 @@ void main() {
   float twinkle = 0.88 + 0.12 * sin(uTime * (0.7 + aRand.x * 1.6) + aRand.y * 6.2831);
   float depthFade = clamp(1.0 + (uRef - depth) * 0.08, 0.45, 1.3);
 
+  float bk = mix(uBloomK[k], uBloomK[k + 1], e);
+  sz *= mix(1.0, 3.8, uBloom);
   float px = sz * uPx * uRef / depth;
-  float sub = clamp(px / 1.7, 0.0, 1.0);
-  gl_PointSize = clamp(px, 1.7, uMaxPt);
+  float sub = uBloom > 0.5 ? 1.0 : clamp(px / 2.0, 0.0, 1.0);
+  gl_PointSize = clamp(px, 2.0, uMaxPt);
 
   vCol = tint * br;
-  vA = twinkle * depthFade * uDim * ie * sub;
+  vA = twinkle * depthFade * uDim * ie * sub * mix(1.0, bk, uBloom);
 }
 `;
 
 // ------------------------------------------------------------------------------------------ GLOW
 export const GLOW_VERT = /* glsl */ `
 uniform float uTime;
-uniform float uGlow;
+uniform float uC;
 uniform float uPxW;
 uniform float uGScale;
 uniform float uMaxPt;
 uniform vec3 uPal[8];
-attribute vec4 aInfo; // x: diameter (map units), y: intensity, z: palette id, w: phase
+attribute vec4 aInfo; // x: diameter (local units), y: intensity, z: palette id, w: phase
+attribute vec2 aRange; // chapter range [from, to] in which the halo is visible
 varying vec3 vCol;
 varying float vA;
 void main() {
@@ -206,7 +229,8 @@ void main() {
   float pulse = 1.0 + 0.22 * sin(uTime * 1.5 + aInfo.w);
   gl_PointSize = clamp(aInfo.x * uGScale * uPxW / depth * (0.94 + 0.08 * pulse), 2.0, uMaxPt);
   vCol = uPal[int(aInfo.z + 0.5)];
-  vA = aInfo.y * uGlow * pulse;
+  float vis = smoothstep(aRange.x - 0.45, aRange.x, uC) * (1.0 - smoothstep(aRange.y, aRange.y + 0.55, uC));
+  vA = aInfo.y * vis * pulse;
 }
 `;
 export const GLOW_FRAG = /* glsl */ `
@@ -265,7 +289,7 @@ void main() {
     s = fj;
     float age = v - invEase(fj);
     float lit = age > 0.0 ? exp(-age * 1.35) : 0.0;
-    alpha = (0.035 + 0.5 * lit) * step(-0.15, v);
+    alpha = (0.05 + 0.7 * lit) * step(-0.15, v);
     size = 0.5;
     col = reply ? uPal[6] : uPal[3];
   }
@@ -282,7 +306,7 @@ void main() {
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
   float depth = -mv.z;
-  gl_PointSize = clamp(4.6 * size * uPx * uRef / depth, 1.6, uMaxPt);
+  gl_PointSize = clamp(5.4 * size * uPx * uRef / depth, 2.0, uMaxPt);
   vCol = col;
   vA = alpha;
 }
@@ -322,7 +346,7 @@ void main() {
     float r = aRing.z * (1.0 - pow(1.0 - age, 2.4));
     p += vec3(cos(aRing.x), sin(aRing.x), 0.0) * r;
     alpha = aRing.w * pow(1.0 - age, 1.5) * smoothstep(0.0, 0.06, age);
-    px = 3.1 * (1.15 - 0.5 * age) * uPx * uRef / depth0;
+    px = 3.6 * (1.15 - 0.5 * age) * uPx * uRef / depth0;
   } else {
     float f = age / 0.24;
     if (f > 1.0) {
@@ -337,7 +361,7 @@ void main() {
   }
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
-  gl_PointSize = clamp(px, 1.6, uMaxPt);
+  gl_PointSize = clamp(px, 2.0, uMaxPt);
   vCol = uPal[int(aCol + 0.5)];
   vA = alpha * uTraffic;
 }

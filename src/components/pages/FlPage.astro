@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import PageHero from '../PageHero.astro';
 import Offers from '../Offers.astro';
+import Faq from '../Faq.astro';
 import { copy } from '../../content/copy';
 import { PRODUCTS, type Lang } from '../../content/site';
 interface Props { lang: Lang }
@@ -14,7 +15,7 @@ const path = isPl ? '/fastlanding' : '/en/fastlanding';
 const home = isPl ? '/' : '/en';
 ---
 <Base lang={lang} path={path} title={f.title} description={f.description} kind="product"
-  breadcrumbs={[{ name: c.ui.home, path: home }, { name: f.crumb, path }]} faq={c.faq.slice(2, 3).concat(c.faq.slice(4, 5))}
+  breadcrumbs={[{ name: c.ui.home, path: home }, { name: f.crumb, path }]} faq={c.faq}
   ogImage={isPl ? '/og/fastlanding.png' : '/og/fastlanding-en.png'}>
   <PageHero lang={lang} crumb={f.crumb} eyebrow={f.eyebrow} tone="page" h1={f.h1} lead={f.lead} scene={3} side="left">
     <a class="btn btn--page" href={PRODUCTS.fastlanding.quote} data-outbound data-cta="fl-page-quote" rel="noopener">{h.fl.cta} <span class="arr" aria-hidden="true">→</span></a>
@@ -40,6 +41,8 @@ const home = isPl ? '/' : '/en';
     <div class="wrap"><div class="chapter__grid"><div class="col-wide">
       <h2 class="h2" data-reveal>{f.promises.h2}</h2>
       <ul class="steps" data-reveal style="counter-reset:none">{f.promises.items.map((p) => <li style="grid-template-columns:1fr"><div><span style="color:var(--bone)">{p}</span></div></li>)}</ul>
+      <h2 class="h2" style="margin-top:4rem" data-reveal>{h.faq.h2}</h2>
+      <div style="margin-top:1.5rem"><Faq lang={lang} /></div>
       <div class="card" style="margin-top:3.5rem;display:grid;gap:1.25rem" data-reveal>
         <h2 class="h2">{f.cta.h2}</h2>
         <div class="btn-row">

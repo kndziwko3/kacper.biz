@@ -14,7 +14,7 @@ const path = isPl ? '/outreachpilot' : '/en/outreachpilot';
 const home = isPl ? '/' : '/en';
 ---
 <Base lang={lang} path={path} title={o.title} description={o.description} kind="product"
-  breadcrumbs={[{ name: c.ui.home, path: home }, { name: o.crumb, path }]} faq={c.faq.slice(1, 2).concat(c.faq.slice(3, 4))}
+  breadcrumbs={[{ name: c.ui.home, path: home }, { name: o.crumb, path }]} faq={c.faq}
   ogImage={isPl ? '/og/outreachpilot.png' : '/og/outreachpilot-en.png'}>
   <PageHero lang={lang} crumb={o.crumb} eyebrow={o.eyebrow} tone="signal" h1={o.h1} lead={o.lead} scene={2} side="left">
     <a class="btn btn--signal" href={PRODUCTS.outreachpilot.signup} data-outbound data-cta="op-page-signup" rel="noopener">{h.op.cta} <span class="arr" aria-hidden="true">→</span></a>

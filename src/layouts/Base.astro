@@ -7,6 +7,7 @@ import type { Lang } from '../content/site';
 import { copy } from '../content/copy';
 import displayLatin from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url';
 import displayExt from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-ext-wght-normal.woff2?url';
+import voiceLatin from '@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2?url';
 
 interface Props {
   lang: Lang;
@@ -36,6 +37,7 @@ const umamiId = import.meta.env.PUBLIC_UMAMI_ID;
     <meta name="color-scheme" content="dark" />
     <link rel="preload" href={displayLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={displayExt} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={voiceLatin} as="font" type="font/woff2" crossorigin />
     <Seo lang={lang} path={path} {...seo} />
     <script is:inline>document.documentElement.classList.add('js');</script>
     {umamiSrc && umamiId && <script defer src={umamiSrc} data-website-id={umamiId} data-do-not-track="true"></script>}

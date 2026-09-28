@@ -265,32 +265,69 @@ function dust(c: Ctx, k: number, rx: number, ry: number, rz: number, s: StyleFn)
 // ---------------------------------------------------------------- chapter 0: cloud
 function buildCloud(n: number, c: Ctx): Chapter {
   const { rng, sink } = c;
-  const K = 30;
+  const K = 34;
   const R = [4.1, 2.6, 3.6] as const;
+  const inBall = (): [number, number, number] => {
+    let x: number, y: number, z: number;
+    do { x = rng.range(-1, 1); y = rng.range(-1, 1); z = rng.range(-1, 1); } while (x * x + y * y + z * z > 1);
+    return [x, y, z];
+  };
   const centers: Array<{ x: number; y: number; z: number; sig: number; w: number }> = [];
   for (let k = 0; k < K; k++) {
-    let x: number, y: number, z: number;
-    do { x = rng.range(-1, 1); y = rng.range(-1, 1); z = rng.range(-1, 1); } while (x * x + y * y + z * z > 1);
-    centers.push({ x: x * R[0], y: y * R[1], z: z * R[2], sig: 0.2 + 0.5 * rng.r() * rng.r() + 0.12, w: 0.35 + rng.r() * 1.3 });
+    const [x, y, z] = inBall();
+    centers.push({ x: x * R[0], y: y * R[1], z: z * R[2], sig: 0.14 + 0.5 * rng.r() * rng.r() + 0.1, w: 0.35 + rng.r() * 1.3 });
   }
-  const nCluster = Math.round(n * 0.64);
+
+  // clusters: bright cores fading outward
+  const nCluster = Math.round(n * 0.53);
   const counts = alloc(nCluster, centers.map((q) => q.w * q.sig));
-  const pick = (hot: number): number => {
-    const r = rng.r();
-    if (r < hot) return style(PAL.verm, rng.range(1.15, 1.6));
-    if (r < hot + 0.09) return style(PAL.bone, rng.range(0.75, 1.0));
-    return style(PAL.boneDim, rng.range(0.4, 0.85));
-  };
   centers.forEach((q, i) => {
     for (let j = 0; j < counts[i]!; j++) {
-      sink.add(q.x + rng.g() * q.sig, q.y + rng.g() * q.sig * 0.8, q.z + rng.g() * q.sig, pick(0.04));
+      const gx = rng.g(), gy = rng.g(), gz = rng.g();
+      const r2 = gx * gx + gy * gy + gz * gz;
+      const core = Math.exp(-r2 * 0.28);
+      const roll = rng.r();
+      const s = roll < 0.045 ? style(PAL.verm, 1.2 + 0.5 * core)
+        : roll < 0.045 + 0.1 * core + 0.03 ? style(PAL.bone, 0.8 + 0.35 * core)
+        : style(PAL.boneDim, 0.34 + 0.6 * core);
+      sink.add(q.x + gx * q.sig, q.y + gy * q.sig * 0.8, q.z + gz * q.sig, s);
     }
   });
+
+  // filaments: every cluster reaches for its two nearest neighbours (a faint cosmic web)
+  const edges = new Map<string, [number, number]>();
+  centers.forEach((p, i) => {
+    const near = centers
+      .map((q, j) => [Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z), j] as const)
+      .filter(([, j]) => j !== i)
+      .sort((u, v) => u[0] - v[0])
+      .slice(0, 2);
+    for (const [, j] of near) edges.set(i < j ? `${i}-${j}` : `${j}-${i}`, [Math.min(i, j), Math.max(i, j)]);
+  });
+  const edgeList = [...edges.values()];
+  const lens = edgeList.map(([i, j]) => Math.hypot(centers[i]!.x - centers[j]!.x, centers[i]!.y - centers[j]!.y, centers[i]!.z - centers[j]!.z));
+  const fil = alloc(Math.round(n * 0.14), lens);
+  edgeList.forEach(([i, j], e) => {
+    const p = centers[i]!, q = centers[j]!;
+    const bx = (rng.r() - 0.5) * lens[e]! * 0.5, by = (rng.r() - 0.5) * lens[e]! * 0.5, bz = (rng.r() - 0.5) * lens[e]! * 0.5;
+    const cx = (p.x + q.x) / 2 + bx, cy = (p.y + q.y) / 2 + by, cz = (p.z + q.z) / 2 + bz;
+    for (let m = 0; m < fil[e]!; m++) {
+      const t = (m + rng.r()) / fil[e]!;
+      const u = 1 - t;
+      const x = u * u * p.x + 2 * u * t * cx + t * t * q.x;
+      const y = u * u * p.y + 2 * u * t * cy + t * t * q.y;
+      const z = u * u * p.z + 2 * u * t * cz + t * t * q.z;
+      const w = 0.03 + 0.03 * Math.sin(t * Math.PI);
+      sink.add(x + rng.g() * w, y + rng.g() * w, z + rng.g() * w, style(rng.r() < 0.05 ? PAL.verm2 : PAL.boneDim, rng.range(0.35, 0.75)));
+    }
+  });
+
+  // diffuse haze
   while (sink.left > 0) {
-    let x: number, y: number, z: number;
-    do { x = rng.range(-1, 1); y = rng.range(-1, 1); z = rng.range(-1, 1); } while (x * x + y * y + z * z > 1);
-    const rad = Math.pow(Math.sqrt(x * x + y * y + z * z), 0.55) / Math.max(1e-3, Math.sqrt(x * x + y * y + z * z));
-    sink.add(x * rad * R[0] * 1.12, y * rad * R[1] * 1.12, z * rad * R[2] * 1.12, style(PAL.boneDim, rng.range(0.28, 0.6)));
+    const [x, y, z] = inBall();
+    const len = Math.sqrt(x * x + y * y + z * z) || 1e-3;
+    const rad = Math.pow(len, 0.55) / len;
+    sink.add(x * rad * R[0] * 1.12, y * rad * R[1] * 1.12, z * rad * R[2] * 1.12, style(PAL.boneDim, rng.range(0.25, 0.55)));
   }
   return sink.finish(rng);
 }
@@ -312,11 +349,11 @@ function buildMap(n: number, c: Ctx): Chapter {
   let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
   for (const [x, y] of poly) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
 
-  const nBorder = Math.round(n * 0.075);
-  const nGliwice = Math.round(n * 0.038);
+  const nBorder = Math.round(n * 0.11);
+  const nGliwice = Math.round(n * 0.04);
   const nRing = Math.round(n * 0.012);
   const nCity = Math.round(n * 0.2);
-  const nDust = Math.round(n * 0.1);
+  const nDust = Math.round(n * 0.07);
   const nInterior = n - nBorder - nGliwice - nRing - nCity - nDust;
 
   // --- interior: jittered hex lattice
@@ -337,7 +374,7 @@ function buildMap(n: number, c: Ctx): Chapter {
   for (let i = 0; i < nInterior; i++) {
     const [x, y] = interior[i]!;
     const tex = 0.72 + 0.28 * Math.sin(x * 1.9 + 0.6) * Math.sin(y * 1.5 - 0.3);
-    sink.add(x, y, relief(x, y, rng), style(PAL.boneDim, (0.36 + 0.26 * rng.r()) * tex));
+    sink.add(x, y, relief(x, y, rng), style(PAL.boneDim, (0.62 + 0.32 * rng.r()) * tex));
   }
 
   // --- border: dense bright outline
@@ -345,7 +382,7 @@ function buildMap(n: number, c: Ctx): Chapter {
   for (let i = 0; i < nBorder; i++) {
     const [x, y] = pathAt(border, ((i + rng.r()) / nBorder) * border.len);
     const jx = rng.g() * 0.006, jy = rng.g() * 0.006;
-    sink.add(x + jx, y + jy, relief(x, y, rng) + 0.02, style(PAL.bone, 0.8 + 0.3 * rng.r()));
+    sink.add(x + jx, y + jy, relief(x, y, rng) + 0.02, style(PAL.bone, 1.0 + 0.45 * rng.r()));
   }
 
   // --- city clusters
@@ -360,7 +397,7 @@ function buildMap(n: number, c: Ctx): Chapter {
         if (pointInPolygon(px, py, poly)) { x = px; y = py; break; }
       }
       const rr = Math.hypot(x - ct.xy[0], y - ct.xy[1]) / (2 * sig);
-      const b = Math.max(0.55, 1.35 - 0.95 * rr) + (ct.dest ? 0.1 : 0);
+      const b = Math.max(0.75, 1.5 - 0.95 * rr) + (ct.dest ? 0.1 : 0);
       const warm = rng.r() < 0.13;
       sink.add(x, y, relief(x, y, rng) + 0.03, style(warm ? PAL.verm2 : PAL.bone, warm ? b * 0.85 : b));
     }
@@ -515,7 +552,7 @@ function buildFinale(n: number, c: Ctx): Chapter {
   const radii = [3.35, 2.45, 4.25] as const;
   const shares = [0.2, 0.15, 0.22] as const;
   const flagFor = (ring: number): number => 10 * (ring + 1);
-  const nCore = Math.round(n * 0.085);
+  const nCore = Math.round(n * 0.1);
   const nSat = Math.round(n * 0.012);
   const nDisc = Math.round(n * 0.21);
   const ringCounts = shares.map((s) => Math.round(n * s));
@@ -532,8 +569,8 @@ function buildFinale(n: number, c: Ctx): Chapter {
     for (let i = 0; i < k; i++) {
       const u = (i + rng.r()) / k;
       const a = u * Math.PI * 2;
-      const rad = R + rng.g() * 0.035 + rng.g() * 0.02;
-      const off = rng.g() * 0.035;
+      const rad = R + rng.g() * 0.05 + rng.g() * 0.03;
+      const off = rng.g() * 0.05;
       const ca = Math.cos(a) * rad, sa = Math.sin(a) * rad;
       const x = ux * ca + vx * sa + ax * off;
       const y = uy * ca + vy * sa + ay * off;
@@ -555,7 +592,7 @@ function buildFinale(n: number, c: Ctx): Chapter {
 
   // dense little core
   for (let i = 0; i < nCore; i++) {
-    const d = Math.abs(rng.g()) * 0.3;
+    const d = Math.abs(rng.g()) * 0.34;
     const th = rng.r() * Math.PI * 2, ph = Math.acos(rng.range(-1, 1));
     sink.add(d * Math.sin(ph) * Math.cos(th), d * Math.cos(ph), d * Math.sin(ph) * Math.sin(th), style(rng.r() < 0.3 ? PAL.verm2 : PAL.bone, rng.range(1.1, 1.8)));
   }

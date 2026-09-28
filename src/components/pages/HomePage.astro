@@ -23,10 +23,10 @@ const link = (pl: string, en: string) => (isPl ? pl : en);
   <section class="chapter hero" data-scene="0" data-scene-side="left" aria-labelledby="hero-title">
     <div class="wrap">
       <div class="chapter__grid">
-        <div class="col-text scrim">
+        <div class="col-text scrim hero__col">
           <p class="nameplate" data-reveal><span class="dot" aria-hidden="true"></span>{h.nameplate}</p>
-          <h1 class="display hero__title" id="hero-title" set:html={h.h1} style="margin-top:1.5rem" />
-          <p class="lead hero__lead" set:html={h.lead} style="margin-top:1.75rem" />
+          <h1 class="display hero__title" id="hero-title" set:html={h.h1} style="margin-top:1.25rem" />
+          <p class="lead hero__lead" set:html={h.lead} style="margin-top:1.4rem" />
           <div class="router" data-reveal>
             <a class="route route--signal" href={PRODUCTS.outreachpilot.url} data-outbound data-cta="hero-op" rel="noopener">
               <small>{h.router.op.kicker}</small>
@@ -218,7 +218,9 @@ const link = (pl: string, en: string) => (isPl ? pl : en);
 </Base>
 
 <style>
-  .hero { padding-top: clamp(7rem, 16vh, 10rem); align-content: center; }
+  .hero { padding-top: clamp(6.5rem, 14vh, 9rem); align-content: center; }
+  .hero__title { font-size: clamp(2.6rem, 0.9rem + 5.6vw, 6.4rem); line-height: 0.92; }
+  @media (min-width: 900px) { .hero__col { grid-column: 1 / span 9; } }
   .hero__title, .hero__lead { animation: rise 1.1s var(--ease) both; }
   .hero__lead { animation-delay: 0.12s; }
   @keyframes rise { from { transform: translateY(16px); filter: blur(6px); } to { transform: none; filter: blur(0); } }

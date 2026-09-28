@@ -27,10 +27,10 @@ interface Route {
   w: number;
 }
 
-const TRAIL = 16;
-const TRAIL_REPLY = 20;
+const TRAIL = 26;
+const TRAIL_REPLY = 30;
 const TRACE = 30;
-export const TRAIL_SPAN = 0.24;
+export const TRAIL_SPAN = 0.3;
 export const RIPPLE_DUR = 1.6;
 const RIPPLE_DUR_HOME = 1.2;
 
@@ -48,9 +48,9 @@ function makeRoutes(count: number, seed: number): Route[] {
     for (let k = 0; k < perCity[ci]!; k++) {
       const nx = -(dy - hy) / dist, ny = (dx - hx) / dist;
       const side = (rng.r() - 0.5) * 0.4 * dist;
-      const lift = 0.3 + 0.36 * dist * (0.85 + 0.3 * rng.r());
+      const lift = 0.6 + 0.62 * dist * (0.85 + 0.3 * rng.r());
       const ctrl = [(hx + dx) / 2 + nx * side, (hy + dy) / 2 + ny * side, lift] as const;
-      const ctrlBack = [(hx + dx) / 2 - nx * side * 0.9 - nx * 0.12 * dist, (hy + dy) / 2 - ny * side * 0.9 - ny * 0.12 * dist, lift * 1.25 + 0.2] as const;
+      const ctrlBack = [(hx + dx) / 2 - nx * side * 0.9 - nx * 0.12 * dist, (hy + dy) / 2 - ny * side * 0.9 - ny * 0.12 * dist, lift * 1.2 + 0.25] as const;
       const flight = Math.min(3.0, Math.max(1.6, 1.3 + 0.38 * dist));
       const start = rng.r() * 0.5;
       const reply = rng.r() < 0.3;
@@ -132,26 +132,32 @@ export function buildTraffic(routeCount: number, ringPoints: number, seed = 4242
   };
   mkR(0, 3, 'position'); mkR(3, 4, 'aRing'); mkR(7, 4, 'aT'); mkR(11, 1, 'aCol');
 
-  // ---- glow halos (map-local): x,y,z | diameter, intensity, palette id, phase
+  // ---- glow halos (local space): x,y,z | diameter, intensity, palette id, phase | chapter range
   const glow = new Rows();
   const [hx, hy] = project(GLIWICE[0], GLIWICE[1]);
   const hz = terrainZ(hx, hy) + 0.05;
-  glow.push(hx, hy, hz, 1.7, 0.36, 2, 0);
-  glow.push(hx, hy, hz, 0.55, 0.5, 3, 1.3);
+  glow.push(hx, hy, hz, 1.6, 0.34, 2, 0, 1, 2);
+  glow.push(hx, hy, hz, 0.5, 0.48, 3, 1.3, 1, 2);
   for (const c of CITIES) {
     const [x, y] = project(c.lon, c.lat);
-    glow.push(x, y, terrainZ(x, y) + 0.03, 0.32 + 0.55 * Math.sqrt(c.w), 0.05 + 0.075 * c.w, 1, x * 3.1 + y);
+    glow.push(x, y, terrainZ(x, y) + 0.03, 0.22 + 0.42 * Math.sqrt(c.w), 0.03 + 0.05 * c.w, 1, x * 3.1 + y, 1, 2);
   }
+  // finale: a warm core and a wide periwinkle haze
+  glow.push(0, 0, 0, 1.5, 0.5, 3, 0.4, 5, 5);
+  glow.push(0, 0, 0, 3.6, 0.1, 4, 2.0, 5, 5);
   const glowGeo = new BufferGeometry();
   const gd = new Float32Array(glow.data);
   const gp = new Float32Array(glow.count * 3);
   const gi = new Float32Array(glow.count * 4);
+  const gr = new Float32Array(glow.count * 2);
   for (let i = 0; i < glow.count; i++) {
-    gp.set(gd.subarray(i * 7, i * 7 + 3), i * 3);
-    gi.set(gd.subarray(i * 7 + 3, i * 7 + 7), i * 4);
+    gp.set(gd.subarray(i * 9, i * 9 + 3), i * 3);
+    gi.set(gd.subarray(i * 9 + 3, i * 9 + 7), i * 4);
+    gr.set(gd.subarray(i * 9 + 7, i * 9 + 9), i * 2);
   }
   glowGeo.setAttribute('position', new BufferAttribute(gp, 3));
   glowGeo.setAttribute('aInfo', new BufferAttribute(gi, 4));
+  glowGeo.setAttribute('aRange', new BufferAttribute(gr, 2));
 
   for (const g of [packets, ripples, glowGeo]) g.boundingSphere = null;
   return { packets, ripples, glow: glowGeo };

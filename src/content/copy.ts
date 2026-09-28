@@ -32,7 +32,7 @@ const pl = {
 
   home: {
     title: 'Kacper Rękawek — założyciel OutreachPilot.pl i FastLanding.io',
-    description: 'Kacper Rękawek z Gliwic buduje produkty, które sprowadzają klientów: OutreachPilot.pl (cold mailing na polskich danych) i FastLanding.io (strony, chatboty AI, aplikacje).',
+    description: 'Kacper Rękawek z Gliwic, założyciel OutreachPilot.pl (cold mailing na polskich danych) i FastLanding.io (strony, chatboty AI i aplikacje w dniach).',
     nameplate: 'Kacper Rękawek · Gliwice, Polska',
     h1: 'Buduję maszyny do zdobywania <em>klientów</em>.',
     lead: 'Jestem założycielem <strong>OutreachPilot.pl</strong> — cold mailingu na polskich danych — oraz <strong>FastLanding.io</strong> — stron, chatbotów AI i aplikacji w dniach, nie miesiącach.',
@@ -114,7 +114,7 @@ const pl = {
   },
 
   op: {
-    title: 'OutreachPilot.pl — cold mailing na polskich danych | Kacper Rękawek',
+    title: 'OutreachPilot.pl — cold mailing z danych CEIDG | Kacper Rękawek',
     description: 'OutreachPilot.pl to moje narzędzie do cold outreachu B2B: firmy z Google Maps, PKT.pl i CEIDG, kampania AI po polsku, odpowiedzi w jednym miejscu. Od 0 zł.',
     eyebrow: 'Mój produkt · OutreachPilot.pl',
     h1: 'Cold mailing na <em>polskich</em> danych.',
@@ -164,7 +164,7 @@ const pl = {
   },
 
   fl: {
-    title: 'FastLanding.io — strony, chatboty AI i aplikacje w dniach | Kacper Rękawek',
+    title: 'FastLanding.io — strony i chatboty AI w dniach | Kacper Rękawek',
     description: 'FastLanding.io to moje studio z Gliwic: landing page od 1 499 zł w 7 dni, chatboty AI, automatyzacje i aplikacje MVP. Stała cena, płatność 50/50, zero spotkań.',
     eyebrow: 'Moje studio · FastLanding.io',
     h1: 'Strony i boty w <em>dniach</em>, nie miesiącach.',
@@ -189,7 +189,7 @@ const pl = {
 
   work: {
     title: 'Realizacje — strony wdrożone przez FastLanding | Kacper Rękawek',
-    description: 'Trzy żywe strony klientów FastLanding: agencja nieruchomości Hello Home, firma instalacyjna Soleil Energia i willa wakacyjna Casa Flamingo. Plus moje własne produkty.',
+    description: 'Trzy żywe strony klientów FastLanding: agencja nieruchomości Hello Home, firma instalacyjna Soleil Energia i willa Casa Flamingo. Plus moje produkty.',
     eyebrow: 'Realizacje',
     h1: 'Żywe strony, nie <em>makiety</em>.',
     lead: 'Poniżej publiczne strony klientów FastLanding — otwórz i poklikaj. Jeśli opisuję wyniki, robię to tylko za zgodą klienta.',
@@ -199,8 +199,8 @@ const pl = {
   },
 
   about: {
-    title: 'O mnie — Kacper Rękawek, założyciel OutreachPilot.pl i FastLanding.io',
-    description: 'Kacper Rękawek: przedsiębiorca z Gliwic, założyciel OutreachPilot.pl i FastLanding.io. Fakty, produkty, dane firmy i rozróżnienie od innych osób o tym samym nazwisku.',
+    title: 'O mnie | Kacper Rękawek, OutreachPilot.pl i FastLanding.io',
+    description: 'Kacper Rękawek: przedsiębiorca z Gliwic, założyciel OutreachPilot.pl i FastLanding.io. Fakty, dane firmy i rozróżnienie od imiennika.',
     eyebrow: 'O mnie',
     h1: 'Kacper <em>Rękawek</em>.',
     lead: 'Przedsiębiorca z Gliwic. Zakładam i prowadzę OutreachPilot.pl — narzędzie do cold mailingu B2B na polskich danych — oraz FastLanding.io — studio stron internetowych, chatbotów AI, automatyzacji i aplikacji MVP.',
@@ -315,7 +315,7 @@ const en: Copy = {
 
   home: {
     title: 'Kacper Rękawek — founder of OutreachPilot.pl and FastLanding.io',
-    description: 'Kacper Rękawek from Gliwice, Poland builds products that bring in customers: OutreachPilot.pl (cold outreach on Polish data) and FastLanding.io (websites, AI chatbots, apps).',
+    description: 'Kacper Rękawek, Gliwice, Poland: founder of OutreachPilot.pl (cold outreach on Polish company data) and FastLanding.io (websites, AI chatbots, apps).',
     nameplate: 'Kacper Rękawek · Gliwice, Poland',
     h1: 'I build machines that win <em>customers</em>.',
     lead: "I'm the founder of <strong>OutreachPilot.pl</strong> — cold outreach on Polish company data — and <strong>FastLanding.io</strong> — websites, AI chatbots and apps in days, not months.",
@@ -398,7 +398,7 @@ const en: Copy = {
 
   op: {
     title: 'OutreachPilot.pl — cold outreach on Polish data | Kacper Rękawek',
-    description: 'OutreachPilot.pl is my B2B cold-outreach tool for the Polish market: businesses from Google Maps, PKT.pl and CEIDG, AI campaigns in Polish, replies in one inbox. From PLN 0.',
+    description: 'OutreachPilot.pl is my B2B cold-outreach tool for Poland: companies from Google Maps, PKT.pl and CEIDG, AI campaigns in Polish, one inbox. From PLN 0.',
     eyebrow: 'My product · OutreachPilot.pl',
     h1: 'Cold outreach on <em>Polish</em> data.',
     lead: 'OutreachPilot.pl is a Polish SaaS for B2B cold outreach. Type an industry and a city, AI writes a 3-email sequence in Polish, and mail goes out from your own mailbox.',
@@ -447,8 +447,8 @@ const en: Copy = {
   },
 
   fl: {
-    title: 'FastLanding.io — websites, AI chatbots and apps in days | Kacper Rękawek',
-    description: 'FastLanding.io is my Gliwice studio: landing pages in 7 days, AI chatbots, automations and MVP apps. Fixed price, 50/50 payment, zero meetings. US and UK offers available.',
+    title: 'FastLanding.io — websites & AI chatbots in days | Kacper Rękawek',
+    description: 'FastLanding.io is my Gliwice studio: landing pages in 7 days, AI chatbots, automations and MVP apps. Fixed price, 50/50 payment, zero meetings.',
     eyebrow: 'My studio · FastLanding.io',
     h1: 'Sites and bots in <em>days</em>, not months.',
     lead: 'FastLanding.io is a Gliwice studio working remotely. We design, write the copy and code websites, AI chatbots, automations and MVP apps. Fixed price, 50/50 payment, code and rights go to the client.',
@@ -482,8 +482,8 @@ const en: Copy = {
   },
 
   about: {
-    title: 'About — Kacper Rękawek, founder of OutreachPilot.pl and FastLanding.io',
-    description: 'Kacper Rękawek: entrepreneur from Gliwice, Poland, founder of OutreachPilot.pl and FastLanding.io. Facts, products, company data and how to tell him apart from other people with the same name.',
+    title: 'About | Kacper Rękawek, OutreachPilot.pl and FastLanding.io',
+    description: 'Kacper Rękawek: entrepreneur from Gliwice, Poland, founder of OutreachPilot.pl and FastLanding.io. Facts, company data and how to tell him from a namesake.',
     eyebrow: 'About',
     h1: 'Kacper <em>Rękawek</em>.',
     lead: 'Entrepreneur from Gliwice, Poland. I found and run OutreachPilot.pl — a B2B cold-outreach tool on Polish company data — and FastLanding.io — a studio for websites, AI chatbots, automations and MVP apps.',
