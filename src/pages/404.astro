@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { copy } from '../content/copy';
+const n = copy.pl.notFound;
+---
+<Base lang="pl" path="/404" title={n.title} description={n.p} noindex scene={false}>
+  <section class="chapter"><div class="wrap">
+    <h1 class="display" set:html={n.h1} />
+    <p class="lead" style="margin-top:1.5rem">{n.p}</p>
+    <p style="margin-top:2rem"><a class="btn btn--signal" href="/">{n.btn} <span class="arr" aria-hidden="true">→</span></a></p>
+  </div></section>
+</Base>

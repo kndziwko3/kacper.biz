@@ -1,0 +1,82 @@
+---
+import { SITE, PERSON, ROUTE_PAIRS, type Lang } from '../content/site';
+import { buildJsonLd, type JsonLdOptions } from '../lib/schema';
+import { absUrl, normalizePath } from '../lib/facts';
+
+interface Props {
+  lang: Lang;
+  path: string; // canonical path, e.g. "/" or "/o-mnie" or "/en"
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogImageAlt?: string;
+  ogType?: 'website' | 'profile' | 'article';
+  noindex?: boolean;
+  kind?: JsonLdOptions['kind'];
+  breadcrumbs?: JsonLdOptions['breadcrumbs'];
+  faq?: JsonLdOptions['faq'];
+  extra?: JsonLdOptions['extra'];
+}
+const { lang, path, title, description, ogImage, ogImageAlt, ogType = 'website', noindex = false, kind, breadcrumbs, faq, extra } = Astro.props;
+
+// "/" -> https://kacper.biz/   "/en" -> https://kacper.biz/en   (trailingSlash: 'never'; "/en/" and "/en.html" are normalised)
+const cleanPath = normalizePath(path);
+const canonical = absUrl(cleanPath);
+const pair = ROUTE_PAIRS.find((r) => r.pl === cleanPath || r.en === cleanPath);
+const altPl = pair ? absUrl(pair.pl) : null;
+const altEn = pair ? absUrl(pair.en) : null;
+
+// Default OG card: chosen by page kind / route, EN pages get the "-en" variant (see scripts/og.mjs). An explicit ogImage wins.
+const ogKey =
+  kind === 'about' ? 'about'
+  : kind === 'work' ? 'work'
+  : kind === 'contact' ? 'contact'
+  : /(^|\/)outreachpilot$/.test(cleanPath) ? 'outreachpilot'
+  : /(^|\/)fastlanding$/.test(cleanPath) ? 'fastlanding'
+  : 'home';
+const ogSrc = ogImage ?? `/og/${ogKey}${lang === 'en' ? '-en' : ''}.png`;
+const img = ogSrc.startsWith('http') ? ogSrc : `${SITE.url}${ogSrc}`;
+const imgAlt = ogImageAlt ?? title;
+const otherLang: Lang = lang === 'pl' ? 'en' : 'pl';
+const jsonLd = buildJsonLd({ lang, path: cleanPath, title, description, kind, breadcrumbs, faq, extra });
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex
+  ? <meta name="robots" content="noindex, nofollow" />
+  : <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />}
+{altPl && altEn && (<>
+  <link rel="alternate" hreflang="pl-PL" href={altPl} />
+  <link rel="alternate" hreflang="en" href={altEn} />
+  <link rel="alternate" hreflang="x-default" href={altPl} />
+</>)}
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<meta name="theme-color" content={SITE.themeColor} />
+<link rel="me" href={PERSON.linkedin} />
+<link rel="alternate" type="text/plain" href="/llms.txt" title="LLM summary" />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content={SITE.ogLocale[lang]} />
+{pair && <meta property="og:locale:alternate" content={SITE.ogLocale[otherLang]} />}
+<meta property="og:image" content={img} />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={imgAlt} />
+{ogType === 'profile' && (<>
+  <meta property="profile:first_name" content={PERSON.givenName} />
+  <meta property="profile:last_name" content={PERSON.familyName} />
+</>)}
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={img} />
+<meta name="twitter:image:alt" content={imgAlt} />
+<meta name="author" content={SITE.name} />
+<script type="application/ld+json" set:html={jsonLd} />

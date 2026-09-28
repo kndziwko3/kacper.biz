@@ -1,0 +1,19 @@
+---
+import Breadcrumb from './Breadcrumb.astro';
+import type { Lang } from '../content/site';
+interface Props { lang: Lang; crumb: string; eyebrow: string; tone?: 'signal' | 'page' | 'reply'; h1: string; lead: string; scene?: number; side?: 'left' | 'right' | 'center' }
+const { lang, crumb, eyebrow, tone, h1, lead, scene = 0, side = 'left' } = Astro.props;
+---
+<section class="chapter page-hero" data-scene={scene} data-scene-side={side} aria-labelledby="page-title" style="min-height:min(100svh,52rem)">
+  <div class="wrap">
+    <div class="chapter__grid">
+      <div class="col-text scrim">
+        <Breadcrumb lang={lang} current={crumb} />
+        <p class="eyebrow" data-tone={tone}>{eyebrow}</p>
+        <h1 class="display" id="page-title" set:html={h1} style="margin-top:1.25rem;font-size:clamp(2.5rem,1rem + 6.4vw,6.6rem)" />
+        <p class="lead" style="margin-top:1.5rem">{lead}</p>
+        <div class="btn-row" style="margin-top:2rem"><slot /></div>
+      </div>
+    </div>
+  </div>
+</section>

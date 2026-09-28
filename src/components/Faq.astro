@@ -1,0 +1,15 @@
+---
+import { copy } from '../content/copy';
+import type { Lang } from '../content/site';
+interface Props { lang: Lang; limit?: number }
+const { lang, limit } = Astro.props;
+const items = limit ? copy[lang].faq.slice(0, limit) : copy[lang].faq;
+---
+<div class="faq" data-reveal>
+  {items.map((f, i) => (
+    <details open={i === 0}>
+      <summary>{f.q}</summary>
+      <div class="a"><p>{f.a}</p></div>
+    </details>
+  ))}
+</div>

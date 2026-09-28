@@ -1,0 +1,233 @@
+---
+import Base from '../../layouts/Base.astro';
+import Proof from '../Proof.astro';
+import Offers from '../Offers.astro';
+import Projects from '../Projects.astro';
+import Faq from '../Faq.astro';
+import Marquee from '../Marquee.astro';
+import ContactForm from '../ContactForm.astro';
+import { copy } from '../../content/copy';
+import { PRODUCTS, SALES, CONTACT, type Lang } from '../../content/site';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = copy[lang];
+const h = c.home;
+const isPl = lang === 'pl';
+const path = isPl ? '/' : '/en';
+const link = (pl: string, en: string) => (isPl ? pl : en);
+---
+<Base lang={lang} path={path} title={h.title} description={h.description} kind="home" faq={c.faq} ogImage={isPl ? '/og/home.png' : '/og/home-en.png'}>
+
+  <!-- 0 · HERO -->
+  <section class="chapter hero" data-scene="0" data-scene-side="left" aria-labelledby="hero-title">
+    <div class="wrap">
+      <div class="chapter__grid">
+        <div class="col-text scrim">
+          <p class="nameplate" data-reveal><span class="dot" aria-hidden="true"></span>{h.nameplate}</p>
+          <h1 class="display hero__title" id="hero-title" set:html={h.h1} style="margin-top:1.5rem" />
+          <p class="lead hero__lead" set:html={h.lead} style="margin-top:1.75rem" />
+          <div class="router" data-reveal>
+            <a class="route route--signal" href={PRODUCTS.outreachpilot.url} data-outbound data-cta="hero-op" rel="noopener">
+              <small>{h.router.op.kicker}</small>
+              <b>{h.router.op.name}<span class="arr tone-signal" aria-hidden="true">→</span></b>
+              <span>{h.router.op.text}</span>
+            </a>
+            <a class="route route--page" href={PRODUCTS.fastlanding.url} data-outbound data-cta="hero-fl" rel="noopener">
+              <small>{h.router.fl.kicker}</small>
+              <b>{h.router.fl.name}<span class="arr tone-page" aria-hidden="true">→</span></b>
+              <span>{h.router.fl.text}</span>
+            </a>
+          </div>
+          <p style="margin-top:1.25rem" data-reveal>
+            <a class="btn btn--ghost" href={SALES.bookingUrl} target="_blank" rel="noopener" data-outbound data-cta="hero-booking">{h.talk} <span class="arr" aria-hidden="true">→</span></a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="wrap" style="margin-top:3rem">
+      <span class="scroll-cue"><i aria-hidden="true"></i>{c.ui.scroll}</span>
+    </div>
+  </section>
+
+  <!-- 1 · ORIGIN + PROOF (map) -->
+  <section class="chapter chapter--right" data-scene="1" data-scene-side="right" aria-labelledby="origin-title">
+    <div class="wrap">
+      <div class="chapter__grid">
+        <div class="col-text scrim">
+          <p class="eyebrow" data-reveal>{h.origin.eyebrow}</p>
+          <h2 class="h2" id="origin-title" set:html={h.origin.h2} data-reveal style="margin-top:1.25rem" />
+          <p class="lead" data-reveal style="margin-top:1.5rem">{h.origin.p}</p>
+        </div>
+      </div>
+      <div style="margin-top:clamp(2rem,6vh,4rem)">
+        <Proof lang={lang} label={h.origin.proofLabel} />
+      </div>
+    </div>
+  </section>
+
+  <Marquee words={h.marquee} />
+
+  <!-- 2 · OUTREACHPILOT (traffic) -->
+  <section class="chapter" data-scene="2" data-scene-side="left" aria-labelledby="op-title" id="outreachpilot">
+    <div class="wrap">
+      <div class="chapter__grid">
+        <div class="col-text scrim">
+          <p class="eyebrow" data-tone="signal" data-reveal>{h.op.eyebrow}</p>
+          <h2 class="h2" id="op-title" set:html={h.op.h2} data-reveal style="margin-top:1.25rem" />
+          <p class="lead" data-reveal style="margin-top:1.5rem">{h.op.lead}</p>
+          <ol class="steps" data-reveal>
+            {h.op.steps.map((s) => <li><div><b>{s.b}</b><span>{s.t}</span></div></li>)}
+          </ol>
+          <div class="btn-row" style="margin-top:2rem" data-reveal>
+            <a class="btn btn--signal" href={PRODUCTS.outreachpilot.signup} data-outbound data-cta="op-signup" rel="noopener">{h.op.cta} <span class="arr" aria-hidden="true">→</span></a>
+            <a class="btn btn--ghost" href={PRODUCTS.outreachpilot.pricing} data-outbound data-cta="op-pricing" rel="noopener">{h.op.ctaAlt}</a>
+          </div>
+          <p class="note" data-reveal>{h.op.note} <a href={link('/outreachpilot', '/en/outreachpilot')} style="text-decoration:underline;text-underline-offset:3px">{h.op.more}</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · FASTLANDING (page) -->
+  <section class="chapter chapter--right" data-scene="3" data-scene-side="right" aria-labelledby="fl-title" id="fastlanding">
+    <div class="wrap">
+      <div class="chapter__grid">
+        <div class="col-text scrim">
+          <p class="eyebrow" data-tone="page" data-reveal>{h.fl.eyebrow}</p>
+          <h2 class="h2" id="fl-title" set:html={h.fl.h2} data-reveal style="margin-top:1.25rem" />
+          <p class="lead" data-reveal style="margin-top:1.5rem">{h.fl.lead}</p>
+          <Offers lang={lang} />
+          <p class="note" data-reveal>{h.fl.note}</p>
+          <div class="btn-row" style="margin-top:1.75rem" data-reveal>
+            <a class="btn btn--page" href={PRODUCTS.fastlanding.quote} data-outbound data-cta="fl-quote" rel="noopener">{h.fl.cta} <span class="arr" aria-hidden="true">→</span></a>
+            <a class="btn btn--ghost" href={PRODUCTS.fastlanding.url} data-outbound data-cta="fl-offer" rel="noopener">{h.fl.ctaAlt}</a>
+          </div>
+          <p class="note" data-reveal><a href={link('/fastlanding', '/en/fastlanding')} style="text-decoration:underline;text-underline-offset:3px">{h.fl.more}</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · FASTBOT (chat) -->
+  <section class="chapter" data-scene="4" data-scene-side="left" aria-labelledby="bot-title">
+    <div class="wrap">
+      <div class="chapter__grid">
+        <div class="col-text scrim">
+          <p class="eyebrow" data-tone="page" data-reveal>{h.bot.eyebrow}</p>
+          <h2 class="h2" id="bot-title" set:html={h.bot.h2} data-reveal style="margin-top:1.25rem" />
+          <p class="lead" data-reveal style="margin-top:1.5rem">{h.bot.lead}</p>
+          <ul class="steps" data-reveal style="counter-reset:none">
+            {h.bot.points.map((p) => <li style="grid-template-columns:1fr"><div><span style="color:var(--bone)">{p}</span></div></li>)}
+          </ul>
+          <p class="note" data-reveal>{h.bot.note}</p>
+          <div class="btn-row" style="margin-top:1.5rem" data-reveal>
+            <a class="btn btn--page" href={`${PRODUCTS.fastlanding.url}/chatboty-ai`} data-outbound data-cta="bot" rel="noopener">{h.bot.cta} <span class="arr" aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · WORK -->
+  <section class="chapter" data-scene="5" data-scene-side="center" aria-labelledby="work-title">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>{h.work.eyebrow}</p>
+      <h2 class="h2" id="work-title" set:html={h.work.h2} data-reveal style="margin-top:1.25rem;max-width:14ch" />
+      <p class="lead" data-reveal style="margin:1.5rem 0 2.5rem">{h.work.lead}</p>
+      <Projects lang={lang} visit={c.ui.visit} />
+      <p style="margin-top:1.75rem" data-reveal>
+        <a class="btn btn--ghost" href={link('/realizacje', '/en/work')}>{h.work.all} <span class="arr" aria-hidden="true">→</span></a>
+      </p>
+    </div>
+  </section>
+
+  <!-- 6 · RULES -->
+  <section class="chapter chapter--tight section" data-scene="5" data-scene-side="center" aria-labelledby="rules-title">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>{h.rules.eyebrow}</p>
+      <h2 class="h2" id="rules-title" set:html={h.rules.h2} data-reveal style="margin:1.25rem 0 2.25rem" />
+      <div class="rules">
+        {h.rules.items.map((r, i) => (
+          <div class="card" data-reveal style={`--d:${i}`}>
+            <span class="faint" style="font-family:var(--font-mono);font-size:.75rem">0{i + 1}</span>
+            <h3 class="h3" style="margin:.75rem 0 .5rem">{r.b}</h3>
+            <p class="muted" style="font-size:.97rem">{r.t}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · TALK -->
+  <section class="chapter chapter--tight section" data-scene="5" data-scene-side="center" aria-labelledby="talk-title">
+    <div class="wrap">
+      <div class="card talk" data-reveal>
+        <div>
+          <p class="eyebrow" data-tone="reply">{h.talk2.eyebrow}</p>
+          <h2 class="h2" id="talk-title" set:html={h.talk2.h2} style="margin-top:1.25rem" />
+          <p class="lead" style="margin-top:1.25rem">{h.talk2.p}</p>
+          <p style="margin-top:1.75rem">
+            <a class="btn btn--page" href={SALES.bookingUrl} target="_blank" rel="noopener" data-outbound data-cta="talk-booking">{h.talk2.cta} <span class="arr" aria-hidden="true">→</span></a>
+          </p>
+        </div>
+        <div class="talk__aside">
+          <h3 class="h3">{h.talk2.phoneTitle}</h3>
+          <p class="muted" style="margin-top:.6rem"><a href={CONTACT.aiPhone.href} style="color:var(--bone);font-weight:600">{CONTACT.aiPhone.display}</a> {h.talk2.phone.replace(CONTACT.aiPhone.display + ' ', '')}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · FAQ -->
+  <section class="chapter chapter--tight section" data-scene="5" data-scene-side="center" aria-labelledby="faq-title">
+    <div class="wrap">
+      <div class="chapter__grid">
+        <div class="col-wide">
+          <p class="eyebrow" data-reveal>{h.faq.eyebrow}</p>
+          <h2 class="h2" id="faq-title" set:html={h.faq.h2} data-reveal style="margin:1.25rem 0 2rem" />
+          <Faq lang={lang} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 · CONTACT -->
+  <section class="chapter chapter--tight section" data-scene="5" data-scene-side="center" aria-labelledby="contact-title" id="kontakt">
+    <div class="wrap">
+      <div class="chapter__grid">
+        <div class="col-text" style="grid-column:1/-1">
+          <div class="contact-grid">
+            <div class="scrim">
+              <p class="eyebrow" data-tone="reply" data-reveal>{h.contact.eyebrow}</p>
+              <h2 class="h2" id="contact-title" set:html={h.contact.h2} data-reveal style="margin-top:1.25rem" />
+              <p class="lead" data-reveal style="margin-top:1.25rem">{h.contact.p}</p>
+              <p class="muted" style="margin-top:2rem" data-reveal>{h.contact.direct}<br />
+                <a href={`mailto:${CONTACT.studioEmail}`} style="color:var(--bone)">{CONTACT.studioEmail}</a><br />
+                <a href={`mailto:${CONTACT.productEmail}`} style="color:var(--bone)">{CONTACT.productEmail}</a>
+              </p>
+            </div>
+            <div class="card" data-reveal>
+              <ContactForm lang={lang} idPrefix="home" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { padding-top: clamp(7rem, 16vh, 10rem); align-content: center; }
+  .hero__title, .hero__lead { animation: rise 1.1s var(--ease) both; }
+  .hero__lead { animation-delay: 0.12s; }
+  @keyframes rise { from { transform: translateY(16px); filter: blur(6px); } to { transform: none; filter: blur(0); } }
+  .rules { display: grid; gap: 1rem; }
+  @media (min-width: 720px) { .rules { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .rules { grid-template-columns: repeat(4, 1fr); } }
+  .talk { display: grid; gap: 2rem; padding: clamp(1.5rem, 4vw, 3rem); }
+  @media (min-width: 900px) { .talk { grid-template-columns: 1.4fr 1fr; align-items: end; } }
+  .talk__aside { padding: 1.25rem 1.4rem; border-radius: 18px; border: 1px solid var(--line); background: rgb(7 7 10 / 0.5); }
+  .contact-grid { display: grid; gap: 2.5rem; }
+  @media (min-width: 960px) { .contact-grid { grid-template-columns: 1fr 1.1fr; align-items: start; } }
+</style>

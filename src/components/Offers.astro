@@ -1,0 +1,12 @@
+---
+import { FASTLANDING_OFFERS, type Lang } from '../content/site';
+import { offerLabel } from '../content/copy';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+<ul class="offers" data-reveal>
+  {FASTLANDING_OFFERS.map((o) => {
+    const l = offerLabel(lang, o);
+    return (<li><b>{l.name}</b><span class="price">{l.price}</span><span class="time">{l.time}</span></li>);
+  })}
+</ul>

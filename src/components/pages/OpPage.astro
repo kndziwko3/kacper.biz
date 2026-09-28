@@ -1,0 +1,78 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../PageHero.astro';
+import Faq from '../Faq.astro';
+import { copy } from '../../content/copy';
+import { PRODUCTS, SALES, type Lang } from '../../content/site';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = copy[lang];
+const o = c.op;
+const h = c.home;
+const isPl = lang === 'pl';
+const path = isPl ? '/outreachpilot' : '/en/outreachpilot';
+const home = isPl ? '/' : '/en';
+---
+<Base lang={lang} path={path} title={o.title} description={o.description} kind="product"
+  breadcrumbs={[{ name: c.ui.home, path: home }, { name: o.crumb, path }]} faq={c.faq.slice(1, 2).concat(c.faq.slice(3, 4))}
+  ogImage={isPl ? '/og/outreachpilot.png' : '/og/outreachpilot-en.png'}>
+  <PageHero lang={lang} crumb={o.crumb} eyebrow={o.eyebrow} tone="signal" h1={o.h1} lead={o.lead} scene={2} side="left">
+    <a class="btn btn--signal" href={PRODUCTS.outreachpilot.signup} data-outbound data-cta="op-page-signup" rel="noopener">{h.op.cta} <span class="arr" aria-hidden="true">→</span></a>
+    <a class="btn btn--ghost" href={PRODUCTS.outreachpilot.url} data-outbound data-cta="op-page-site" rel="noopener">outreachpilot.pl</a>
+  </PageHero>
+
+  <section class="chapter chapter--tight section" data-scene="2" data-scene-side="right">
+    <div class="wrap"><div class="chapter__grid"><div class="col-text scrim chapter--right-col">
+      <h2 class="h2" data-reveal>{o.what.h2}</h2>
+      <div class="prose" style="margin-top:1.5rem" data-reveal><p>{o.what.p1}</p><p>{o.what.p2}</p></div>
+      <ol class="steps" data-reveal>{h.op.steps.map((s) => <li><div><b>{s.b}</b><span>{s.t}</span></div></li>)}</ol>
+    </div></div></div>
+  </section>
+
+  <section class="chapter chapter--tight section" data-scene="1" data-scene-side="left">
+    <div class="wrap"><div class="chapter__grid"><div class="col-wide">
+      <h2 class="h2" data-reveal>{o.forWho.h2}</h2>
+      <ul class="chips" data-reveal>
+        {o.forWho.items.map(([label, href]) => <li><a class="chip" href={href} data-outbound data-cta="op-vertical" rel="noopener">{label} <span aria-hidden="true">↗</span></a></li>)}
+      </ul>
+      <h2 class="h2" style="margin-top:4rem" data-reveal>{o.plans.h2}</h2>
+      <ul class="offers" data-reveal>
+        {o.plans.rows.map(([name, price, desc]) => <li><b>{name}</b><span class="price" style="color:var(--signal-2)">{price}</span><span class="time">{desc}</span></li>)}
+      </ul>
+      <p class="note" data-reveal>{o.plans.note}</p>
+    </div></div></div>
+  </section>
+
+  <section class="chapter chapter--tight section" data-scene="2" data-scene-side="right">
+    <div class="wrap"><div class="chapter__grid"><div class="col-text scrim">
+      <h2 class="h2" data-reveal>{o.proof.h2}</h2>
+      <div class="prose" style="margin-top:1.5rem" data-reveal>
+        <p>{o.proof.p} <a href={PRODUCTS.outreachpilot.methodology} data-outbound data-cta="op-method" rel="noopener">{o.proof.link}</a>.</p>
+        <p>{o.proof.mcp} <a href={PRODUCTS.outreachpilot.mcp} data-outbound data-cta="op-mcp" rel="noopener">{o.proof.mcpLink}</a>.</p>
+        <p class="faint" style="font-size:.9rem">{o.legal}</p>
+      </div>
+    </div></div></div>
+  </section>
+
+  <section class="chapter chapter--tight section" data-scene="5" data-scene-side="center">
+    <div class="wrap"><div class="chapter__grid"><div class="col-wide">
+      <h2 class="h2" data-reveal>{o.disambig.h2}</h2>
+      <p class="lead" style="margin-top:1.25rem" data-reveal>{o.disambig.p}</p>
+      <h2 class="h2" style="margin-top:4rem" data-reveal>{h.faq.h2}</h2>
+      <div style="margin-top:1.5rem"><Faq lang={lang} /></div>
+      <div class="card" style="margin-top:3.5rem;display:grid;gap:1.25rem" data-reveal>
+        <h2 class="h2">{o.cta.h2}</h2>
+        <div class="btn-row">
+          <a class="btn btn--signal" href={PRODUCTS.outreachpilot.signup} data-outbound data-cta="op-page-bottom-signup" rel="noopener">{o.cta.btn} <span class="arr" aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost" href={SALES.bookingUrl} target="_blank" rel="noopener" data-outbound data-cta="op-page-booking">{o.cta.alt}</a>
+        </div>
+      </div>
+    </div></div></div>
+  </section>
+</Base>
+<style is:global>
+  .chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.5rem; }
+  .chip { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.1rem; border-radius: 999px; border: 1px solid var(--line-strong); background: rgb(13 13 19 / 0.6); backdrop-filter: blur(10px); font-size: 0.95rem; transition: all 0.25s; }
+  .chip:hover { border-color: var(--signal); background: rgb(255 106 61 / 0.1); }
+  @media (min-width: 900px) { .chapter--right-col { grid-column: 7 / span 6; } }
+</style>

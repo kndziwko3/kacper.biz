@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../PageHero.astro';
+import Faq from '../Faq.astro';
+import { copy, formatDate } from '../../content/copy';
+import { PERSON, PRODUCTS, SITE, type Lang } from '../../content/site';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = copy[lang];
+const a = c.about;
+const isPl = lang === 'pl';
+const path = isPl ? '/o-mnie' : '/en/about';
+const home = isPl ? '/' : '/en';
+const contact = isPl ? '/kontakt' : '/en/contact';
+const finds = [
+  { label: 'LinkedIn', href: PERSON.linkedin, rel: 'me noopener' },
+  { label: isPl ? 'FastLanding.io — o nas' : 'FastLanding.io — about', href: PRODUCTS.fastlanding.about, rel: 'noopener' },
+  { label: isPl ? 'OutreachPilot.pl — o redakcji i autorze' : 'OutreachPilot.pl — editorial & author page', href: PRODUCTS.outreachpilot.about, rel: 'noopener' },
+];
+---
+<Base lang={lang} path={path} title={a.title} description={a.description} kind="about" ogType="profile"
+  breadcrumbs={[{ name: c.ui.home, path: home }, { name: a.crumb, path }]} faq={c.faq}
+  ogImage={isPl ? '/og/about.png' : '/og/about-en.png'}>
+  <PageHero lang={lang} crumb={a.crumb} eyebrow={a.eyebrow} h1={a.h1} lead={a.lead} scene={0} side="left">
+    <a class="btn btn--signal" href={contact}>{c.ui.write} <span class="arr" aria-hidden="true">→</span></a>
+  </PageHero>
+
+  <section class="chapter chapter--tight section" data-scene="1" data-scene-side="right">
+    <div class="wrap"><div class="chapter__grid"><div class="col-wide">
+      <h2 class="h2" data-reveal>{a.facts.h2}</h2>
+      <dl class="facts" style="margin-top:1.75rem" data-reveal>
+        {a.facts.rows.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
+      </dl>
+      <p class="note" data-reveal>{c.ui.updated}: <time datetime={SITE.lastModified}>{formatDate(lang)}</time></p>
+    </div></div></div>
+  </section>
+
+  <section class="chapter chapter--tight section" data-scene="5" data-scene-side="center">
+    <div class="wrap"><div class="chapter__grid"><div class="col-wide">
+      <h2 class="h2" data-reveal>{a.disambig.h2}</h2>
+      <p class="lead" style="margin-top:1.25rem" data-reveal>{a.disambig.p}</p>
+
+      <h2 class="h2" style="margin-top:4rem" data-reveal>{a.notClaim.h2}</h2>
+      <ul class="prose" style="margin-top:1.25rem" data-reveal>{a.notClaim.items.map((i) => <li>{i}</li>)}</ul>
+
+      <h2 class="h2" style="margin-top:4rem" data-reveal>{a.find.h2}</h2>
+      <p class="muted" style="margin-top:1rem" data-reveal>{a.find.items}</p>
+      <ul class="prose" style="margin-top:1rem" data-reveal>
+        {finds.map((f) => <li><a href={f.href} rel={f.rel} target="_blank">{f.label}</a></li>)}
+      </ul>
+
+      <h2 class="h2" style="margin-top:4rem" data-reveal>{c.home.faq.h2}</h2>
+      <div style="margin-top:1.5rem"><Faq lang={lang} /></div>
+    </div></div></div>
+  </section>
+</Base>

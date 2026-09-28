@@ -1,0 +1,10 @@
+---
+import type { Lang } from '../content/site';
+import { copy } from '../content/copy';
+interface Props { lang: Lang; current: string }
+const { lang, current } = Astro.props;
+const home = lang === 'pl' ? '/' : '/en';
+---
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href={home}>{copy[lang].ui.home}</a><span aria-hidden="true">/</span><span aria-current="page">{current}</span>
+</nav>

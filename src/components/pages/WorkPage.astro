@@ -1,0 +1,43 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../PageHero.astro';
+import Projects from '../Projects.astro';
+import { copy } from '../../content/copy';
+import { PRODUCTS, PROJECTS, type Lang } from '../../content/site';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const c = copy[lang];
+const w = c.work;
+const isPl = lang === 'pl';
+const path = isPl ? '/realizacje' : '/en/work';
+const home = isPl ? '/' : '/en';
+const own = [
+  { name: 'OutreachPilot.pl', url: PRODUCTS.outreachpilot.url, text: PRODUCTS.outreachpilot.tagline[lang], tone: 'signal', cta: 'own-op' },
+  { name: 'FastLanding.io', url: PRODUCTS.fastlanding.url, text: PRODUCTS.fastlanding.tagline[lang], tone: 'page', cta: 'own-fl' },
+];
+---
+<Base lang={lang} path={path} title={w.title} description={w.description} kind="work"
+  breadcrumbs={[{ name: c.ui.home, path: home }, { name: w.crumb, path }]} ogImage={isPl ? '/og/work.png' : '/og/work-en.png'}>
+  <PageHero lang={lang} crumb={w.crumb} eyebrow={w.eyebrow} h1={w.h1} lead={w.lead} scene={3} side="left" />
+  <section class="chapter chapter--tight section" data-scene="5" data-scene-side="center">
+    <div class="wrap">
+      <h2 class="h3 muted" data-reveal style="margin-bottom:1.5rem">{w.clients}</h2>
+      <Projects lang={lang} visit={c.ui.visit} />
+      <h2 class="h2" style="margin-top:5rem" data-reveal>{w.own.h2}</h2>
+      <p class="lead" style="margin-top:1rem" data-reveal>{w.own.items}</p>
+      <div class="own" style="margin-top:2rem">
+        {own.map((p) => (
+          <a class="card card--link" href={p.url} data-outbound data-cta={p.cta} rel="noopener" data-reveal>
+            <h3 class="h3" style={`color:var(--${p.tone})`}>{p.name}</h3>
+            <p class="muted" style="margin-top:.6rem">{p.text}</p>
+            <span class="go" style="margin-top:1rem;display:inline-flex;gap:.5rem;font-weight:600">{c.ui.visit} <span aria-hidden="true">↗</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .own { display: grid; gap: 1rem; }
+  @media (min-width: 800px) { .own { grid-template-columns: 1fr 1fr; } }
+</style>
