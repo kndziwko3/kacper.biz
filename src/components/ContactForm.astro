@@ -1,0 +1,247 @@
+---
+/**
+ * Qualifying contact form (studio / product enquiries). Progressive enhancement lives in
+ * src/scripts/lead-form.ts (validation, JSON POST to /api/lead, mailto fallback, `[data-after]` reveal);
+ * this file is the markup only. Safe to render twice on one page: every id is prefixed with `idPrefix`
+ * (use different prefixes for the two instances).
+ *
+ * The component bundles its own <script> (Astro dedupes it per page), so the form works even if the layout
+ * does not call initLeadForms(). Both init functions are idempotent.
+ *
+ * `ts` is deliberately empty in the HTML: this is a static build, so the render time is stamped by JS in the browser.
+ */
+import { CONTACT, PERSON, SALES, type Lang } from '../content/site';
+
+interface Props {
+  lang: Lang;
+  /** Pre-selects one of: outreach | website | chatbot | automation | app | other. */
+  defaultNeed?: string;
+  /** Unique per instance when the form appears twice on a page. */
+  idPrefix?: string;
+}
+
+const { lang, defaultNeed, idPrefix = 'lead' } = Astro.props;
+const p = idPrefix.replace(/[^a-z0-9_-]/gi, '') || 'lead';
+const id = (name: string) => `${p}-${name}`;
+const pl = lang === 'pl';
+
+const NEEDS = [
+  { value: 'outreach', pl: 'Cold mailing (OutreachPilot)', en: 'Cold outreach (OutreachPilot)' },
+  { value: 'website', pl: 'Strona / landing page', en: 'Website / landing page' },
+  { value: 'chatbot', pl: 'Chatbot AI', en: 'AI chatbot' },
+  { value: 'automation', pl: 'Automatyzacja', en: 'Automation' },
+  { value: 'app', pl: 'Aplikacja / MVP', en: 'App / MVP' },
+  { value: 'other', pl: 'Inne', en: 'Other' },
+] as const;
+const preselected = NEEDS.some((n) => n.value === defaultNeed) ? defaultNeed : undefined;
+
+const privacyHref = pl ? '/polityka-prywatnosci' : '/en/privacy';
+const noscriptMailto = `mailto:${CONTACT.studioEmail}?subject=${encodeURIComponent(pl ? 'Zapytanie z kacper.biz' : 'Enquiry from kacper.biz')}`;
+---
+
+<div class="lead-wrap" data-lead-wrap>
+  <noscript>
+    <p class="lead-noscript">
+      {pl ? 'Formularz wymaga włączonego JavaScriptu. Napisz bezpośrednio na ' : 'The form needs JavaScript. Email directly: '}
+      <a href={noscriptMailto}>{CONTACT.studioEmail}</a>.
+    </p>
+  </noscript>
+
+  <form
+    class="form"
+    method="post"
+    action="/api/lead"
+    novalidate
+    data-lead
+    data-lang={lang}
+    data-mailto={CONTACT.studioEmail}
+    aria-label={pl ? 'Formularz zapytania' : 'Enquiry form'}
+  >
+    <p class="lead-hint">{pl ? 'Pola oznaczone gwiazdką (*) są wymagane.' : 'Fields marked with an asterisk (*) are required.'}</p>
+
+    <div class="field" data-field="need">
+      <fieldset class="lead-fieldset" aria-describedby={id('need-error')}>
+        <legend>
+          {pl ? 'Czego dotyczy zapytanie?' : 'What is your enquiry about?'}
+          <span class="lead-req" aria-hidden="true"> *</span>
+        </legend>
+        <div class="choices">
+          {NEEDS.map((n) => (
+            <label class="choice">
+              <input type="radio" name="need" id={id(`need-${n.value}`)} value={n.value} required checked={n.value === preselected} />
+              <span>{pl ? n.pl : n.en}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <p class="lead-error" id={id('need-error')} data-error-for="need" hidden></p>
+    </div>
+
+    <div class="field-row">
+      <div class="field" data-field="name">
+        <label for={id('name')}>{pl ? 'Imię' : 'Name'}<span class="lead-req" aria-hidden="true"> *</span></label>
+        <input
+          class="input"
+          type="text"
+          id={id('name')}
+          name="name"
+          autocomplete="name"
+          maxlength="100"
+          required
+          aria-describedby={id('name-error')}
+        />
+        <p class="lead-error" id={id('name-error')} data-error-for="name" hidden></p>
+      </div>
+      <div class="field" data-field="email">
+        <label for={id('email')}>{pl ? 'E-mail' : 'Email'}<span class="lead-req" aria-hidden="true"> *</span></label>
+        <input
+          class="input"
+          type="email"
+          id={id('email')}
+          name="email"
+          autocomplete="email"
+          inputmode="email"
+          autocapitalize="off"
+          spellcheck="false"
+          maxlength="254"
+          required
+          aria-describedby={id('email-error')}
+        />
+        <p class="lead-error" id={id('email-error')} data-error-for="email" hidden></p>
+      </div>
+    </div>
+
+    <div class="field" data-field="company">
+      <label for={id('company')}>{pl ? 'Strona internetowa firmy (opcjonalnie)' : 'Company website (optional)'}</label>
+      <input
+        class="input"
+        type="url"
+        id={id('company')}
+        name="company"
+        autocomplete="url"
+        inputmode="url"
+        autocapitalize="off"
+        spellcheck="false"
+        maxlength="200"
+        placeholder={pl ? 'https://twojafirma.pl' : 'https://yourcompany.com'}
+        aria-describedby={id('company-error')}
+      />
+      <p class="lead-error" id={id('company-error')} data-error-for="company" hidden></p>
+    </div>
+
+    <div class="field" data-field="message">
+      <label for={id('message')}>{pl ? 'Wiadomość (opcjonalnie)' : 'Message (optional)'}</label>
+      <textarea
+        class="textarea"
+        id={id('message')}
+        name="message"
+        rows="5"
+        maxlength="2000"
+        placeholder={pl ? 'Czego potrzebujesz, w jakim terminie, co już masz?' : 'What you need, by when, what you already have?'}
+        aria-describedby={id('message-error')}></textarea>
+      <p class="lead-error" id={id('message-error')} data-error-for="message" hidden></p>
+    </div>
+
+    <div class="field" data-field="consent">
+      <div class="check">
+        <input
+          type="checkbox"
+          id={id('consent')}
+          name="consent"
+          value="yes"
+          required
+          aria-describedby={`${id('consent-notice')} ${id('consent-error')}`}
+        />
+        <div>
+          <label class="lead-check-label" for={id('consent')}>
+            {pl
+              ? 'Zapoznałem/am się z informacją o przetwarzaniu danych i chcę otrzymać odpowiedź na moje zapytanie.'
+              : 'I have read the data-processing notice and want a reply to my enquiry.'}
+            <span class="lead-req" aria-hidden="true"> *</span>
+          </label>
+          <p class="lead-notice" id={id('consent-notice')}>
+            {pl ? (
+              <Fragment>
+                Administrator: {PERSON.business.legalName}, NIP {PERSON.business.nip}, Gliwice. Cel: odpowiedź na zapytanie i
+                przygotowanie oferty (art. 6 ust. 1 lit. b i f RODO). Szczegóły: <a href={privacyHref}>polityka prywatności</a>.
+              </Fragment>
+            ) : (
+              <Fragment>
+                Controller: {PERSON.business.legalName}, tax ID (NIP) {PERSON.business.nip}, Gliwice, Poland. Purpose: replying to
+                your enquiry and preparing a quote (Art. 6(1)(b) and (f) GDPR). Details: <a href={privacyHref}>privacy policy</a>.
+              </Fragment>
+            )}
+          </p>
+        </div>
+      </div>
+      <p class="lead-error" id={id('consent-error')} data-error-for="consent" hidden></p>
+    </div>
+
+    <!-- Bot traps: honeypot (must stay empty) and render time (stamped by JS; static build cannot know it). -->
+    <div class="hp" aria-hidden="true">
+      <label for={id('hp')}>{pl ? 'Zostaw to pole puste' : 'Leave this field empty'}</label>
+      <input type="text" id={id('hp')} name="hp" tabindex="-1" autocomplete="off" data-lpignore="true" data-1p-ignore />
+    </div>
+    <input type="hidden" name="ts" id={id('ts')} value="" />
+    <input type="hidden" name="lang" value={lang} />
+
+    <p class="form-status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1" data-status></p>
+
+    <div class="btn-row">
+      <button type="submit" class="btn btn--signal">
+        <span data-label>{pl ? 'Wyślij zapytanie' : 'Send enquiry'}</span>
+        <span class="arr" aria-hidden="true">→</span>
+      </button>
+    </div>
+  </form>
+
+  <!-- Qualify-then-book: revealed by lead-form.ts after a successful send. -->
+  <div class="lead-after" data-after hidden>
+    <h3 class="h3">{pl ? 'Wolisz porozmawiać od razu?' : 'Prefer to talk right away?'}</h3>
+    <p class="muted">
+      {pl
+        ? `${SALES.firstName} (${SALES.role.pl}) prowadzi rozmowy sprzedażowe. Wybierz dogodny termin.`
+        : `${SALES.firstName} (${SALES.role.en}) runs the sales conversations. Pick a time that suits you.`}
+    </p>
+    <a class="btn btn--page" data-outbound data-cta="after-form-booking" href={SALES.bookingUrl} target="_blank" rel="noopener">
+      {pl ? 'Umów 30 minut z Justyną' : 'Book 30 minutes with Justyna'}
+      <span class="arr" aria-hidden="true">↗</span>
+      <span class="sr-only">{pl ? ' (otwiera się w nowej karcie)' : ' (opens in a new tab)'}</span>
+    </a>
+    <p class="lead-hint">
+      {pl
+        ? 'Otworzy się strona rezerwacji na outreachpilot.pl. Rezerwacja jest dobrowolna — Twoje zapytanie już do nas trafiło.'
+        : 'This opens the booking page on outreachpilot.pl. Booking is optional — your enquiry has already reached us.'}
+    </p>
+  </div>
+</div>
+
+<script>
+  import { initAttribution } from '../scripts/attribution';
+  import { initLeadForms } from '../scripts/lead-form';
+
+  initAttribution();
+  initLeadForms();
+</script>
+
+<style is:global>
+  .lead-wrap { display: grid; gap: 1.5rem; }
+  .lead-wrap .choice { position: relative; } /* anchors the visually hidden radio to its pill */
+  .lead-wrap .field-row { align-items: start; } /* an error under one field must not stretch its neighbour */
+  .lead-wrap .field { align-content: start; }
+  .lead-fieldset { display: block; min-width: 0; margin: 0; padding: 0; border: 0; }
+  .lead-fieldset legend { padding: 0; margin-bottom: 0.5rem; }
+  .lead-req { color: var(--signal); }
+  .lead-hint { margin: 0; font-size: 0.8rem; line-height: 1.5; color: var(--bone-dim); }
+  .lead-error { margin: 0; font-size: 0.85rem; line-height: 1.4; color: #ff8b9b; }
+  .lead-error[hidden], .lead-after[hidden] { display: none; }
+  .lead-wrap [data-invalid] .choice span { border-color: #ff6b81; }
+  .lead-wrap .check input[aria-invalid='true'] { outline: 2px solid #ff6b81; outline-offset: 2px; }
+  .lead-check-label { display: block; min-height: 44px; padding-block: 0.1rem; color: var(--bone); cursor: pointer; }
+  .lead-notice { margin: 0.2rem 0 0; font-size: 0.78rem; line-height: 1.55; color: var(--bone-dim); }
+  .lead-notice a, .lead-wrap .form-status a, .lead-noscript a { text-decoration: underline; text-underline-offset: 3px; }
+  .lead-wrap .form-status a { color: var(--bone); }
+  .lead-noscript { margin: 0; padding: 1rem 1.15rem; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--bone); }
+  .lead-after { display: grid; gap: 0.75rem; justify-items: start; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+  .lead-after > * { margin: 0; }
+</style>

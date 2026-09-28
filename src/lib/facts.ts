@@ -9,7 +9,12 @@ import {
   SITE,
   PERSON,
   PRODUCTS,
+  PROJECTS,
+  PROOF,
+  SALES,
+  CONTACT,
   FASTLANDING_OFFERS,
+  LEGAL_NOTE,
   type Lang,
 } from '../content/site';
 
@@ -54,12 +59,21 @@ export function personDescription(lang: Lang): string {
     : `${PERSON.jobTitle.en}. ${PERSON.city}, Poland. OutreachPilot.pl is B2B cold outreach on Polish company data; FastLanding.io is a studio for websites, AI chatbots, automations and MVP apps.`;
 }
 
+/** Polish genitive of PERSON.city ("z Gliwic"). Keep in sync with PERSON.city; the copy in site.ts also says "z Gliwic". */
+export const CITY_GENITIVE_PL = 'Gliwic';
+
+/** Localise a published proof value for the EN surfaces ("20 418" -> "20,418", "7 dni" -> "7 days"). PL stays verbatim. */
+export function localizeValue(value: string, lang: Lang): string {
+  if (lang === 'pl') return value;
+  return value.replace(/(\d)\s(\d{3})\b/g, '$1,$2').replace(/\bdni\b/g, 'days');
+}
+
 /** The look-alike domains OutreachPilot.pl must not be confused with (from site.ts). */
 export function outreachpilotDisambiguation(lang: Lang): string {
   const others = PRODUCTS.outreachpilot.notAffiliatedWith;
   if (lang === 'pl') {
     const list = others.length > 1 ? `${others.slice(0, -1).join(', ')} ani ${others[others.length - 1]}` : others.join('');
-    return `Polski produkt z ${PERSON.city}; założyciel: ${PERSON.name}. Nie jest powiązany z ${list}.`;
+    return `Polski produkt z ${CITY_GENITIVE_PL}; założyciel: ${PERSON.name}. Nie jest powiązany z ${list}.`;
   }
   const list = others.length > 1 ? `${others.slice(0, -1).join(', ')} or ${others[others.length - 1]}` : others.join('');
   return `Polish product from ${PERSON.city}, Poland; founder: ${PERSON.name}. Not affiliated with ${list}.`;
@@ -177,19 +191,181 @@ function toFaqItems(v: unknown, lang: Lang): FaqItem[] {
 }
 
 /**
- * src/content/faq.ts is written later by the lead. `import.meta.glob` resolves to `{}` while the file does not
- * exist, so this stays build-safe. Accepted shapes (export name FAQ | FAQS | faq | faqs | default):
- *   - { pl: {q,a}[], en: {q,a}[] }
- *   - {q,a}[] where q / a are strings or { pl, en } objects (keys `question` / `answer` also accepted)
+ * The visible FAQ is owned by the lead. Two locations are supported, both resolved with `import.meta.glob` so a missing
+ * file simply yields `{}` and the build never breaks:
+ *   1. src/content/faq.ts   - export FAQ | FAQS | faq | faqs | default, as { pl: {q,a}[], en: {q,a}[] } or {q,a}[] with
+ *                             q / a either strings or { pl, en } objects (keys `question` / `answer` also accepted)
+ *   2. src/content/copy.ts  - `copy[lang].faq` (what the pages use today)
  */
 const faqModules = import.meta.glob<Record<string, unknown>>('../content/faq.ts', { eager: true });
+const copyModules = import.meta.glob<Record<string, unknown>>('../content/copy.ts', { eager: true });
 
 export function getFaq(lang: Lang): FaqItem[] {
-  const mod = Object.values(faqModules)[0];
-  if (!mod) return [];
-  for (const name of ['FAQ', 'FAQS', 'faq', 'faqs', 'FAQ_ITEMS', 'default']) {
-    const items = toFaqItems(mod[name], lang);
-    if (items.length) return items;
+  const dedicated = Object.values(faqModules)[0];
+  if (dedicated) {
+    for (const name of ['FAQ', 'FAQS', 'faq', 'faqs', 'FAQ_ITEMS', 'default']) {
+      const items = toFaqItems(dedicated[name], lang);
+      if (items.length) return items;
+    }
+  }
+  const copyMod = Object.values(copyModules)[0];
+  const copy = copyMod?.['copy'];
+  if (isRecord(copy)) {
+    const langCopy = copy[lang];
+    if (isRecord(langCopy)) return toFaqItems(langCopy['faq'], lang);
   }
   return [];
+}
+
+/* ───────────────────────── facts.json ───────────────────────── */
+
+/**
+ * Machine-readable entity facts (served at /facts.json). Every value comes from site.ts, so it can only change
+ * when the visible site changes. `source` URLs point at the pages where each fact is published.
+ */
+export function buildFactsDocument(): Record<string, unknown> {
+  const both = <T>(pl: T, en: T) => ({ pl, en });
+  const onDate = SITE.lastModified;
+
+  return {
+    schemaVersion: 1,
+    site: {
+      url: SITE.url,
+      name: SITE.name,
+      languages: [SITE.locale.pl, SITE.locale.en],
+      defaultLanguage: SITE.locale.pl,
+      entityHome: `${SITE.url}/`,
+      lastModified: SITE.lastModified,
+      note: 'Generated at build time from the same data as the visible pages. If this file and a product site disagree, the product site is authoritative.',
+      llmsTxt: `${SITE.url}/llms.txt`,
+      llmsFullTxt: `${SITE.url}/llms-full.txt`,
+    },
+    person: {
+      id: PERSON.id,
+      name: PERSON.name,
+      givenName: PERSON.givenName,
+      familyName: PERSON.familyName,
+      alternateName: [...PERSON.alternateName],
+      jobTitle: both(PERSON.jobTitle.pl, PERSON.jobTitle.en),
+      location: { city: PERSON.city, region: PERSON.region, country: PERSON.country },
+      knowsAbout: both([...PERSON.knowsAbout.pl], [...PERSON.knowsAbout.en]),
+      sameAs: personSameAs(),
+      disambiguation: both(PERSON.disambiguation.pl, PERSON.disambiguation.en),
+      notTheSamePersonAs: 'A Kacper Rękawek who is an international-security researcher',
+    },
+    organizations: [
+      {
+        id: ORG_IDS.outreachpilot,
+        name: PRODUCTS.outreachpilot.name,
+        url: PRODUCTS.outreachpilot.url,
+        founder: PERSON.id,
+        description: both(PRODUCTS.outreachpilot.tagline.pl, PRODUCTS.outreachpilot.tagline.en),
+        notAffiliatedWith: [...PRODUCTS.outreachpilot.notAffiliatedWith],
+        registry: { nip: PERSON.business.nip, regon: PERSON.business.regon },
+        location: { city: PERSON.city, country: PERSON.country },
+        sources: [PRODUCTS.outreachpilot.about, PRODUCTS.outreachpilot.url],
+      },
+      {
+        id: ORG_IDS.fastlanding,
+        name: PRODUCTS.fastlanding.name,
+        legalName: PERSON.business.legalName,
+        url: PRODUCTS.fastlanding.url,
+        founder: PERSON.id,
+        description: both(PRODUCTS.fastlanding.tagline.pl, PRODUCTS.fastlanding.tagline.en),
+        registry: { nip: PERSON.business.nip, regon: PERSON.business.regon },
+        location: { city: PERSON.city, country: PERSON.country },
+        areaServed: 'PL',
+        sources: [PRODUCTS.fastlanding.about, PRODUCTS.fastlanding.url],
+      },
+    ],
+    products: {
+      outreachpilot: {
+        name: PRODUCTS.outreachpilot.name,
+        url: PRODUCTS.outreachpilot.url,
+        signup: PRODUCTS.outreachpilot.signup,
+        pricing: PRODUCTS.outreachpilot.pricing,
+        mcpServerPage: PRODUCTS.outreachpilot.mcp,
+        benchmark: PRODUCTS.outreachpilot.benchmark,
+        methodology: PRODUCTS.outreachpilot.methodology,
+      },
+      fastlanding: {
+        name: PRODUCTS.fastlanding.name,
+        url: PRODUCTS.fastlanding.url,
+        quoteForm: PRODUCTS.fastlanding.quote,
+        aiPage: PRODUCTS.fastlanding.ai,
+      },
+    },
+    offers: FASTLANDING_OFFERS.map((o) => {
+      const p = parsePrice(o.price);
+      return {
+        seller: ORG_IDS.fastlanding,
+        key: o.key,
+        name: both(o.name.pl, o.name.en),
+        priceAsPublished: both(o.price, o.priceEn),
+        priceType: p.from ? 'starting-from' : 'fixed',
+        amountPLN: p.amount,
+        monthlyPLN: p.monthly,
+        currency: 'PLN',
+        vat: 'net',
+        turnaround: both(o.time.pl, o.time.en),
+        publishedOn: onDate,
+        source: PRODUCTS.fastlanding.url,
+      };
+    }),
+    proof: PROOF.map((p) => ({
+      value: p.value,
+      label: both(p.label.pl, p.label.en),
+      source: p.href,
+      publishedOn: onDate,
+    })),
+    clientWork: PROJECTS.map((p) => ({
+      name: p.name,
+      url: p.url,
+      kind: both(p.kind.pl, p.kind.en),
+      description: both(p.blurb.pl, p.blurb.en),
+      deliveredBy: ORG_IDS.fastlanding,
+    })),
+    clientWorkNote: 'outreachpilot.pl is the founder\'s own product, not client work.',
+    salesConversations: {
+      role: both(SALES.role.pl, SALES.role.en),
+      bookingUrl: SALES.bookingUrl,
+      duration: both(SALES.duration.pl, SALES.duration.en),
+    },
+    contact: {
+      studioEmail: CONTACT.studioEmail,
+      productEmail: CONTACT.productEmail,
+      aiPhone: {
+        number: CONTACT.aiPhone.display,
+        note: 'AI assistant; discloses that it is an AI at the start of each call.',
+      },
+      publishedLocation: `${PERSON.city}, ${PERSON.country} (city only; no street address is published)`,
+    },
+    notClaimed: {
+      pl: notClaimed('pl'),
+      en: notClaimed('en'),
+    },
+  };
+}
+
+/** The honesty block, shared by llms.txt, llms-full.txt and facts.json. */
+export function notClaimed(lang: Lang): string[] {
+  return lang === 'pl'
+    ? [
+        'Brak nagród, certyfikatów, rankingów ani wzmianek prasowych: żadnych nie deklarujemy.',
+        'Na kacper.biz nie ma opinii ani ocen klientów i nie są one oznaczane w danych strukturalnych.',
+        LEGAL_NOTE.pl,
+        'outreachpilot.pl to własny produkt założyciela, nie realizacja dla klienta; projekty w zakładce Realizacje to prace klientów FastLanding.',
+        `Ceny to ceny netto w PLN opublikowane na fastlanding.io w dniu ${SITE.lastModified}; mogą się zmienić, a cena „od” jest ceną startową. Wiążąca jest oferta na fastlanding.io.`,
+        `Jako lokalizacja publikowane jest tylko miasto (${PERSON.city}); adres ulicy nie jest publikowany.`,
+        'Numer telefonu w danych kontaktowych obsługuje asystenta AI, który na początku rozmowy informuje, że jest AI.',
+      ]
+    : [
+        'No awards, certifications, rankings or press coverage are claimed.',
+        'kacper.biz publishes no customer reviews or ratings and marks none up as structured data.',
+        LEGAL_NOTE.en,
+        'outreachpilot.pl is the founder\'s own product, not client work; the projects on the Work page are FastLanding client work.',
+        `Prices are net PLN prices published on fastlanding.io on ${SITE.lastModified}; they may change, and a "from" price is a starting price. The offer on fastlanding.io is the binding one.`,
+        `Only the city (${PERSON.city}) is published as location; no street address is published.`,
+        'The phone number in the contact details is answered by an AI assistant that says it is an AI at the start of each call.',
+      ];
 }

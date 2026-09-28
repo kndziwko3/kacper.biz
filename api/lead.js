@@ -45,7 +45,7 @@ const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'ut
 // ---------------------------------------------------------------------------------------------
 
 /** Control chars, bidi overrides/isolates, zero-width space/joiners-that-hide, BOM, line/paragraph separators. Keeps ZWJ/ZWNJ (emoji, some scripts). */
-const STRIP_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F​‎‏ -‮⁠-⁤⁦-⁩﻿]/g;
+const STRIP_CHARS = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F\u{200B}\u{200E}\u{200F}\u{2028}-\u{202E}\u{2060}-\u{2064}\u{2066}-\u{2069}\u{FEFF}]/gu;
 
 /**
  * Coerce to a clean string: NFC, well-formed UTF-16, no control chars.
