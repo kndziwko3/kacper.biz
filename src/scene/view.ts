@@ -18,9 +18,9 @@ export const VIEWS: readonly ChapterView[] = [
   // 0 cloud
   { rx: 0.16, ry: 0, rz: 0, w: 9.0, h: 6.2, hFracDesktop: 0.8, hFracMobile: 0.46, gainY: 0.2, gainX: 0.12 },
   // 1 map
-  { rx: -0.62, ry: 0.05, rz: -0.03, w: 6.3, h: 5.0, hFracDesktop: 0.66, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05 },
+  { rx: -0.56, ry: 0.05, rz: -0.03, w: 6.3, h: 5.15, hFracDesktop: 0.66, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05 },
   // 2 traffic (same map, a touch more tilt so the arcs read)
-  { rx: -0.72, ry: 0.05, rz: -0.03, w: 6.3, h: 4.8, hFracDesktop: 0.64, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05 },
+  { rx: -0.68, ry: 0.05, rz: -0.03, w: 6.3, h: 4.95, hFracDesktop: 0.64, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05 },
   // 3 page
   { rx: -0.1, ry: 0.36, rz: 0.0, w: 6.9, h: 5.0, hFracDesktop: 0.62, hFracMobile: 0.32, gainY: 0.3, gainX: 0.2 },
   // 4 chat
@@ -43,7 +43,7 @@ export interface Scales { half: number[]; wide: number[] }
 export function chapterScales(f: Frame): Scales {
   const half = VIEWS.map((v) => {
     if (f.mobile) return Math.min((v.hFracMobile * f.visH) / v.h, (0.9 * f.visW) / v.w);
-    return Math.min((v.hFracDesktop * f.visH) / v.h, (0.43 * f.visW) / v.w);
+    return Math.min((v.hFracDesktop * f.visH) / v.h, (0.455 * f.visW) / v.w);
   });
   const wide = VIEWS.map((v, i) => {
     if (f.mobile) return half[i]!;

@@ -131,7 +131,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
   const staticMode = opts.reducedMotion;
   const adaptive = opts.adaptive !== false;
   const range = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE) as Float32Array;
-  const maxPoint = Math.min(range[1] ?? 64, 256);
+  const maxPoint = Math.min(range[1] ?? 64, 512);
 
   const renderer = new WebGLRenderer({
     canvas,
@@ -392,7 +392,13 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       if (document.hidden) stopLoop();
       else startLoop();
     };
-    const onLost = (e: Event): void => { e.preventDefault(); lost = true; stopLoop(); };
+    const onLost = (e: Event): void => {
+      e.preventDefault();
+      lost = true;
+      stopLoop();
+      // Unlink our geometry/materials from the dead context's caches; three re-uploads and recompiles lazily after restore.
+      for (const d of disposables) { try { d.dispose(); } catch { /* ignore */ } }
+    };
     const onRestored = (): void => {
       lost = false;
       if (destroyed) return;
