@@ -156,6 +156,7 @@ export function stripHtml(html: string): string {
   return html
     .replace(/<\s*br\s*\/?>/gi, ' ')
     .replace(/<[^>]+>/g, '')
+    .replace(/\u2060/g, '')
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')

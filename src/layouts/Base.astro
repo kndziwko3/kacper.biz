@@ -7,8 +7,8 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import type { Lang } from '../content/site';
 import { copy } from '../content/copy';
-import monaLatin from '@fontsource-variable/mona-sans/files/mona-sans-latin-standard-normal.woff2?url';
-import monaExt from '@fontsource-variable/mona-sans/files/mona-sans-latin-ext-standard-normal.woff2?url';
+import monaLatin from '../assets/fonts/mona-sans-latin.woff2?url';
+import monaExt from '../assets/fonts/mona-sans-latin-ext.woff2?url';
 
 // The static dot-map poster is owned by the scene module; render it when present.
 const posterModules = import.meta.glob<{ default: (props: Record<string, unknown>) => unknown }>('../components/MapPoster.astro', { eager: true });

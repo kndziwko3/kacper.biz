@@ -9,7 +9,7 @@ const abs = (p) => (p === '/' ? `${ORIGIN}/` : `${ORIGIN}${p}`);
 export default defineConfig({
   site: ORIGIN,
   trailingSlash: 'never',
-  build: { format: 'file', inlineStylesheets: 'auto' },
+  build: { format: 'file', inlineStylesheets: 'always' },
   compressHTML: true,
   prefetch: false,
   integrations: [

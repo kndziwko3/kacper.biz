@@ -69,7 +69,8 @@ const total = String(o.steps.length).padStart(2, '0');
   .outreach { position: relative; padding-block: clamp(5rem, 12vh, 8rem) clamp(6rem, 14vh, 9rem); }
   .op-lead { margin-top: 1.5rem; max-width: 46ch; }
   .instrument { margin-top: clamp(3rem, 10vh, 6rem); align-items: start; }
-  .step { position: relative; padding: 1.5rem 0 2rem; border-top: 1px solid var(--line); transition: opacity 0.5s var(--ease); }
+  .step { position: relative; padding: 1.5rem 0 2rem; border-top: 1px solid var(--line); }
+  .step :is(.h3, .body, .step-n) { transition: color 0.5s var(--ease); }
   .step .h3 { margin-top: 0.75rem; }
   .step .body { margin-top: 0.6rem; }
   .step-n { color: var(--faint); }
@@ -78,8 +79,8 @@ const total = String(o.steps.length).padStart(2, '0');
 
   @media (min-width: 900px) {
     .step { min-height: 62vh; padding-bottom: 0; }
-    :global(.js) .step { opacity: 0.32; }
-    :global(.js) .step.is-active { opacity: 1; }
+    /* inactive steps recede by colour, not opacity, so they keep 4.5:1 contrast */
+    :global(.js) .step:not(.is-active) :is(.h3, .body, .step-n) { color: var(--faint); }
     :global(.js) .step.is-active .step-n { color: var(--signal); }
     .step-pane { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .panel-col { display: block; position: sticky; top: calc(50vh - 11rem); }

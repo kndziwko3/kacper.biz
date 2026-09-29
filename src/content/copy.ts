@@ -80,22 +80,22 @@ const pl = {
         {
           title: 'Lista firm',
           text: 'Google Maps, PKT.pl, OpenStreetMap i CEIDG przeszukiwane na żywo. Filtr „bez www” zawęża listę do wpisów bez adresu strony.',
-          panel: { kind: 'query', query: 'biura rachunkowe · Kraków', result: '50 firm', detail: '46 z adresem e-mail', note: 'Przykład z outreachpilot.pl' },
+          panel: { kind: 'query' as const, query: 'biura rachunkowe · Kraków', result: '50 firm', detail: '46 z adresem e-mail', note: 'Przykład z outreachpilot.pl' },
         },
         {
           title: 'Mail po polsku',
           text: 'AI odmienia imiona i miasta, pisze temat i dwa follow-upy. Nie dopisuje faktów spoza Twojej oferty.',
-          panel: { kind: 'declension', pairs: [['Tomasz', 'Panie Tomaszu'], ['Monika', 'Pani Moniko'], ['Bytom', 'z Bytomia'], ['Gliwice', 'w Gliwicach']] },
+          panel: { kind: 'declension' as const, pairs: [['Tomasz', 'Panie Tomaszu'], ['Monika', 'Pani Moniko'], ['Bytom', 'z Bytomia'], ['Gliwice', 'w Gliwicach']] },
         },
         {
           title: 'Wysyłka z Twojej skrzynki',
           text: 'Gmail, Outlook albo dowolny SMTP. Losowe odstępy, dzienny limit i link do wypisu w każdym mailu.',
-          panel: { kind: 'log', rows: ['09:14', '09:21', '09:26', '09:38'], status: 'wysłano', limit: 'limit dzienny 184 / 300', note: 'Przykład z outreachpilot.pl' },
+          panel: { kind: 'log' as const, rows: ['09:14', '09:21', '09:26', '09:38'], status: 'wysłano', limit: 'limit dzienny 184 / 300', note: 'Przykład z outreachpilot.pl' },
         },
         {
           title: 'Odpowiedzi',
           text: 'Skrzynka sprawdzana co 15 minut. AI oznacza każdą odpowiedź (zainteresowanie, pytanie, odmowa) i zatrzymuje sekwencję do tej osoby.',
-          panel: { kind: 'replies', rows: [['Tomasz L.', 'zainteresowanie', 'Brzmi ciekawie, może telefon w czwartek?'], ['Anna M.', 'pytanie', 'Proszę o więcej szczegółów i cennik.'], ['Biuro', 'odmowa', 'Dziękuję, obecnie nie korzystamy.']] },
+          panel: { kind: 'replies' as const, rows: [['Tomasz L.', 'zainteresowanie', 'Brzmi ciekawie, może telefon w czwartek?'], ['Anna M.', 'pytanie', 'Proszę o więcej szczegółów i cennik.'], ['Biuro', 'odmowa', 'Dziękuję, obecnie nie korzystamy.']] },
         },
       ],
       benchmark: {
@@ -210,7 +210,7 @@ const pl = {
     what: {
       h2: 'Co to jest i dla kogo',
       p1: 'OutreachPilot łączy w jednym panelu pięć etapów: wyszukiwanie firm, kampanię, wysyłkę, skrzynkę odpowiedzi i statystyki. Dane pochodzą z CEIDG, Google Maps, PKT.pl i OpenStreetMap, a AI pisze z poprawną polską odmianą.',
-      p2: 'Jest zrobiony dla freelancerów, małych firm i agencji, które sprzedają usługi innym firmom w Polsce. Do 31 sierpnia 2026 użytkownicy uruchomili w nim ${BENCHMARK.campaignsTotal} kampanii. Interfejs i kampanie są po polsku, ceny w złotówkach.',
+      p2: `Jest zrobiony dla freelancerów, małych firm i agencji, które sprzedają usługi innym firmom w Polsce. Do 31 sierpnia 2026 użytkownicy uruchomili w nim ${BENCHMARK.campaignsTotal} kampanii. Interfejs i kampanie są po polsku, ceny w złotówkach.`,
     },
     forWho: {
       h2: 'Podstrony dla konkretnych branż',
@@ -441,22 +441,22 @@ const en: Copy = {
         {
           title: 'A list of companies',
           text: 'Google Maps, PKT.pl, OpenStreetMap and CEIDG searched live. The “no website” filter narrows the list to entries without a website address.',
-          panel: { kind: 'query', query: 'biura rachunkowe · Kraków', result: '50 companies', detail: '46 with an email address', note: 'Example from outreachpilot.pl' },
+          panel: { kind: 'query' as const, query: 'biura rachunkowe · Kraków', result: '50 companies', detail: '46 with an email address', note: 'Example from outreachpilot.pl' },
         },
         {
           title: 'Email in proper Polish',
           text: 'The AI inflects first names and cities and writes the subject and two follow-ups. It adds no facts beyond your offer.',
-          panel: { kind: 'declension', pairs: [['Tomasz', 'Panie Tomaszu'], ['Monika', 'Pani Moniko'], ['Bytom', 'z Bytomia'], ['Gliwice', 'w Gliwicach']] },
+          panel: { kind: 'declension' as const, pairs: [['Tomasz', 'Panie Tomaszu'], ['Monika', 'Pani Moniko'], ['Bytom', 'z Bytomia'], ['Gliwice', 'w Gliwicach']] },
         },
         {
           title: 'Sent from your mailbox',
           text: 'Gmail, Outlook or any SMTP. Random intervals, a daily limit and an unsubscribe link in every email.',
-          panel: { kind: 'log', rows: ['09:14', '09:21', '09:26', '09:38'], status: 'sent', limit: 'daily limit 184 / 300', note: 'Example from outreachpilot.pl' },
+          panel: { kind: 'log' as const, rows: ['09:14', '09:21', '09:26', '09:38'], status: 'sent', limit: 'daily limit 184 / 300', note: 'Example from outreachpilot.pl' },
         },
         {
           title: 'Replies',
           text: 'The inbox is checked every 15 minutes. The AI labels each reply (interested, question, declined) and stops the sequence to that person.',
-          panel: { kind: 'replies', rows: [['Tomasz L.', 'interested', 'Sounds interesting, a call on Thursday?'], ['Anna M.', 'question', 'Please send more details and pricing.'], ['Office', 'declined', 'Thank you, not at the moment.']] },
+          panel: { kind: 'replies' as const, rows: [['Tomasz L.', 'interested', 'Sounds interesting, a call on Thursday?'], ['Anna M.', 'question', 'Please send more details and pricing.'], ['Office', 'declined', 'Thank you, not at the moment.']] },
         },
       ],
       benchmark: {
@@ -571,7 +571,7 @@ const en: Copy = {
     what: {
       h2: 'What it is and who it is for',
       p1: 'OutreachPilot puts five stages in one panel: company search, campaign, sending, reply inbox and statistics. Data comes from CEIDG, Google Maps, PKT.pl and OpenStreetMap, and the AI writes with correct Polish inflection.',
-      p2: 'It is built for freelancers, small businesses and agencies that sell services to other companies in Poland. By 31 August 2026 users had run ${BENCHMARK.campaignsTotal} campaigns in it. The interface and the campaigns are in Polish, prices in złoty.',
+      p2: `It is built for freelancers, small businesses and agencies that sell services to other companies in Poland. By 31 August 2026 users had run ${BENCHMARK.campaignsTotal} campaigns in it. The interface and the campaigns are in Polish, prices in złoty.`,
     },
     forWho: {
       h2: 'Pages for specific sectors (in Polish)',

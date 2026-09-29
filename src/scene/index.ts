@@ -50,7 +50,7 @@ export interface SceneOptions {
   tier?: Tier;
   /** Set false to disable the frame-time downshift (debugging under software GL). Default true. */
   adaptive?: boolean;
-  /** Called after every rendered frame (debugging). */
+  /** Called after every rendered frame (debugging). Passing `tier` also keeps the animation on software GL. */
   onStats?: (s: SceneStats) => void;
 }
 
@@ -88,6 +88,14 @@ interface NavigatorHints extends Navigator {
   connection?: { saveData?: boolean };
 }
 
+/** A software rasteriser (SwiftShader, llvmpipe): every frame costs main-thread CPU, so we draw stills only. */
+function isSoftware(gl: WebGL2RenderingContext): boolean {
+  try {
+    const ext = gl.getExtension('WEBGL_debug_renderer_info');
+    return !!ext && /swiftshader|llvmpipe|softpipe|software/i.test(String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)));
+  } catch { return false; } // masked renderer: assume hardware
+}
+
 function pickTier(gl: WebGL2RenderingContext): Tier {
   const nav = navigator as NavigatorHints;
   const cores = nav.hardwareConcurrency || 4;
@@ -95,12 +103,7 @@ function pickTier(gl: WebGL2RenderingContext): Tier {
   const saveData = nav.connection?.saveData === true;
   let coarse = false;
   try { coarse = !window.matchMedia('(pointer: fine)').matches; } catch { /* keep default */ }
-  let software = false;
-  try {
-    const ext = gl.getExtension('WEBGL_debug_renderer_info');
-    if (ext) software = /swiftshader|llvmpipe|softpipe|software/i.test(String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)));
-  } catch { /* masked renderer: assume hardware */ }
-  if (saveData || software || cores <= 2 || mem <= 2) return 'low';
+  if (saveData || isSoftware(gl) || cores <= 2 || mem <= 2) return 'low';
   if (coarse || window.innerWidth < 700 || cores <= 4 || mem <= 4) return 'mid';
   return 'high';
 }
@@ -169,7 +172,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
 
   const tier = opts.tier ?? pickTier(gl);
   const cfg = TIERS[tier];
-  const staticMode = opts.reducedMotion;
+  const staticMode = opts.reducedMotion || (opts.tier === undefined && isSoftware(gl));
   const adaptive = opts.adaptive !== false;
   const range = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE) as Float32Array;
   const maxPoint = Math.min(range[1] ?? 64, 512);

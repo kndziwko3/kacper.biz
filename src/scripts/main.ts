@@ -100,21 +100,41 @@ function reveals(): Cleanup {
 }
 
 /* ── 3D world: mounted once, after load, only when it is worth it ── */
+/** A throwaway context: WebGL2 on a real GPU? Software rasterisers keep the static poster instead. */
+function hardwareGL(): boolean {
+  try {
+    const gl = document.createElement('canvas').getContext('webgl2');
+    if (!gl) return false;
+    const ext = gl.getExtension('WEBGL_debug_renderer_info');
+    const renderer = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    return !/swiftshader|llvmpipe|softpipe|software/i.test(renderer);
+  } catch {
+    return false;
+  }
+}
+
+let posterOnly = false;
 function startScene(): void {
-  if (scene || starting) return;
+  if (scene || starting || posterOnly) return;
   const canvas = document.getElementById('scene') as HTMLCanvasElement | null;
   if (!canvas) return;
   const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } };
-  if (nav.connection?.saveData || /(^|-)2g$/.test(nav.connection?.effectiveType ?? '')) return;
+  if (nav.connection?.saveData || /(^|-)2g$/.test(nav.connection?.effectiveType ?? '')) { posterOnly = true; return; }
+  // ?gl=high|mid|low forces a tier and the live scene even on software GL (QA only)
+  const tier = /[?&]gl=(high|mid|low)\b/.exec(location.search)?.[1] as 'high' | 'mid' | 'low' | undefined;
   starting = true;
   const go = async () => {
     try {
+      if (!tier && !hardwareGL()) { posterOnly = true; return; }
       const { mountScene } = await import('../scene/index');
-      const handle = (await mountScene(canvas, { reducedMotion: reduced })) as SceneHandle | null;
+      const handle = (await mountScene(canvas, { reducedMotion: reduced, tier })) as SceneHandle | null;
       if (handle) {
         scene = handle;
         canvas.classList.add('is-live');
-        document.querySelector('.map-poster')?.classList.add('is-off');
+        // the live map grows out of Gliwice over the poster before the poster goes
+        const poster = document.querySelector('.map-poster');
+        window.setTimeout(() => poster?.classList.add('is-off'), reduced ? 0 : 1500);
         if (lastCity) scene.setCity?.(lastCity.lat, lastCity.lon);
       }
     } catch {

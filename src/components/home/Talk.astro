@@ -27,7 +27,7 @@ const ui = copy[lang].ui;
         <a class="jl-full link link--u" href={SALES.bookingUrl} target="_blank" rel="noopener" data-cta="talk-calendar">{t.justyna.full}<span class="sr-only"> {ui.newTab}</span></a>
       </div>
       <div class="c-7-12 write">
-        <h3 class="h3">{t.write.h3}</h3>
+        {heading ? <h3 class="h3">{t.write.h3}</h3> : <h2 class="h3">{t.write.h3}</h2>}
         <p class="body write-p">{t.write.p}</p>
         <ContactForm lang={lang} idPrefix={idPrefix} />
       </div>

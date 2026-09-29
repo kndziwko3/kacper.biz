@@ -6,10 +6,12 @@
  * Strings may contain simple inline HTML (<strong>, <br>): the regexes never touch text inside tags.
  */
 const NBSP = ' ';
+const WJ = '\u2060'; // word joiner
 
 const SINGLE = /(^|[\s(„>])([aiouwzAIOUWZ])\s+/g;
 const THOUSANDS = /(\d)[   ](\d{3})(?!\d)/g;
 const UNITS = /(\d)\s+(zł|PLN|dni|dnia|min|minut|godzin|h|%|×|mies\.|osób|firm|maili|kampanii|wpisów|narzędzi|leadów|wiadomości|znaków|zł\/mies\.|m²)(?=[\s.,;:)!? ]|$)/g;
+const RANGE = /(\d)–(?!\u2060)(\d)/g;
 const PREFIX_UNITS = /\b(od|do|ok\.|nr|str\.|PLN|USD|GBP|€|\$)\s+(?=\d)/g;
 const SHORT_WORDS_PL = /(^|[\s(„>])(do|od|na|po|we|ze|ku|co|to|że|by|go|mu|mi|ci|Ci|się|nie|lub|oraz|jak|bez|dla|pod|nad|przy)\s+(?=\S)/g;
 
@@ -32,6 +34,8 @@ export function typo(input: string, lang: 'pl' | 'en' = 'pl'): string {
     out = out.replace(THOUSANDS, `$1${NBSP}$2`).replace(THOUSANDS, `$1${NBSP}$2`);
     out = out.replace(UNITS, `$1${NBSP}$2`);
     out = out.replace(PREFIX_UNITS, `$1${NBSP}`);
+    // numeric ranges ("7–14 dni") never break at the dash
+    out = out.replace(RANGE, `$1–${WJ}$2`);
     return out;
   });
 }
@@ -44,7 +48,10 @@ export function typoDeep<T>(value: T, lang: 'pl' | 'en'): T {
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
       // URLs, emails, ids and machine keys are left untouched
-      out[k] = /^(href|url|slug|key|id|email|tel|src|pkd|host)$/i.test(k) ? v : typoDeep(v, lang);
+      if (/^(href|url|slug|key|id|email|tel|src|pkd|host)$/i.test(k)) out[k] = v;
+      // <title> and meta description: keep no-break spaces, drop the invisible word joiner
+      else if (/^(title|description)$/.test(k) && typeof v === 'string') out[k] = typo(v, lang).replace(/\u2060/g, '');
+      else out[k] = typoDeep(v, lang);
     }
     return out as T;
   }

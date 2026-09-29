@@ -1,0 +1,23 @@
+---
+/**
+ * Static stand-in for the 3D map, framed like the scene's map chapter (right half on desktop, top band on
+ * mobile). Shown without WebGL, on software GL, with save-data, without JS, and for the first moments
+ * before the scene mounts; main.ts fades it out once the live map has grown over it.
+ * The SVG is generated from the scene's own polygon by scripts/poster.mjs.
+ */
+---
+<div class="map-poster" aria-hidden="true">
+  <img src="/map-poster.svg" alt="" width="653" height="620" decoding="async" />
+</div>
+<style>
+  .map-poster { position: fixed; inset: 0; z-index: 0; pointer-events: none; container-type: size; overflow: hidden; }
+  /* camera: 26° vertical FOV at 19.5 units -> perspective of ~2.17 viewport heights; map tilted ~32° */
+  img {
+    position: absolute; left: 50%; top: 32%; height: auto;
+    width: min(93.6cqw, 47cqh);
+    transform: translate(-50%, -50%) perspective(217cqh) rotateX(32deg);
+  }
+  @media (min-width: 900px) {
+    img { left: 75%; top: 50%; width: min(45.7cqw, 84cqh); }
+  }
+</style>

@@ -103,10 +103,11 @@ const alt = (name: string, kind: string) => (lang === 'pl' ? `Strona ${name}, ${
     .sc-track { display: block; height: calc(var(--n) * 90vh + 20vh); position: relative; }
     .sc-sticky { position: sticky; top: calc(var(--header-h) + 3vh); height: calc(100vh - var(--header-h) - 6vh); display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--col-gap); align-items: center; }
     .sc-list { display: grid; gap: 0; align-content: center; }
-    .sc-item a { display: grid; gap: 0.3rem; padding: 1.1rem 0; border-top: 1px solid var(--line); transition: opacity 0.45s var(--ease); }
+    .sc-item a { display: grid; gap: 0.3rem; padding: 1.1rem 0; border-top: 1px solid var(--line); }
+    .sc-item a > * { transition: color 0.45s var(--ease); }
     .sc-item:last-child a { border-bottom: 1px solid var(--line); }
-    :global(.js) .sc-item a { opacity: 0.35; }
-    :global(.js) .sc-item.is-active a, .sc-item a:hover { opacity: 1; }
+    /* inactive projects recede by colour (large names 3:1, meta lines 4.5:1 on paper) */
+    :global(.js) .sc-item:not(.is-active) a:not(:hover) > * { color: #6b675f; }
     .sc-item .sc-meta:last-of-type { display: none; }
     .sc-item.is-active .sc-meta:last-of-type { display: block; }
     .sc-stage { position: relative; height: 100%; display: grid; align-items: center; }
