@@ -1,5 +1,5 @@
 /**
- * Procedural point targets for the six chapters. Everything is generated at runtime (no assets).
+ * Procedural point targets for the six chapters (0 cloud, 1 map, 2 traffic, 3 page, 4 chat, 5 close-up). Everything is generated at runtime (no assets).
  *
  * Every chapter produces exactly `n` points, in random order, so any prefix of the arrays is a uniform
  * subset of that shape (this is what makes draw-range downshifting look graceful).
@@ -15,21 +15,18 @@ export const PAL = { boneDim: 0, bone: 1, verm: 2, verm2: 3, peri: 4, peri2: 5, 
 
 /** sRGB palette, index-aligned with PAL. Shared with the shaders through a uniform array. */
 export const PALETTE: ReadonlyArray<readonly [number, number, number]> = [
-  [0.69, 0.68, 0.65], // bone dim   #b0ada6
-  [0.937, 0.925, 0.902], // bone    #efece6
-  [1.0, 0.416, 0.239], // vermilion #ff6a3d
-  [1.0, 0.604, 0.463], // vermilion-2 #ff9a76
-  [0.616, 0.549, 1.0], // periwinkle #9d8cff
-  [0.769, 0.725, 1.0], // periwinkle-2 #c4b9ff
-  [0.843, 1.0, 0.271], // lime #d7ff45
+  [0.561, 0.545, 0.514], // bone dim      #8f8b83
+  [0.925, 0.91, 0.875], // bone           #ece8df
+  [1.0, 0.353, 0.122], // signal          #ff5a1f
+  [1.0, 0.541, 0.361], // signal-2        #ff8a5c
+  [0.851, 0.827, 0.78], // warm bone      #d9d3c7 (slot kept for index stability)
+  [0.949, 0.933, 0.902], // warm bone hi  #f2eee6
+  [1.0, 0.965, 0.918], // reply: warm white #fff6ea
   [1, 1, 1], // sweep (computed in shader)
 ];
 
 export function style(cid: number, brightness: number): number {
   return cid + Math.min(0.98, Math.max(0, brightness * 0.5));
-}
-function sweepStyle(u: number): number {
-  return PAL.sweep + Math.min(0.98, Math.max(0, u * 0.98));
 }
 function dimStyle(s: number, f: number): number {
   const cid = Math.floor(s);
@@ -535,81 +532,6 @@ function buildChat(n: number, c: Ctx): Chapter {
   return sink.finish(rng);
 }
 
-// ---------------------------------------------------------------- chapter 5: finale rings
-export interface RingSpec { axis: readonly [number, number, number]; speed: number }
-export const RINGS: readonly RingSpec[] = [
-  { axis: norm3(0.28, 1.0, 0.12), speed: 0.11 },
-  { axis: norm3(-0.78, 0.9, 0.34), speed: -0.085 },
-  { axis: norm3(0.92, 0.5, -0.42), speed: 0.06 },
-];
-function norm3(x: number, y: number, z: number): readonly [number, number, number] {
-  const l = Math.hypot(x, y, z);
-  return [x / l, y / l, z / l];
-}
-
-function buildFinale(n: number, c: Ctx): Chapter {
-  const { rng, sink } = c;
-  const radii = [3.35, 2.45, 4.25] as const;
-  const shares = [0.2, 0.15, 0.22] as const;
-  const flagFor = (ring: number): number => 10 * (ring + 1);
-  const nCore = Math.round(n * 0.1);
-  const nSat = Math.round(n * 0.012);
-  const nDisc = Math.round(n * 0.21);
-  const ringCounts = shares.map((s) => Math.round(n * s));
-
-  RINGS.forEach((ring, ri) => {
-    const [ax, ay, az] = ring.axis;
-    // orthonormal basis (u, v) perpendicular to the ring axis
-    const t: [number, number, number] = Math.abs(ay) < 0.9 ? [0, 1, 0] : [1, 0, 0];
-    let ux = ay * t[2] - az * t[1], uy = az * t[0] - ax * t[2], uz = ax * t[1] - ay * t[0];
-    const ul = Math.hypot(ux, uy, uz); ux /= ul; uy /= ul; uz /= ul;
-    const vx = ay * uz - az * uy, vy = az * ux - ax * uz, vz = ax * uy - ay * ux;
-    const R = radii[ri]!;
-    const k = ringCounts[ri]!;
-    for (let i = 0; i < k; i++) {
-      const u = (i + rng.r()) / k;
-      const a = u * Math.PI * 2;
-      const rad = R + rng.g() * 0.05 + rng.g() * 0.03;
-      const off = rng.g() * 0.05;
-      const ca = Math.cos(a) * rad, sa = Math.sin(a) * rad;
-      const x = ux * ca + vx * sa + ax * off;
-      const y = uy * ca + vy * sa + ay * off;
-      const z = uz * ca + vz * sa + az * off;
-      // sweep coordinate follows the angle; each ring is phase-shifted so the colours interleave
-      const su = (u + ri / 3) % 1;
-      sink.add(x, y, z, sweepStyle(su), flagFor(ri));
-    }
-    // a few bright "satellites" riding the ring
-    const ns = Math.max(1, Math.round(nSat / 3));
-    const a0 = rng.r() * Math.PI * 2;
-    for (let i = 0; i < ns; i++) {
-      const a = a0 + rng.g() * 0.05;
-      const rad = R + rng.g() * 0.03;
-      const ca = Math.cos(a) * rad, sa = Math.sin(a) * rad;
-      sink.add(ux * ca + vx * sa + rng.g() * 0.03, uy * ca + vy * sa + rng.g() * 0.03, uz * ca + vz * sa + rng.g() * 0.03, sweepStyle((a0 / (Math.PI * 2) + ri / 3) % 1), flagFor(ri));
-    }
-  });
-
-  // dense little core
-  for (let i = 0; i < nCore; i++) {
-    const d = Math.abs(rng.g()) * 0.34;
-    const th = rng.r() * Math.PI * 2, ph = Math.acos(rng.range(-1, 1));
-    sink.add(d * Math.sin(ph) * Math.cos(th), d * Math.cos(ph), d * Math.sin(ph) * Math.sin(th), style(rng.r() < 0.3 ? PAL.verm2 : PAL.bone, rng.range(1.1, 1.8)));
-  }
-
-  // faint accretion disc between and around the rings
-  for (let i = 0; i < nDisc; i++) {
-    const rr = 0.7 + Math.pow(rng.r(), 0.8) * 4.3;
-    const a = rng.r() * Math.PI * 2;
-    const x = Math.cos(a) * rr, z = Math.sin(a) * rr;
-    const y = rng.g() * 0.05 * (1 + rr * 0.2) + z * 0.12;
-    sink.add(x, y, z, style(rng.r() < 0.5 ? PAL.peri : PAL.boneDim, rng.range(0.22, 0.5)));
-  }
-
-  dust(c, sink.left, 5.6, 4.6, 2.4, () => style(rng.r() < 0.5 ? PAL.peri : PAL.boneDim, rng.range(0.2, 0.45)));
-  return sink.finish(rng);
-}
-
 // ---------------------------------------------------------------- public API
 export interface Targets {
   count: number;
@@ -617,7 +539,7 @@ export interface Targets {
   pos: Float32Array[];
   /** length CHAPTER_COUNT, each n. */
   style: Float32Array[];
-  /** n*4: xyz random in [0,1), w = flags (typing dot 1..3 in ones digit + 10*ring id in tens digit). */
+  /** n*4: xyz random in [0,1), w = flags (typing dot 1..3). */
   rand: Float32Array;
 }
 
@@ -640,14 +562,14 @@ export async function buildTargets(n: number, seed = 20260928, yieldToMain?: () 
   const chat = buildChat(n, mk(5));
   chapters.push(chat);
   await pause();
-  const fin = buildFinale(n, mk(6));
-  chapters.push(fin);
+  // chapter 5 is the closing close-up on Gliwice: the same map, framed tighter by view.ts
+  chapters.push({ pos: map.pos, style: map.style, flag: map.flag });
 
   const rng = makeRng(seed ^ 0x9e3779b9);
   const rand = new Float32Array(n * 4);
   for (let i = 0; i < n; i++) {
     rand[i * 4] = rng.r(); rand[i * 4 + 1] = rng.r(); rand[i * 4 + 2] = rng.r();
-    rand[i * 4 + 3] = chat.flag[i]! + fin.flag[i]!;
+    rand[i * 4 + 3] = chat.flag[i]!;
   }
   return { count: n, pos: chapters.map((ch) => ch.pos), style: chapters.map((ch) => ch.style), rand };
 }

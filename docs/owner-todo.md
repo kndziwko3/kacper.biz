@@ -1,28 +1,25 @@
-# Co musisz dostarczyć / potwierdzić
+# Co musisz dostarczyć albo potwierdzić
 
-Strona jest zbudowana wyłącznie z faktów publicznie potwierdzonych na outreachpilot.pl i fastlanding.io
-(stan 2026-09-28). Nic poniżej nie blokuje publikacji, ale każdy punkt poprawia wiarygodność albo jest decyzją, którą muszę zostawić Tobie.
+Strona jest zbudowana wyłącznie z faktów opublikowanych na outreachpilot.pl i fastlanding.io (sprawdzone 2026-09-29).
+Nic poniżej nie blokuje publikacji, ale każdy punkt podnosi wiarygodność albo jest decyzją, którą zostawiam Tobie.
 
-## Do decyzji (5 minut)
-1. **Rozróżnienie od imiennika.** Na frazę „Kacper Rękawek" dominuje inna osoba (badacz bezpieczeństwa międzynarodowego). Strona to
-   mówi wprost (FAQ, /o-mnie, stopka, schema `disambiguatingDescription`). Sformułowanie jest w `src/content/site.ts` → `PERSON.disambiguation`.
-   Zatwierdź albo zmień ton.
-2. **Justyna.** Na stronie występuje tylko jako „Justyna, Head of Sales w OutreachPilot" z linkiem do istniejącej rezerwacji
-   (`outreachpilot.pl/umow-demo`). Bez nazwiska, zdjęcia i schema Person. Potwierdź, że jest OK, i że jest osobą (strona OutreachPilot
-   nazywa ją tak, ale nie mówi tego wprost; numer telefonu to osobny asystent AI i jest tak opisany).
-3. **Zdania w pierwszej osobie, które są Twoimi deklaracjami:** „Odpowiadam zwykle w ciągu 24 godzin w dni robocze",
-   „Najpierw testuję na sobie", „Jeśli opisuję wyniki, robię to tylko za zgodą klienta". Usuń, jeśli nie chcesz ich obiecywać (`src/content/copy.ts`).
-4. **Klienci w sekcji Realizacje** (Hello Home, Soleil Energia, Casa Flamingo): FastLanding już ich publicznie wymienia, ale nazwane
-   case studies z wynikami wymagają zgody klienta. Casa Flamingo: nie wiem, czy to klient czy powiązany podmiot — dostosuj opis.
+## Największy zysk
+- **Zdjęcie i krótka historia (4–5 zdań).** /o-mnie ma na nie miejsce. Dziś żadna z trzech stron nie pokazuje Twojej twarzy ani historii
+  („skąd OutreachPilot i FastLanding”). To najmocniejszy brakujący sygnał E-E-A-T i najczęstsza rzecz, której szuka jury Awwwards.
+- **Linki zwrotne do kacper.biz** z obu produktów: szczegóły w `docs/product-site-fixes.md`, punkt 1.
 
-## Do dostarczenia
-- **Zdjęcie** (opcjonalnie). Bez zdjęcia strona opiera się na typografii i 3D. Zdjęcie + krótka historia „skąd OutreachPilot i FastLanding"
-  to największy pojedynczy zysk dla E-E-A-T (obie strony produktowe mają dziś zero zdjęć i zero biogramu).
-- **Inne publiczne profile** (X, YouTube, Product Hunt, Crunchbase…): dopisz do `PERSON.extraSameAs`. GitHub celowo NIE jest podlinkowany.
-- **Odbiór formularza:** ustaw zmienne z `.env.example` (Resend albo webhook). Bez tego formularz otwiera mailto z gotową treścią.
-- **Analityka:** domyślnie brak (bez cookies, bez banera). Chcesz mierzyć? Umami/Plausible — wtedy zaktualizuj politykę prywatności.
+## Do potwierdzenia
+1. Zdanie o imienniku (`src/content/site.ts`, `PERSON.disambiguation`): występuje raz, na /o-mnie, oraz w danych strukturalnych.
+2. Deklaracje w pierwszej osobie: „Odpowiadam w 24 godziny w dni robocze”, „Na pytania klientów odpowiadam osobiście”,
+   „W OutreachPilot sam prowadzę treści”, „Ja zajmuję się produktem i realizacją” (/o-mnie). Zmień w `src/content/copy.ts`, jeśli któreś nie jest prawdą.
+3. Justyna Lajca: pokazana z imieniem, nazwiskiem i rolą (tak jak na fastlanding.io), bez zdjęcia. Link prowadzi do jej Calendly.
+4. Czat FastBota to przykładowa rozmowa przepisana z fastlanding.io (firma i klient fikcyjni, tak jest podpisana).
 
-## Do sprawdzenia przez prawnika/księgową
-- Polityka prywatności (`copy.ts` → `privacy`): okres przechowywania (24 mies. to moja propozycja), podstawy prawne, notka art. 13.
-- FastLanding podaje ceny „netto" i `vatID` w schema, a OutreachPilot deklaruje zwolnienie z VAT (art. 113) na ten sam NIP — to wymaga spójności.
-- Notka o cold mailingu (`LEGAL_NOTE`) jest przepisana z outreachpilot.pl, żeby nie obiecywać zgodności z RODO/PKE.
+## Do ustawienia przy wdrożeniu
+- Odbiór formularza: zmienne z `.env.example` (Resend albo webhook). Bez nich formularz otwiera mailto z gotową treścią.
+- Analityka: domyślnie brak (zero cookies, zero banera). Jeśli dodasz Umami lub Plausible, zaktualizuj politykę prywatności.
+- Firecrawl (narzędzie do researchu używane w tej sesji) skończyło kredyty; to nie wpływa na stronę.
+
+## Do sprawdzenia przez prawnika lub księgową
+- Polityka prywatności: okres przechowywania (24 miesiące to propozycja), podstawy prawne, notka z art. 13.
+- FastLanding podaje ceny netto i `vatID`, a OutreachPilot deklaruje zwolnienie z VAT (art. 113) na ten sam NIP.

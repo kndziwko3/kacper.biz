@@ -62,7 +62,7 @@ const COPY: Record<Lang, Copy> = {
         too_long: 'Imię może mieć maksymalnie 100 znaków.',
       },
       email: {
-        required: 'Podaj adres e-mail, na który mamy odpowiedzieć.',
+        required: 'Podaj adres e-mail, na który mam odpowiedzieć.',
         invalid: 'Ten adres e-mail wygląda na niepełny. Sprawdź go, proszę.',
         too_long: 'Adres e-mail jest za długi.',
       },
@@ -79,7 +79,7 @@ const COPY: Record<Lang, Copy> = {
     fixFields: (n) => (n === 1 ? 'Popraw zaznaczone pole.' : 'Popraw zaznaczone pola.'),
     rateLimited: (to) => `Zbyt wiele prób z tego połączenia. Odczekaj kilka minut albo napisz na ${to}.`,
     fallback: (to) =>
-      `Formularz nie mógł zostać wysłany przez serwer. Otwiera się Twój program pocztowy z gotową wiadomością do ${to}. Nic nie zostało jeszcze wysłane. Jeśli okno się nie pojawiło, użyj linku: `,
+      `Nie udało się wysłać formularza. Otwiera się Twój program pocztowy z gotową wiadomością do ${to}. Nic jeszcze nie wyszło. Jeśli okno się nie pojawiło, użyj linku: `,
     fallbackLink: 'Otwórz gotową wiadomość e-mail',
     mail: {
       subject: 'Zapytanie z kacper.biz',

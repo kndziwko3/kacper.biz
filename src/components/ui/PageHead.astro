@@ -8,7 +8,7 @@ const home = lang === 'pl' ? '/' : '/en';
 <section class="page-head m-window" data-scene={scene} data-scene-side={side} data-scene-dim={dim} aria-labelledby="page-h1">
   <div class="wrap grid">
     <div class="c-1-7 m-solid ph-in">
-      <nav class="crumbs" aria-label={lang === 'pl' ? 'Okruszki' : 'Breadcrumb'}><a href={home}>{copy[lang].ui.home}</a><span aria-hidden="true">/</span><span aria-current="page">{crumb}</span></nav>
+      <nav class="crumbs" aria-label={lang === 'pl' ? 'Ścieżka nawigacji' : 'Breadcrumb'}><a href={home}>{copy[lang].ui.home}</a><span aria-hidden="true">/</span><span aria-current="page">{crumb}</span></nav>
       <p class="label ph-kicker"><b>{kicker}</b></p>
       <h1 class="h1" id="page-h1">{h1}</h1>
       {lead && <p class="lead">{lead}</p>}

@@ -64,19 +64,25 @@ void main() {
 // ------------------------------------------------------------------------------------------ MAIN
 export const MAIN_VERT = /* glsl */ `
 uniform float uTime;
-uniform float uC;
+uniform float uA;       // chapter we morph from
+uniform float uB;       // chapter we morph to (== uA on a plateau)
+uniform float uT;       // progress 0..1
+uniform float uChatW;   // weight of the chat chapter (typing dots)
+uniform float uMapW;    // weight of the map chapters (1, 2, 5)
 uniform float uIntro;
 uniform float uPx;
 uniform float uRef;
 uniform float uMaxPt;
 uniform float uDim;
 uniform float uBloom;
+uniform float uFocus;   // "3 in 100": 97% of dots fade, 3% light up
+uniform vec3 uHome;     // Gliwice, local coordinates
+uniform vec3 uCity;     // highlighted city, local coordinates
+uniform float uCityAmt;
 uniform float uSize[6];
 uniform float uDrift[6];
 uniform float uBloomK[6];
 uniform vec3 uPal[8];
-uniform vec3 uAxis[3];
-uniform float uSpin[3];
 
 attribute vec3 aP1;
 attribute vec3 aP2;
@@ -116,42 +122,49 @@ vec3 chapterTarget(int i, vec3 p, float flag) {
     if (dotIdx > 0.5) p.y += 0.09 * (0.5 + 0.5 * sin(uTime * 5.2 - dotIdx * 1.15));
     return p;
   }
-  if (i == 5) {
-    float ring = floor(flag / 10.0 + 0.001);
-    if (ring > 0.5) {
-      int ri = int(ring + 0.5) - 1;
-      p = rodrigues(p, uAxis[ri], uTime * uSpin[ri]);
-    }
-    return rotY(p, uTime * 0.05);
-  }
   return p;
 }
 
-void main() {
-  float ci = clamp(uC, 0.0, 5.0);
-  float kf = min(floor(ci), 4.0);
-  // each chapter holds still for the first/last ~12% of its segment, so shapes read while their text is on screen
-  float t = clamp((ci - kf - 0.12) / 0.76, 0.0, 1.0);
-  int k = int(kf);
+vec3 targetOf(int i) {
+  if (i == 0) return position;
+  if (i == 1) return aP1;
+  if (i == 2) return aP2;
+  if (i == 3) return aP3;
+  if (i == 4) return aP4;
+  return aP5;
+}
+float styleOf(int i) {
+  if (i == 0) return aSA.x;
+  if (i == 1) return aSA.y;
+  if (i == 2) return aSA.z;
+  if (i == 3) return aSB.x;
+  if (i == 4) return aSB.y;
+  return aSB.z;
+}
+bool isMap(int i) { return i == 1 || i == 2 || i == 5; }
 
-  vec3 a; vec3 b; float sa; float sb;
-  if (k == 0)      { a = position; b = aP1; sa = aSA.x; sb = aSA.y; }
-  else if (k == 1) { a = aP1;      b = aP2; sa = aSA.y; sb = aSA.z; }
-  else if (k == 2) { a = aP2;      b = aP3; sa = aSA.z; sb = aSB.x; }
-  else if (k == 3) { a = aP3;      b = aP4; sa = aSB.x; sb = aSB.y; }
-  else             { a = aP4;      b = aP5; sa = aSB.y; sb = aSB.z; }
+void main() {
+  int ia = int(uA + 0.5);
+  int ib = int(uB + 0.5);
+  float t = clamp(uT, 0.0, 1.0);
+
+  vec3 a = targetOf(ia);
+  vec3 b = targetOf(ib);
+  float sa = styleOf(ia);
+  float sb = styleOf(ib);
 
   float flag = aRand.w;
-  vec3 a2 = chapterTarget(k, a, flag);
-  vec3 b2 = chapterTarget(k + 1, b, flag);
+  vec3 a2 = chapterTarget(ia, a, flag);
+  vec3 b2 = chapterTarget(ib, b, flag);
 
-  // per-segment character: stagger width, displacement strength, and the order particles leave in
-  float stag  = k == 0 ? 0.34 : (k == 1 ? 0.0 : (k == 2 ? 0.46 : (k == 3 ? 0.42 : 0.38)));
-  float dispK = k == 0 ? 1.15 : (k == 1 ? 0.0 : (k == 2 ? 1.3  : (k == 3 ? 1.15 : 1.2)));
-  float ord   = k == 0 ? aRand.y
-              : (k == 2 ? clamp(0.5 - b.y * 0.16, 0.0, 1.0)      // page builds top-down
-              : (k == 3 ? clamp(0.5 + b.y * 0.16, 0.0, 1.0)      // conversation builds bottom-up
-              : (k == 4 ? clamp(length(b) * 0.2, 0.0, 1.0) : 0.0)));
+  // per-transition character, keyed on the shape being formed: stagger, displacement, and the order dots arrive in
+  bool still = isMap(ia) && isMap(ib); // map <-> traffic <-> close-up: same dots, only the framing moves
+  float stag = still ? 0.0 : (ib == 3 ? 0.46 : (ib == 4 ? 0.42 : (ib == 0 ? 0.34 : 0.4)));
+  float dispK = still ? 0.0 : (ib == 3 ? 1.3 : (ib == 0 ? 1.15 : 1.2));
+  float ord = ib == 3 ? clamp(0.5 - b.y * 0.16, 0.0, 1.0)               // the page builds top-down
+            : (ib == 4 ? clamp(0.5 + b.y * 0.16, 0.0, 1.0)              // the conversation builds bottom-up
+            : (isMap(ib) ? clamp(length(b.xy - uHome.xy) * 0.2, 0.0, 1.0) // the map grows out of Gliwice
+            : aRand.y));
 
   float delay = stag * (0.6 * aRand.x + 0.4 * ord);
   float lt = clamp((t - delay) / max(1.0 - stag, 0.001), 0.0, 1.0);
@@ -165,17 +178,19 @@ void main() {
   float far = smoothstep(0.15, 2.5, dd);
   vec3 flow = curl(p * 0.5 + vec3(0.0, uTime * 0.07, 0.0) + aRand.xyz * 0.35);
   p += flow * mid * far * dispK * 0.62;
-  // a coherent vortex: the whole swarm turns while it re-forms (direction alternates per segment)
-  p = rotY(p, mid * (0.6 + 1.0 * aRand.y) * ((k & 1) == 0 ? 1.0 : -1.0) * smoothstep(0.5, 3.0, dd));
+  // a coherent vortex: the whole swarm turns while it re-forms (direction alternates with the target)
+  p = rotY(p, mid * (0.6 + 1.0 * aRand.y) * (mod(float(ib), 2.0) < 0.5 ? 1.0 : -1.0) * smoothstep(0.5, 3.0, dd));
 
   // idle drift (never fully still)
-  float drift = mix(uDrift[k], uDrift[k + 1], e);
+  float drift = mix(uDrift[ia], uDrift[ib], e);
   p += curl(p * 0.9 + aRand.xyz * 6.2831 + vec3(uTime * 0.11, uTime * 0.09, uTime * 0.07)) * drift;
 
-  // intro: gather from a wider, dimmer swarm
-  float ie = clamp((uIntro - aRand.y * 0.45) / 0.55, 0.0, 1.0);
+  // intro: a wave that starts in Gliwice and rolls across the country; each dot drops into place as it passes
+  float gd = length(p.xy - uHome.xy);
+  float ie = clamp((uIntro * 1.35 - gd * 0.16 - aRand.y * 0.12) / 0.28, 0.0, 1.0);
+  float front = sin(PI * ie);
   ie = 1.0 - pow(1.0 - ie, 3.0);
-  p += (1.0 - ie) * (normalize(p + vec3(0.001)) * 2.6 + curl(p * 0.4) * 1.1);
+  p += (1.0 - ie) * (vec3(0.0, 0.0, 1.4) + curl(p * 0.6) * 0.45);
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
@@ -184,22 +199,37 @@ void main() {
   vec4 ca = decodeStyle(sa);
   vec4 cb = decodeStyle(sb);
   vec3 tint = mix(ca.rgb, cb.rgb, e);
-  float br = mix(ca.a, cb.a, e);
+  float br = mix(ca.a, cb.a, e) * (1.0 + 1.2 * front);
+
+  // "3 in 100": only one dot in about thirty-three stays lit, in signal; the rest sink back
+  float pick = step(fract(aRand.x * 97.31 + aRand.z * 13.7), 0.03);
+  float fo = uFocus * uMapW;
+  tint = mix(tint, mix(tint * 0.5, uPal[2], pick), fo);
+  br *= mix(1.0, mix(0.36, 2.4, pick), fo);
+
+  // registry demo: the chosen city lights up, with a slow ping ring
+  float cd = length(p.xy - uCity.xy);
+  float ca2 = uCityAmt * uMapW;
+  float core = exp(-cd * cd / 0.05);
+  float r = fract(uTime * 0.38) * 1.1;
+  float ring = exp(-(cd - r) * (cd - r) / 0.004) * (1.0 - r / 1.1);
+  float hot = (core + 0.8 * ring) * ca2;
+  tint = mix(tint, uPal[3], clamp(hot, 0.0, 0.9));
+  br *= 1.0 + 1.3 * hot;
 
   // chat: the three typing dots pulse
   float dotIdx = mod(flag, 10.0);
-  float w4 = clamp(1.6 - abs(ci - 4.0) * 1.6, 0.0, 1.0);
-  float isDot = step(0.5, dotIdx) * w4;
+  float isDot = step(0.5, dotIdx) * uChatW;
   float ph = 0.5 + 0.5 * sin(uTime * 5.2 - dotIdx * 1.15);
   br *= mix(1.0, 0.3 + 1.1 * ph, isDot);
 
-  float sz = mix(uSize[k], uSize[k + 1], e) * (0.72 + 0.56 * aRand.z);
+  float sz = mix(uSize[ia], uSize[ib], e) * (0.72 + 0.56 * aRand.z);
   sz *= (1.0 + 0.35 * max(br - 1.0, 0.0)) * mix(1.0, 0.85 + 0.45 * ph, isDot);
 
   float twinkle = 0.88 + 0.12 * sin(uTime * (0.7 + aRand.x * 1.6) + aRand.y * 6.2831);
   float depthFade = clamp(1.0 + (uRef - depth) * 0.08, 0.45, 1.3);
 
-  float bk = mix(uBloomK[k], uBloomK[k + 1], e);
+  float bk = mix(uBloomK[ia], uBloomK[ib], e);
   sz *= mix(1.0, 3.8, uBloom);
   float px = sz * uPx * uRef / depth;
   float sub = uBloom > 0.5 ? 1.0 : clamp(px / 2.0, 0.0, 1.0);
@@ -213,13 +243,14 @@ void main() {
 // ------------------------------------------------------------------------------------------ GLOW
 export const GLOW_VERT = /* glsl */ `
 uniform float uTime;
-uniform float uC;
+uniform float uW[6];  // weight of each chapter on screen (sums to 1)
+uniform float uDim;
 uniform float uPxW;
 uniform float uGScale;
 uniform float uMaxPt;
 uniform vec3 uPal[8];
 attribute vec4 aInfo; // x: diameter (local units), y: intensity, z: palette id, w: phase
-attribute vec2 aRange; // chapter range [from, to] in which the halo is visible
+attribute vec2 aRange; // chapters [from, to] in which the halo is visible
 varying vec3 vCol;
 varying float vA;
 void main() {
@@ -229,8 +260,12 @@ void main() {
   float pulse = 1.0 + 0.22 * sin(uTime * 1.5 + aInfo.w);
   gl_PointSize = clamp(aInfo.x * uGScale * uPxW / depth * (0.94 + 0.08 * pulse), 2.0, uMaxPt);
   vCol = uPal[int(aInfo.z + 0.5)];
-  float vis = smoothstep(aRange.x - 0.45, aRange.x, uC) * (1.0 - smoothstep(aRange.y, aRange.y + 0.55, uC));
-  vA = aInfo.y * vis * pulse;
+  float vis = 0.0;
+  for (int i = 0; i < 6; i++) {
+    float f = float(i);
+    if (f > aRange.x - 0.5 && f < aRange.y + 0.5) vis += uW[i];
+  }
+  vA = aInfo.y * smoothstep(0.0, 1.0, vis) * pulse * uDim;
 }
 `;
 export const GLOW_FRAG = /* glsl */ `

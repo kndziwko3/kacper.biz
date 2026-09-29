@@ -1,32 +1,40 @@
 /**
- * Per-chapter camera-ish framing. The camera never moves; the whole point-world (a Group) is placed,
- * scaled and rotated so that each chapter's shape lands in the right part of the viewport.
+ * Per-chapter framing. The camera never moves; the whole point-world (a Group) is placed, scaled and
+ * rotated so that each chapter's shape lands in the right part of the viewport.
  */
+import { GLIWICE, project } from './poland';
+import { terrainZ } from './shapes';
 
 export interface ChapterView {
   /** Base rotation (radians). ry is multiplied by the side (-1..1): the outer edge turns away, the shape opens toward the text. */
   rx: number; ry: number; rz: number;
-  /** Nominal projected size of the shape in world units (already accounts for tilt). */
+  /** Nominal projected size of the framed area in world units (already accounts for tilt). */
   w: number; h: number;
   /** Max fraction of viewport height on desktop / mobile. */
   hFracDesktop: number; hFracMobile: number;
   /** Pointer tilt gain (yaw, pitch) in radians at the viewport edge. */
   gainY: number; gainX: number;
+  /** Local point that is framed at the centre (the close-up looks at Gliwice). */
+  focus: readonly [number, number, number];
 }
+
+const [GX, GY] = project(GLIWICE[0], GLIWICE[1]);
+export const HOME: readonly [number, number, number] = [GX, GY, terrainZ(GX, GY) + 0.05];
+const O = [0, 0, 0] as const;
 
 export const VIEWS: readonly ChapterView[] = [
   // 0 cloud
-  { rx: 0.16, ry: 0, rz: 0, w: 9.0, h: 6.2, hFracDesktop: 0.8, hFracMobile: 0.46, gainY: 0.2, gainX: 0.12 },
+  { rx: 0.16, ry: 0, rz: 0, w: 9.0, h: 6.2, hFracDesktop: 0.8, hFracMobile: 0.46, gainY: 0.2, gainX: 0.12, focus: O },
   // 1 map
-  { rx: -0.56, ry: 0.05, rz: -0.03, w: 6.3, h: 5.15, hFracDesktop: 0.66, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05 },
+  { rx: -0.56, ry: 0.05, rz: -0.03, w: 6.3, h: 5.15, hFracDesktop: 0.66, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05, focus: O },
   // 2 traffic (same map, a touch more tilt so the arcs read)
-  { rx: -0.68, ry: 0.05, rz: -0.03, w: 6.3, h: 4.95, hFracDesktop: 0.64, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05 },
+  { rx: -0.68, ry: 0.05, rz: -0.03, w: 6.3, h: 4.95, hFracDesktop: 0.64, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05, focus: O },
   // 3 page
-  { rx: -0.1, ry: 0.36, rz: 0.0, w: 6.9, h: 5.0, hFracDesktop: 0.62, hFracMobile: 0.32, gainY: 0.3, gainX: 0.2 },
+  { rx: -0.1, ry: 0.36, rz: 0.0, w: 6.9, h: 5.0, hFracDesktop: 0.62, hFracMobile: 0.32, gainY: 0.3, gainX: 0.2, focus: O },
   // 4 chat
-  { rx: -0.07, ry: 0.3, rz: 0.0, w: 7.0, h: 5.8, hFracDesktop: 0.68, hFracMobile: 0.38, gainY: 0.14, gainX: 0.09 },
-  // 5 finale
-  { rx: 0.44, ry: 0, rz: -0.16, w: 9.6, h: 7.4, hFracDesktop: 0.8, hFracMobile: 0.46, gainY: 0.12, gainX: 0.08 },
+  { rx: -0.07, ry: 0.3, rz: 0.0, w: 7.0, h: 5.8, hFracDesktop: 0.6, hFracMobile: 0.38, gainY: 0.14, gainX: 0.09, focus: O },
+  // 5 close-up: the same map, low and tight over Gliwice (Katowice, Opole and Kraków at the edges)
+  { rx: -0.9, ry: 0.04, rz: -0.08, w: 2.7, h: 1.9, hFracDesktop: 0.72, hFracMobile: 0.4, gainY: 0.06, gainX: 0.04, focus: HOME },
 ];
 
 export interface Frame {

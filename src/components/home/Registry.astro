@@ -11,6 +11,10 @@ const ui = copy[lang].ui;
 const defSector = SECTORS.find((s) => s.slug === 'elektrycy')!;
 const defCity = CITIES.find((c) => c.slug === 'krakow')!;
 const mailParts = d.mail.split('{in}');
+// "aktywnych JDG {in}, …" (PL, locative) / "… in {name}, …" (EN)
+const cityKey = d.cityCount.includes('{in}') ? 'in' : 'name';
+const cityParts = typo(d.cityCount, lang).split(`{${cityKey}}`);
+const cityForm = (c: { in: string; name: string }) => (cityKey === 'in' ? c.in : c.name);
 // Payload for the client script: counts, names and inflections only.
 const payload = {
   lang,
@@ -47,7 +51,7 @@ const payload = {
         </div>
         <div class="reg-count">
           <span class="reg-n num" data-out="city">{fmt(defCity.count, lang)}</span>
-          <span class="data"><span data-out="cityName">{defCity.name}</span>, <span set:html={typo(d.cityCount, lang)} /></span>
+          <span class="data">{cityParts[0]}<span data-out="cityLoc">{cityForm(defCity)}</span>{cityParts[1]}</span>
         </div>
       </div>
 

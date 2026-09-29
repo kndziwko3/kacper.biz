@@ -224,6 +224,6 @@ export const ROUTE_PAIRS: Array<{ pl: string; en: string }> = [
 
 /** Cold-mailing legal caveat, reproduced from outreachpilot.pl so kacper.biz never over-promises. */
 export const LEGAL_NOTE = {
-  pl: 'OutreachPilot nie deklaruje automatycznej zgodności kampanii z RODO ani z Prawem komunikacji elektronicznej. Podstawę przetwarzania danych i zgodę na kontakt ocenia nadawca. To informacja o produkcie, nie porada prawna.',
-  en: 'OutreachPilot does not claim automatic GDPR or Polish electronic-communications-law compliance for campaigns. The sender assesses the legal basis and consent. This is product information, not legal advice.',
+  pl: 'OutreachPilot nie deklaruje automatycznej zgodności kampanii z RODO ani z Prawem komunikacji elektronicznej. Podstawę przetwarzania danych i zgodę na kontakt ocenia nadawca. Ta informacja dotyczy produktu i nie jest poradą prawną.',
+  en: 'OutreachPilot does not claim automatic GDPR or Polish electronic-communications-law compliance for campaigns. The sender assesses the legal basis and consent. This note describes the product and is not legal advice.',
 } as L10n;

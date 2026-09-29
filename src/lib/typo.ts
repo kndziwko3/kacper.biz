@@ -9,7 +9,7 @@ const NBSP = ' ';
 
 const SINGLE = /(^|[\s(„>])([aiouwzAIOUWZ])\s+/g;
 const THOUSANDS = /(\d)[   ](\d{3})(?!\d)/g;
-const UNITS = /(\d)\s+(zł|PLN|dni|dnia|min|minut|godzin|h|%|×|mies\.|osób|firm|maili|kampanii|wpisów|narzędzi|zł\/mies\.)(?=[\s.,;:)!? ]|$)/g;
+const UNITS = /(\d)\s+(zł|PLN|dni|dnia|min|minut|godzin|h|%|×|mies\.|osób|firm|maili|kampanii|wpisów|narzędzi|leadów|wiadomości|znaków|zł\/mies\.|m²)(?=[\s.,;:)!? ]|$)/g;
 const PREFIX_UNITS = /\b(od|do|ok\.|nr|str\.|PLN|USD|GBP|€|\$)\s+(?=\d)/g;
 const SHORT_WORDS_PL = /(^|[\s(„>])(do|od|na|po|we|ze|ku|co|to|że|by|go|mu|mi|ci|Ci|się|nie|lub|oraz|jak|bez|dla|pod|nad|przy)\s+(?=\S)/g;
 

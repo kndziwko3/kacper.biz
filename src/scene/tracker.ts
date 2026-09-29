@@ -1,19 +1,38 @@
 /**
- * Maps the page's scroll position to a continuous "chapter" value.
+ * Maps the page's scroll position to a scene state: which chapter pair is on screen and how far along.
  * Native scrolling only: this module reads layout and never touches scroll events' default behaviour.
+ *
+ * Every [data-scene] section is a plateau: while the viewport centre is inside it (minus a margin), the
+ * chapter holds still. Between two plateaus the state morphs from one section's chapter to the next, so
+ * any two chapters can follow each other directly (map -> close-up never passes through the chat).
+ *
+ * Section attributes:
+ *   data-scene="0..5"          chapter
+ *   data-scene-side            where the TEXT sits: left | right | center (the shape goes opposite)
+ *   data-scene-focus="1"       the "3 in 100" highlight on the map
+ *   data-scene-dim="0..1"      brightness multiplier behind dense text
+ *   data-scene-occlude         an opaque sheet: when it covers the whole viewport the scene can sleep
  */
 
-interface Anchor { y: number; v: number; s: number }
+interface Plateau { y0: number; y1: number; v: number; s: number; focus: number; dim: number }
+interface Span { y0: number; y1: number }
 
 export interface Sample {
-  /** Continuous chapter value (unclamped, interpolated between sections). */
-  c: number;
+  /** Chapter pair and progress between them (a === b on a plateau). */
+  a: number;
+  b: number;
+  t: number;
   /** Where the 3D shape should sit: +1 right, -1 left, 0 centre (opposite of where the text is). */
   side: number;
+  focus: number;
+  dim: number;
+  /** An opaque section covers the whole viewport. */
+  occluded: boolean;
 }
 
 export class SectionTracker {
-  private anchors: Anchor[] = [];
+  private plateaus: Plateau[] = [];
+  private occluders: Span[] = [];
   private ro: ResizeObserver | null = null;
   private timer = 0;
   private onFonts = (): void => this.schedule();
@@ -40,39 +59,52 @@ export class SectionTracker {
   }
 
   measure(): void {
-    const list: Anchor[] = [];
+    const list: Plateau[] = [];
+    const occ: Span[] = [];
     const sy = window.scrollY;
+    const vh = window.innerHeight || 800;
     document.querySelectorAll<HTMLElement>('[data-scene]').forEach((el) => {
       const v = parseFloat(el.dataset.scene ?? '');
       if (!Number.isFinite(v)) return;
       const r = el.getBoundingClientRect();
+      if (r.height <= 0) return;
+      const top = r.top + sy, bottom = r.bottom + sy;
       const side = el.dataset.sceneSide;
-      // data-scene-side is where the TEXT sits; the shape goes to the opposite side.
       const s = side === 'right' ? -1 : side === 'center' ? 0 : 1;
-      list.push({ y: r.top + sy + r.height / 2, v, s });
+      const dim = parseFloat(el.dataset.sceneDim ?? '');
+      // hold while the viewport centre is well inside the section; morph across the boundary
+      const m = Math.min(r.height * 0.3, vh * 0.32);
+      list.push({ y0: top + m, y1: bottom - m, v, s, focus: el.dataset.sceneFocus === '1' ? 1 : 0, dim: Number.isFinite(dim) ? dim : 1 });
+      if (el.hasAttribute('data-scene-occlude')) occ.push({ y0: top, y1: bottom });
     });
-    list.sort((a, b) => a.y - b.y);
-    this.anchors = list;
+    list.sort((p, q) => p.y0 - q.y0);
+    this.plateaus = list;
+    this.occluders = occ;
     this.onMeasured?.();
   }
 
-  get hasSections(): boolean { return this.anchors.length > 0; }
-  /** Side of the first section (the hero). */
-  get firstSide(): number { return this.anchors[0]?.s ?? 1; }
+  get hasSections(): boolean { return this.plateaus.length > 0; }
 
+  /** State for a scroll position. `viewportH` is the layout viewport height. */
   sample(scrollY: number, viewportH: number, out: Sample): Sample {
-    const a = this.anchors;
-    const n = a.length;
-    if (n === 0) { out.c = 0; out.side = 1; return out; }
+    const p = this.plateaus;
+    const n = p.length;
+    out.occluded = this.occluders.some((o) => o.y0 <= scrollY + 1 && o.y1 >= scrollY + viewportH - 1);
+    if (n === 0) { out.a = out.b = 1; out.t = 0; out.side = 1; out.focus = 0; out.dim = 1; return out; }
     const y = scrollY + viewportH * 0.5;
-    if (y <= a[0]!.y) { out.c = a[0]!.v; out.side = a[0]!.s; return out; }
-    if (y >= a[n - 1]!.y) { out.c = a[n - 1]!.v; out.side = a[n - 1]!.s; return out; }
     let i = 0;
-    while (i < n - 2 && y >= a[i + 1]!.y) i++;
-    const p = a[i]!, q = a[i + 1]!;
-    const t = (y - p.y) / Math.max(1e-3, q.y - p.y);
-    out.c = p.v + (q.v - p.v) * t;
-    out.side = p.s + (q.s - p.s) * t;
+    while (i < n - 1 && y > p[i]!.y1) i++;
+    const cur = p[i]!;
+    if (y <= cur.y1 && (y >= cur.y0 || i === 0)) return hold(cur, out);
+    if (y > cur.y1) return hold(cur, out); // past the last plateau
+    // between p[i-1].y1 and p[i].y0
+    const prev = p[i - 1]!;
+    const t = clamp01((y - prev.y1) / Math.max(1, cur.y0 - prev.y1));
+    out.a = prev.v; out.b = cur.v; out.t = t;
+    out.side = prev.s + (cur.s - prev.s) * t;
+    out.focus = prev.focus + (cur.focus - prev.focus) * t;
+    out.dim = prev.dim + (cur.dim - prev.dim) * t;
+    if (out.a === out.b) out.t = 0;
     return out;
   }
 
@@ -84,3 +116,11 @@ export class SectionTracker {
     window.removeEventListener('load', this.onFonts);
   }
 }
+
+function hold(p: Plateau, out: Sample): Sample {
+  out.a = out.b = p.v; out.t = 0;
+  out.side = p.s; out.focus = p.focus; out.dim = p.dim;
+  return out;
+}
+
+const clamp01 = (x: number): number => Math.min(1, Math.max(0, x));

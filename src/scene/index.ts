@@ -1,8 +1,10 @@
 /**
  * kacper.biz scroll-driven 3D world.
  *
- * One morphing THREE.Points cloud (cloud -> Poland map -> live traffic -> landing page -> chat -> rings),
- * driven by which [data-scene] section is at the centre of the viewport. Native scroll only.
+ * One morphing THREE.Points cloud (Poland map -> live traffic -> landing page -> chat -> close-up on Gliwice),
+ * driven by which [data-scene] section is on screen (see tracker.ts). Native scroll only.
+ * The canvas survives page navigations (ClientRouter + transition:persist): `rescan()` re-reads the new
+ * page and the world morphs to its first chapter instead of restarting.
  *
  * Draw calls: main points, bloom layer (same geometry, bigger + dimmer), glow halos, traffic packets, ripples (5).
  * No post-processing.
@@ -11,13 +13,21 @@ import {
   AddEquation, BufferAttribute, BufferGeometry, CustomBlending, Group, OneFactor, OneMinusSrcAlphaFactor,
   OneMinusSrcColorFactor, PerspectiveCamera, Points, Scene, ShaderMaterial, Vector3, WebGLRenderer,
 } from 'three';
+import { project } from './poland';
 import { BLOOM_FRAG, GLOW_FRAG, GLOW_VERT, MAIN_VERT, RIPPLE_VERT, SPRITE_FRAG, TRAFFIC_VERT } from './shaders';
-import { CHAPTER_COUNT, PALETTE, RINGS, buildTargets } from './shapes';
+import { CHAPTER_COUNT, PALETTE, buildTargets, terrainZ } from './shapes';
 import { SectionTracker, type Sample } from './tracker';
 import { TRAIL_SPAN, buildTraffic } from './traffic';
-import { VIEWS, chapterScales, type Frame, type Scales } from './view';
+import { HOME, VIEWS, chapterScales, type Frame, type Scales } from './view';
 
-export interface SceneHandle { destroy(): void }
+export interface SceneHandle {
+  destroy(): void;
+  /** Re-read [data-scene] sections after a page swap. */
+  rescan(): void;
+  /** Light up a city on the map (registry demo). */
+  setCity(lat: number, lon: number): void;
+  clearCity(): void;
+}
 
 export type Tier = 'high' | 'mid' | 'low';
 
@@ -36,11 +46,11 @@ export interface SceneStats {
 
 export interface SceneOptions {
   reducedMotion: boolean;
-  /** Force a quality tier (debugging / the lab page). */
+  /** Force a quality tier (debugging). */
   tier?: Tier;
   /** Set false to disable the frame-time downshift (debugging under software GL). Default true. */
   adaptive?: boolean;
-  /** Called after every rendered frame (debugging / the lab page). */
+  /** Called after every rendered frame (debugging). */
   onStats?: (s: SceneStats) => void;
 }
 
@@ -71,6 +81,7 @@ const smoothstep = (a: number, b: number, x: number): number => {
   const t = clamp((x - a) / (b - a), 0, 1);
   return t * t * (3 - 2 * t);
 };
+const smoother = (x: number): number => x * x * x * (x * (x * 6 - 15) + 10);
 
 interface NavigatorHints extends Navigator {
   deviceMemory?: number;
@@ -110,6 +121,36 @@ function makeMaterial(vertexShader: string, fragmentShader: string, uniforms: Re
     blendSrcAlpha: OneFactor,
     blendDstAlpha: OneMinusSrcAlphaFactor,
   });
+}
+
+/**
+ * What is on screen: a chapter pair and the progress between them. Follows the tracker's target, but never
+ * jumps: if the target is an unrelated pair (anchor link, page swap), it first finishes toward the nearest
+ * end, then morphs from there. Any chapter can follow any other.
+ */
+interface Vis { a: number; b: number; t: number }
+
+function advance(v: Vis, target: Sample, dt: number): void {
+  const { a: ta, b: tb, t: tt } = target;
+  if (v.a === v.b) {
+    if (ta === tb) { if (ta !== v.a) { v.b = ta; v.t = 0; } }
+    else if (v.a === ta) { v.b = tb; v.t = 0; }
+    else if (v.a === tb) { v.a = ta; v.b = tb; v.t = 1; }
+    else { v.b = tt < 0.5 ? ta : tb; v.t = 0; }
+  }
+  let goal: number;
+  if (v.a === ta && v.b === tb) goal = ta === tb ? 0 : tt;
+  else if (v.a === tb && v.b === ta) { v.a = ta; v.b = tb; v.t = 1 - v.t; goal = tt; }
+  else if (v.b === ta || v.b === tb) goal = 1;
+  else if (v.a === ta || v.a === tb) goal = 0;
+  else goal = v.t > 0.5 ? 1 : 0;
+  const d = goal - v.t;
+  const k = 1 - Math.exp(-dt * 3.5);
+  const floor = dt * 0.12; // a minimum speed, so time-driven morphs finish instead of creeping
+  v.t += Math.abs(d * k) < floor ? Math.sign(d) * Math.min(Math.abs(d), floor) : d * k;
+  const exact = v.a === ta && v.b === tb;
+  if (v.t >= 0.9995 && !(exact && tt < 0.9995)) { v.a = v.b; v.t = 0; }
+  else if (v.t <= 0.0005 && !(exact && tt > 0.0005)) { v.b = v.a; v.t = 0; }
 }
 
 /** Returns null (never throws) when WebGL2 is unavailable or anything goes wrong while building the scene. */
@@ -154,10 +195,10 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
     geo.setAttribute('position', new BufferAttribute(targets.pos[0]!, 3));
     const map = new BufferAttribute(targets.pos[1]!, 3);
     geo.setAttribute('aP1', map);
-    geo.setAttribute('aP2', map); // traffic chapter reuses the map targets
+    geo.setAttribute('aP2', map); // traffic reuses the map targets
     geo.setAttribute('aP3', new BufferAttribute(targets.pos[3]!, 3));
     geo.setAttribute('aP4', new BufferAttribute(targets.pos[4]!, 3));
-    geo.setAttribute('aP5', new BufferAttribute(targets.pos[5]!, 3));
+    geo.setAttribute('aP5', map); // so does the close-up
     const sA = new Float32Array(n * 3);
     const sB = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) {
@@ -186,24 +227,29 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       uGScale: { value: 1 },
       uPal: { value: pal },
     };
-    const uC = { value: 1 };
+    const uA = { value: 1 }, uB = { value: 1 }, uT = { value: 0 };
+    const uW = { value: [0, 1, 0, 0, 0, 0] };
+    const uChatW = { value: 0 }, uMapW = { value: 1 };
     const uIntro = { value: staticMode ? 1 : 0 };
     const uDim = { value: 1 };
+    const uFade = { value: 1 };
     const uTraffic = { value: 0 };
+    const uFocus = { value: 0 };
+    const uCity = { value: new Vector3(0, 0, 0) };
+    const uCityAmt = { value: 0 };
 
     const mainUniforms = {
       uTime: shared.uTime, uPx: shared.uPx, uRef: shared.uRef, uMaxPt: shared.uMaxPt, uPal: shared.uPal,
-      uC, uIntro, uDim,
-      uSize: { value: [2.9, 2.3, 2.3, 2.3, 2.4, 2.5] },
-      uDrift: { value: [0.085, 0.012, 0.012, 0.01, 0.01, 0.03] },
-      uBloomK: { value: [0.07, 0.09, 0.09, 0.14, 0.14, 0.16] },
-      uAxis: { value: RINGS.map((r) => new Vector3(r.axis[0], r.axis[1], r.axis[2])) },
-      uSpin: { value: RINGS.map((r) => r.speed) },
+      uA, uB, uT, uChatW, uMapW, uIntro, uDim, uFocus, uCity, uCityAmt,
+      uHome: { value: new Vector3(HOME[0], HOME[1], HOME[2]) },
+      uSize: { value: [2.9, 2.3, 2.3, 2.3, 2.4, 3.1] },
+      uDrift: { value: [0.085, 0.012, 0.012, 0.01, 0.01, 0.004] },
+      uBloomK: { value: [0.07, 0.09, 0.09, 0.14, 0.14, 0.11] },
     };
     const mainMat = makeMaterial(MAIN_VERT, SPRITE_FRAG, { ...mainUniforms, uBloom: { value: 0 } });
     const bloomMat = makeMaterial(MAIN_VERT, BLOOM_FRAG, { ...mainUniforms, uBloom: { value: 1 } });
     const glowMat = makeMaterial(GLOW_VERT, GLOW_FRAG, {
-      uTime: shared.uTime, uC, uPxW: shared.uPxW, uGScale: shared.uGScale, uMaxPt: shared.uMaxPt, uPal: shared.uPal,
+      uTime: shared.uTime, uW, uDim: uFade, uPxW: shared.uPxW, uGScale: shared.uGScale, uMaxPt: shared.uMaxPt, uPal: shared.uPal,
     });
     const packetMat = makeMaterial(TRAFFIC_VERT, SPRITE_FRAG, {
       uTime: shared.uTime, uPx: shared.uPx, uRef: shared.uRef, uMaxPt: shared.uMaxPt, uPal: shared.uPal,
@@ -238,8 +284,10 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
 
     // ------------------------------------------------------------------ state
     const tracker = new SectionTracker(() => { if (staticMode && ready) renderStatic(); });
-    const sample: Sample = { c: 1, side: 1 };
+    const sample: Sample = { a: 1, b: 1, t: 0, side: 1, focus: 0, dim: 1, occluded: false };
+    const vis: Vis = { a: 1, b: 1, t: 0 };
     const frame: Frame = { visW: VIS_H, visH: VIS_H, mobile: false };
+    const focusV = new Vector3();
     let scales: Scales = chapterScales(frame);
     let dprCap = cfg.dpr;
     let dpr = Math.min(window.devicePixelRatio || 1, dprCap);
@@ -248,9 +296,11 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
     let destroyed = false;
     let lost = false;
 
-    let c = 1, side = 1, time = staticMode ? 6 : 0, intro = staticMode ? 1 : 0;
+    let side = 1, focus = 0, dim = 1, fade = 1, cityAmt = 0, cityTarget = 0;
+    let time = staticMode ? 6 : 0, intro = staticMode ? 1 : 0;
     let px = 0, py = 0, tpx = 0, tpy = 0;
     let first = true;
+    let asleep = false;
     let raf = 0;
     let last = 0;
     let level = 0, frames = 0, warm = 24, windowFrames = 0, windowMs = 0, ema = 16.7;
@@ -274,19 +324,18 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       shared.uPxW.value = (height * dpr) / (2 * TAN_HALF);
     };
 
-    /** Place the world and push all per-frame uniforms for chapter value `cv`. */
-    const apply = (cv: number, sd: number, t: number): void => {
-      const cc = clamp(cv, 0, CHAPTER_COUNT - 1);
-      const k = Math.min(CHAPTER_COUNT - 2, Math.floor(cc));
-      const f = clamp((cc - k - 0.12) / 0.76, 0, 1); // same hold-then-move remap as the vertex shader
-      const m = f * f * f * (f * (f * 6 - 15) + 10);
-      const a = VIEWS[k]!, b = VIEWS[k + 1]!;
+    /** Place the world and push all per-frame uniforms for the current visual state. */
+    const apply = (t: number): void => {
+      const ia = clamp(vis.a, 0, CHAPTER_COUNT - 1), ib = clamp(vis.b, 0, CHAPTER_COUNT - 1);
+      const m = smoother(clamp(vis.t, 0, 1));
+      const a = VIEWS[ia]!, b = VIEWS[ib]!;
       const mix = (u: number, v: number): number => u + (v - u) * m;
 
-      const sideEff = frame.mobile ? 0 : sd;
+      const sideEff = frame.mobile ? 0 : side;
       const spread = Math.abs(sideEff);
       const sc = (i: number): number => (frame.mobile ? scales.half[i]! : scales.wide[i]! + (scales.half[i]! - scales.wide[i]!) * spread);
-      const scale = mix(sc(k), sc(k + 1));
+      // zoom in log space, so the close-up doesn't rush in at the end
+      const scale = Math.exp(mix(Math.log(sc(ia)), Math.log(sc(ib))));
 
       const gy = mix(a.gainY, b.gainY), gx = mix(a.gainX, b.gainX);
       const rx = mix(a.rx, b.rx) - py * gx + 0.018 * Math.sin(t * 0.13 + 1.0);
@@ -295,7 +344,10 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
 
       world.rotation.set(rx, ry, rz);
       world.scale.setScalar(scale);
-      world.position.set(px * 0.1, py * 0.06, 0);
+      // bring the framed point (Gliwice in the close-up) to the optical axis
+      focusV.set(mix(a.focus[0], b.focus[0]), mix(a.focus[1], b.focus[1]), mix(a.focus[2], b.focus[2]))
+        .applyEuler(world.rotation).multiplyScalar(scale);
+      world.position.set(px * 0.1 - focusV.x, py * 0.06 - focusV.y, -focusV.z);
       // Lens shift instead of moving the object: the shape is always seen down the optical axis, so a tilted
       // shape on the far side of the screen doesn't shear with perspective.
       const shiftX = sideEff * 0.25 * width;
@@ -303,25 +355,48 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       camera.setViewOffset(width, height, -shiftX, shiftY, width, height);
       shared.uGScale.value = scale;
 
-      uC.value = staticMode ? 1 : cc;
+      const w = uW.value;
+      w.fill(0);
+      w[ia] = (w[ia] ?? 0) + (1 - m);
+      w[ib] = (w[ib] ?? 0) + m;
+      uA.value = ia; uB.value = ib; uT.value = vis.t;
+      uChatW.value = w[4]!;
+      uMapW.value = w[1]! + w[2]! + w[5]!;
+      uFocus.value = focus;
+      uCityAmt.value = cityAmt;
+
       // more points = more light: keep perceived brightness roughly constant across tiers / downshifts
       const densK = clamp(Math.pow(8000 / drawCount, 0.35), 0.6, 1);
-      uDim.value = (frame.mobile ? 0.72 : 0.62 + 0.38 * spread) * 0.96 * densK;
+      uDim.value = (frame.mobile ? 0.72 : 0.62 + 0.38 * spread) * 0.96 * densK * dim * fade;
+      uFade.value = dim * fade;
       uIntro.value = intro;
       shared.uTime.value = t;
 
-      const tr = staticMode ? 0 : smoothstep(1.3, 2.0, cc) * (1 - smoothstep(2.3, 2.85, cc));
-      uTraffic.value = tr;
-      packetPts.visible = ripplePts.visible = tr > 0.004;
+      const tr = staticMode ? 0 : smoothstep(0.35, 1, w[2]!);
+      uTraffic.value = tr * fade;
+      packetPts.visible = ripplePts.visible = tr * fade > 0.004;
     };
 
-    const stats = (): SceneStats => ({ tier, count: drawCount, dpr, level, frameMs: staticMode ? 0 : ema, c, side, frames });
+    const stats = (): SceneStats => ({
+      tier, count: drawCount, dpr, level, frameMs: staticMode ? 0 : ema, c: vis.a + (vis.b - vis.a) * vis.t, side, frames,
+    });
 
-    const renderStatic = (): void => {
+    /** Reduced motion: no animation at all, just the right still for the part of the page on screen. */
+    let staticKey = '';
+    const renderStatic = (force = true): void => {
       if (destroyed || lost) return;
-      c = 1;
-      side = tracker.hasSections ? tracker.firstSide : 1;
-      apply(1, side, time);
+      tracker.sample(window.scrollY, window.innerHeight, sample);
+      const c = sample.t < 0.5 ? sample.a : sample.b;
+      const key = `${c}|${Math.round(sample.side)}|${sample.focus > 0.5 ? 1 : 0}|${sample.occluded ? 1 : 0}|${frame.mobile}|${cityTarget}`;
+      if (!force && key === staticKey) return;
+      staticKey = key;
+      vis.a = vis.b = c; vis.t = 0;
+      side = Math.round(sample.side);
+      focus = sample.focus > 0.5 ? 1 : 0;
+      dim = sample.dim;
+      fade = sample.occluded ? 0 : 1;
+      cityAmt = cityTarget;
+      apply(time);
       renderer.render(scene, camera);
       opts.onStats?.(stats());
     };
@@ -338,17 +413,24 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
     const step = (dt: number): void => {
       time += dt;
       tracker.sample(window.scrollY, window.innerHeight, sample);
-      if (first) { c = sample.c; side = sample.side; first = false; }
-      else {
+      if (first) {
+        vis.a = vis.b = sample.t < 0.5 ? sample.a : sample.b; vis.t = 0;
+        side = sample.side; focus = sample.focus; dim = sample.dim; fade = sample.occluded ? 0 : 1;
+        first = false;
+      } else {
+        advance(vis, sample, dt);
         const k = 1 - Math.exp(-dt * 3.5);
-        c += (sample.c - c) * k;
         side += (sample.side - side) * k;
+        focus += (sample.focus - focus) * (1 - Math.exp(-dt * 2.2));
+        dim += (sample.dim - dim) * k;
+        fade += ((sample.occluded ? 0 : 1) - fade) * (1 - Math.exp(-dt * 6));
       }
+      cityAmt += (cityTarget - cityAmt) * (1 - Math.exp(-dt * 3));
       const kp = 1 - Math.exp(-dt * 4);
       px += (tpx - px) * kp;
       py += (tpy - py) * kp;
       intro = Math.min(1, intro + dt / 2.8);
-      apply(c, side, time);
+      apply(time);
     };
 
     const loop = (now: number): void => {
@@ -356,6 +438,11 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       const raw = last ? now - last : 16.7;
       last = now;
       step(Math.min(0.1, raw / 1000));
+      // under an opaque sheet: draw one empty frame, then skip rendering until it scrolls away
+      if (sample.occluded && fade < 0.01) {
+        if (asleep) return;
+        asleep = true;
+      } else asleep = false;
       renderer.render(scene, camera);
       frames++;
       if (raw < 250) {
@@ -376,6 +463,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
 
     // ------------------------------------------------------------------ events
     let resizeTimer = 0;
+    let scrollTimer = 0;
     const onResize = (): void => {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(() => {
@@ -384,6 +472,10 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
         tracker.measure();
         if (staticMode) renderStatic();
       }, 110);
+    };
+    const onStaticScroll = (): void => {
+      if (scrollTimer) return;
+      scrollTimer = window.setTimeout(() => { scrollTimer = 0; renderStatic(false); }, 120);
     };
     const onPointer = (e: PointerEvent): void => {
       if (!finePointer || e.pointerType === 'touch') return;
@@ -409,6 +501,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
 
     window.addEventListener('resize', onResize, { passive: true });
     window.addEventListener('orientationchange', onResize, { passive: true });
+    if (staticMode) window.addEventListener('scroll', onStaticScroll, { passive: true });
     if (!staticMode && finePointer) window.addEventListener('pointermove', onPointer, { passive: true });
     document.addEventListener('visibilitychange', onVisibility);
     canvas.addEventListener('webglcontextlost', onLost);
@@ -417,7 +510,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
     // ------------------------------------------------------------------ first frame (before we return)
     tracker.start();
     applySize();
-    // Link all programs up front (traffic layers included) so the first scroll into chapter 2 doesn't hitch.
+    // Link all programs up front (traffic layers included) so the first scroll into the traffic chapter doesn't hitch.
     packetPts.visible = ripplePts.visible = true;
     try {
       if (gl.getExtension('KHR_parallel_shader_compile')) {
@@ -438,13 +531,31 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
     }
 
     return {
+      rescan(): void {
+        if (destroyed) return;
+        cityTarget = 0;
+        tracker.measure();
+        if (staticMode) renderStatic();
+      },
+      setCity(lat: number, lon: number): void {
+        const [x, y] = project(lon, lat);
+        uCity.value.set(x, y, terrainZ(x, y));
+        cityTarget = 1;
+        if (staticMode) renderStatic();
+      },
+      clearCity(): void {
+        cityTarget = 0;
+        if (staticMode) renderStatic();
+      },
       destroy(): void {
         if (destroyed) return;
         destroyed = true;
         stopLoop();
         window.clearTimeout(resizeTimer);
+        window.clearTimeout(scrollTimer);
         window.removeEventListener('resize', onResize);
         window.removeEventListener('orientationchange', onResize);
+        window.removeEventListener('scroll', onStaticScroll);
         window.removeEventListener('pointermove', onPointer);
         document.removeEventListener('visibilitychange', onVisibility);
         canvas.removeEventListener('webglcontextlost', onLost);

@@ -53,7 +53,7 @@ export function initRegistry(reduced: boolean): () => void {
     }
     if (c) {
       count(out('city'), c.count);
-      const name = out('cityName'); if (name) name.textContent = c.name;
+      const loc = out('cityLoc'); if (loc) loc.textContent = data.lang === 'pl' ? c.in : c.name;
       const inflected = out('cityIn');
       if (inflected) {
         inflected.textContent = c.in;
