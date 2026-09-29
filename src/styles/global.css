@@ -221,13 +221,14 @@
   /* the advertiser signs the ad at the foot, like the name-and-address line of a boxed ad */
   .ad-sig { border-top: 2px solid var(--rule); padding-top: 0.55rem; font-stretch: var(--w-list); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.78rem; }
   .ad-sig b { font-weight: 850; font-size: 1.05rem; letter-spacing: 0.02em; }
-  .ad-sig span { font-weight: 650; }
-  /* hovering an ad prints its red plate a few pixels out of register */
-  @media (hover: hover) {
-    .ad { isolation: isolate; }
-    .ad::before { content: ''; position: absolute; inset: calc(-1 * var(--frame)); border: var(--frame) solid var(--red); z-index: -1; opacity: 0; transform: translate(0, 0); transition: transform 0.28s var(--ease), opacity 0.2s var(--ease); pointer-events: none; }
-    .ad:hover::before, .ad:focus-within::before { opacity: 1; transform: translate(5px, 5px); }
-  }
+  .ad-sig span, .ad-sig a { font-weight: 650; white-space: normal; text-align: right; }
+  /* the right end can be a cross-reference to the full listing, as in a printed ad ("see page ...") */
+  .ad-sig a { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  .ad-sig a:hover { text-decoration-color: var(--red); }
+  /* pressing an ad prints its red plate a hair out of register */
+  .ad { isolation: isolate; }
+  .ad::before { content: ''; position: absolute; inset: calc(-1 * var(--frame)); border: var(--frame) solid var(--red); z-index: -1; opacity: 0; pointer-events: none; }
+  .ad:active::before { opacity: 1; transform: translate(1.5px, 1.5px); }
   /* price sticker: the only red block on a page */
   .sticker { display: inline-flex; align-items: baseline; gap: 0.35em; background: var(--red); color: #fff; padding: 0.3rem 0.55rem 0.28rem; font-stretch: var(--w-list); font-weight: 800; font-size: 1rem; line-height: 1.1; white-space: nowrap; }
   .sticker small { font-weight: 600; font-size: 0.78em; }

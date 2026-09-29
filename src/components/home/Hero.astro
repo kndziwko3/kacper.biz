@@ -43,12 +43,9 @@ const top = [...SECTORS].sort((a, b) => b.count - a.count).slice(0, 16);
           <ul class="ad-bul">{e.adOp.bullets.map((b) => <li>{b}</li>)}</ul>
           <div class="ad-foot">
             <span class="sticker">{e.adOp.price} <small>{e.adOp.priceNote}</small></span>
-            <div class="btn-row">
-              <Btn href={PRODUCTS.outreachpilot.signup} outbound cta="entry-op">{e.adOp.cta}</Btn>
-              <a class="tlink" href="#outreachpilot">{e.adOp.more}</a>
-            </div>
+            <Btn href={PRODUCTS.outreachpilot.signup} outbound cta="entry-op">{e.adOp.cta}</Btn>
           </div>
-          <p class="ad-sig ld"><b>OutreachPilot.pl</b><i></i><span>{c.dir.sig.op}</span></p>
+          <p class="ad-sig ld"><b>OutreachPilot.pl</b><i></i><a href="#outreachpilot">{e.adOp.more}</a></p>
         </article>
 
         <article class="ad ad-fl" aria-labelledby="ad-fl-h">
@@ -56,19 +53,16 @@ const top = [...SECTORS].sort((a, b) => b.count - a.count).slice(0, 16);
           <ul class="ad-bul">{e.adFl.bullets.map((b) => <li>{b}</li>)}</ul>
           <div class="ad-foot">
             <span class="sticker">{e.adFl.price} <small>{e.adFl.priceNote}</small></span>
-            <div class="btn-row">
-              <Btn href={PRODUCTS.fastlanding.quote} outbound cta="entry-fl">{e.adFl.cta}</Btn>
-              <a class="tlink" href="#fastlanding">{e.adFl.more}</a>
-            </div>
+            <Btn href={PRODUCTS.fastlanding.quote} outbound cta="entry-fl">{e.adFl.cta}</Btn>
           </div>
-          <p class="ad-sig ld"><b>FastLanding.io</b><i></i><span>{c.dir.sig.fl}</span></p>
+          <p class="ad-sig ld"><b>FastLanding.io</b><i></i><a href="#fastlanding">{e.adFl.more}</a></p>
         </article>
 
         <article class="ad ad--white ad-call" aria-labelledby="ad-call-h">
           <h2 class="ad-h ad-h--s" id="ad-call-h">{e.adCall.h}</h2>
-          <p class="ad-who">{e.adCall.who}</p>
           <p class="v-small">{e.adCall.text}</p>
           <div class="ad-foot"><Btn href={SALES.bookingUrl} outbound cta="entry-booking">{e.adCall.cta}</Btn></div>
+          <p class="ad-sig ld"><b>{SALES.fullName}</b><i></i><span>Head of Sales</span></p>
         </article>
       </div>
     </div>
@@ -85,7 +79,7 @@ const top = [...SECTORS].sort((a, b) => b.count - a.count).slice(0, 16);
   .register-total .num { font-stretch: var(--w-display); font-weight: 900; font-size: clamp(2.3rem, 1.6rem + 1.8vw, 3.1rem); line-height: 0.9; }
   .register-total span:last-child { font-size: var(--t-small); color: var(--fg-2); }
   .register-list { margin-top: 0.9rem; border-top: 1px solid var(--ink); padding-top: 0.45rem; font-size: 0.8rem; }
-  .register-list li a { min-height: 24px; align-items: center; padding: 0.1rem 0.25rem; margin-inline: -0.25rem; transition: background-color 0.12s, color 0.12s; }
+  .register-list li a { min-height: 24px; align-items: baseline; padding: 0.28rem 0.25rem 0.1rem; margin-inline: -0.25rem; transition: background-color 0.12s, color 0.12s; }
   .register-list li a:hover { background: var(--ink); color: var(--yellow); }
   .rl-name { font-stretch: var(--w-list); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; font-size: 0.74rem; }
   .register-src { margin-top: 0.8rem; }
@@ -107,22 +101,28 @@ const top = [...SECTORS].sort((a, b) => b.count - a.count).slice(0, 16);
   .ads { margin-top: clamp(1.4rem, 3.5vh, 2.2rem); display: grid; gap: 0.9rem; }
   .ad-op .ad-h { font-size: clamp(2.2rem, 1.3rem + 2.6vw, 3.5rem); }
   .ad-h--s { font-size: clamp(1.7rem, 1.2rem + 1.2vw, 2.2rem); }
-  .ad-who { font-weight: 700; font-size: 0.95rem; }
   .ad-call .v-small { color: var(--fg-2); }
+  /* the ads share one grid: headline, body, order line and signature rows line up across the plates, so the three
+     actions sit on one line; size is billing (OutreachPilot widest), tracks may shrink below their content */
   @media (min-width: 700px) {
-    .ads { grid-template-columns: 5fr 4fr; }
+    .ads { grid-template-columns: minmax(0, 5fr) minmax(0, 4fr); }
+    .ad-op, .ad-fl { display: grid; grid-row: span 4; grid-template-rows: subgrid; }
     .ad-call { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.5rem 1.5rem; }
     .ad-call .ad-foot { margin: 0; }
+    .ad-call .ad-sig { grid-column: 1 / -1; }
   }
   @media (min-width: 960px) {
     .register { order: 0; }
     .entry-main { order: 0; }
   }
   @media (min-width: 1280px) {
-    .ads { grid-template-columns: 5fr 4fr 3fr; }
-    .ad-call { grid-column: auto; display: flex; }
-    .ad-call .ad-foot { margin-top: auto; }
+    .ads { grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) minmax(0, 3fr); }
+    .ad-call { grid-column: auto; grid-row: span 4; grid-template-rows: subgrid; grid-template-columns: none; align-items: stretch; gap: 0.9rem; }
+    .ad-call .ad-sig { grid-column: auto; display: grid; gap: 0.15rem; }
+    .ad-call .ad-sig > i { display: none; }
+    .ad-call .ad-sig > span { text-align: left; }
   }
+  .ads .ad-foot { align-self: end; }
 
   /* first print: rows lay their dots down one after another, counts roll in (main.ts adds .is-printing) */
   :global(.js) .register.is-printing .ld > i { clip-path: inset(0 100% 0 0); animation: kb-dots 0.7s var(--ease) forwards; animation-delay: calc(var(--i, 0) * 45ms + 120ms); }

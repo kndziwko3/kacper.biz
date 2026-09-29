@@ -20,7 +20,7 @@ const opt = (n) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 
 const only = opt('only')?.split(',') ?? null;
 const CHROME = process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 
-const { POLAND, GLIWICE, project, pointInPolygon, polygonXY } = await import(pathToFileURL(path.join(ROOT, 'src/scene/poland.ts')).href);
+const { POLAND, CITIES, GLIWICE, project, pointInPolygon, polygonXY } = await import(pathToFileURL(path.join(ROOT, 'src/scene/poland.ts')).href);
 
 const C = { yellow: '#f7d117', white: '#f6f5f1', ink: '#000', red: '#e1251b' };
 const font = (p) => pathToFileURL(path.join(ROOT, 'node_modules', p)).href;
@@ -28,7 +28,10 @@ const FONTS = `
 @font-face{font-family:A;src:url(${font('@fontsource-variable/archivo/files/archivo-latin-standard-normal.woff2')});font-weight:100 900;font-stretch:62% 125%;unicode-range:U+0000-00FF,U+2000-206F,U+20AC}
 @font-face{font-family:A;src:url(${font('@fontsource-variable/archivo/files/archivo-latin-ext-standard-normal.woff2')});font-weight:100 900;font-stretch:62% 125%;unicode-range:U+0100-02BA,U+1E00-1EFF}`;
 
-/** The printed map: halftone pattern clipped to the scene's polygon, dotted border, city dots, Gliwice in red. */
+/**
+ * The printed map, as on the site: the ordered halftone (dots growing around the cities in three steps, the scene's
+ * density field), a solid border, city dots and the small red Gliwice marker.
+ */
 function mapSVG({ w, h }) {
   const poly = polygonXY();
   const xs = poly.map((p) => p[0]), ys = poly.map((p) => p[1]);
@@ -38,11 +41,22 @@ function mapSVG({ w, h }) {
   const toPx = (x, y) => [ox + (x - minX) * s, oy + (maxY - y) * s];
   const d = poly.map(([x, y], i) => `${i ? 'L' : 'M'}${toPx(x, y).map((v) => v.toFixed(1)).join(' ')}`).join('') + 'Z';
   const [gx, gy] = toPx(...project(GLIWICE[0], GLIWICE[1]));
+  const at = (c) => toPx(...project(c.lon, c.lat)).map((v) => v.toFixed(1));
+  const zone = (t) => CITIES.filter((c) => c.w > t).map((c) => {
+    const [x, y] = at(c);
+    return `<circle cx="${x}" cy="${y}" r="${((0.16 + 0.24 * Math.sqrt(c.w)) * Math.sqrt(Math.log(c.w / t)) * s).toFixed(1)}"/>`;
+  }).join('');
+  const cell = (r) => `<circle cx="1.85" cy="1.6" r="${r}"/><circle cx="5.55" cy="4.8" r="${r}"/>`;
+  const dots = CITIES.map((c) => { const [x, y] = at(c); return `<circle cx="${x}" cy="${y}" r="${(2.2 + 3 * Math.sqrt(c.w)).toFixed(1)}"/>`; }).join('');
   return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-    <defs><pattern id="p" width="8" height="7" patternUnits="userSpaceOnUse"><circle cx="1.6" cy="1.6" r="1.3"/><circle cx="5.6" cy="5.1" r="1.3"/></pattern></defs>
-    <path d="${d}" fill="url(#p)" opacity=".45"/>
-    <path d="${d}" fill="none" stroke="#000" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0 5"/>
-    <circle cx="${gx}" cy="${gy}" r="8" fill="${C.red}"/><circle cx="${gx}" cy="${gy}" r="30" fill="none" stroke="${C.red}" stroke-width="3"/>
+    <defs><clipPath id="c"><path d="${d}"/></clipPath><clipPath id="z1">${zone(0.3)}</clipPath><clipPath id="z2">${zone(0.65)}</clipPath>
+    <pattern id="p0" width="7.4" height="6.4" patternUnits="userSpaceOnUse">${cell(1.2)}</pattern>
+    <pattern id="p1" width="7.4" height="6.4" patternUnits="userSpaceOnUse">${cell(1.7)}</pattern>
+    <pattern id="p2" width="7.4" height="6.4" patternUnits="userSpaceOnUse">${cell(2.25)}</pattern></defs>
+    <g clip-path="url(#c)" fill="#120f0a"><rect width="${w}" height="${h}" fill="url(#p0)"/><rect width="${w}" height="${h}" fill="url(#p1)" clip-path="url(#z1)"/><rect width="${w}" height="${h}" fill="url(#p2)" clip-path="url(#z2)"/></g>
+    <path d="${d}" fill="none" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+    <g fill="#000">${dots}</g>
+    <circle cx="${gx}" cy="${gy}" r="5" fill="${C.red}"/><circle cx="${gx}" cy="${gy}" r="10.5" fill="none" stroke="${C.red}" stroke-width="2.4"/>
   </svg>`;
 }
 

@@ -128,6 +128,9 @@ export class SectionTracker {
     out.spin = spin;
     // fades from the viewport's middle toward the window's as the window comes on screen (no jumps)
     out.cy = (cyAcc + Math.max(0, 1 - wAcc) * viewportH * 0.5) / Math.max(1, wAcc);
+    // never ride up under the running head: the framed shape (about 0.62 of the viewport, arcs included) keeps clear
+    // of it; a short visible part then lets the next opaque sheet slide over the map instead
+    out.cy = Math.max(out.cy, this.headH + viewportH * 0.38);
     out.cyM = (cyMAcc + Math.max(0, 1 - wAcc) * viewportH * 0.35) / Math.max(1, wAcc);
     if (n === 0) { out.a = out.b = 1; out.t = 0; out.side = 1; out.focus = 0; out.dim = 1; return out; }
     const y = scrollY + viewportH * 0.5;
