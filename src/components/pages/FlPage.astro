@@ -1,58 +1,44 @@
 ---
 import Base from '../../layouts/Base.astro';
-import PageHero from '../PageHero.astro';
-import Offers from '../Offers.astro';
+import PageHead from '../ui/PageHead.astro';
+import Btn from '../ui/Btn.astro';
+import Studio from '../home/Studio.astro';
+import Bot from '../home/Bot.astro';
 import Faq from '../Faq.astro';
 import { copy } from '../../content/copy';
-import { PRODUCTS, type Lang } from '../../content/site';
+import { PRODUCTS, SALES, type Lang } from '../../content/site';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const c = copy[lang];
 const f = c.fl;
-const h = c.home;
 const isPl = lang === 'pl';
 const path = isPl ? '/fastlanding' : '/en/fastlanding';
 const home = isPl ? '/' : '/en';
+const faq = [c.faq[2]!, c.faq[3]!];
 ---
 <Base lang={lang} path={path} title={f.title} description={f.description} kind="product"
-  breadcrumbs={[{ name: c.ui.home, path: home }, { name: f.crumb, path }]} faq={c.faq}
+  breadcrumbs={[{ name: c.ui.home, path: home }, { name: f.crumb, path }]} faq={faq}
   ogImage={isPl ? '/og/fastlanding.png' : '/og/fastlanding-en.png'}>
-  <PageHero lang={lang} crumb={f.crumb} eyebrow={f.eyebrow} tone="page" h1={f.h1} lead={f.lead} scene={3} side="left">
-    <a class="btn btn--page" href={PRODUCTS.fastlanding.quote} data-outbound data-cta="fl-page-quote" rel="noopener">{h.fl.cta} <span class="arr" aria-hidden="true">→</span></a>
-    <a class="btn btn--ghost" href={PRODUCTS.fastlanding.url} data-outbound data-cta="fl-page-site" rel="noopener">fastlanding.io</a>
-  </PageHero>
-
-  <section class="chapter chapter--tight section" data-scene="3" data-scene-side="right">
-    <div class="wrap"><div class="chapter__grid"><div class="col-text scrim" style="grid-column:1/-1">
-      <h2 class="h2" data-reveal>{f.offers.h2}</h2>
-      <div style="max-width:52rem"><Offers lang={lang} /></div>
-      <p class="note" data-reveal>{f.offers.note} <a href={PRODUCTS.fastlanding.us} data-outbound data-cta="fl-us" rel="noopener" style="text-decoration:underline;text-underline-offset:3px">/us</a> · <a href={PRODUCTS.fastlanding.uk} data-outbound data-cta="fl-uk" rel="noopener" style="text-decoration:underline;text-underline-offset:3px">/uk</a></p>
-    </div></div></div>
-  </section>
-
-  <section class="chapter chapter--tight section" data-scene="4" data-scene-side="left">
-    <div class="wrap">
-      <h2 class="h2" data-reveal>{f.process.h2}</h2>
-      <ol class="steps steps--grid" data-reveal>{f.process.steps.map((s) => <li><div><b>{s.b}</b><span>{s.t}</span></div></li>)}</ol>
+  <PageHead lang={lang} crumb={f.crumb} kicker={f.kicker} h1={f.h1} lead={f.lead} scene={3} side="left">
+    <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-page-quote" arrow="up">{c.home.fl.cta}</Btn>
+    <Btn href={SALES.bookingUrl} variant="line" newTab cta="fl-page-booking" arrow="up">{c.home.fl.ctaAlt}</Btn>
+  </PageHead>
+  <Studio lang={lang} />
+  <Bot lang={lang} />
+  <Faq lang={lang} items={faq} />
+  <section class="section m-window" data-scene="5" data-scene-side="center" data-scene-dim="0.5">
+    <div class="wrap m-solid">
+      <h2 class="h2 fl-cta-h" data-lines>{f.cta.h2}</h2>
+      <p class="data fl-usuk">{f.usUk} <a class="link link--u" href={PRODUCTS.fastlanding.us} data-outbound data-cta="fl-us" rel="noopener">fastlanding.io/us</a> · <a class="link link--u" href={PRODUCTS.fastlanding.uk} data-outbound data-cta="fl-uk" rel="noopener">fastlanding.io/uk</a></p>
+      <div class="btn-row fl-cta">
+        <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-page-bottom" arrow="up">{f.cta.btn}</Btn>
+        <Btn href={SALES.bookingUrl} variant="line" newTab cta="fl-page-booking-2" arrow="up">{f.cta.alt}</Btn>
+      </div>
     </div>
   </section>
-
-  <section class="chapter chapter--tight section" data-scene="5" data-scene-side="center">
-    <div class="wrap"><div class="chapter__grid"><div class="col-wide">
-      <h2 class="h2" data-reveal>{f.promises.h2}</h2>
-      <ul class="steps" data-reveal style="counter-reset:none">{f.promises.items.map((p) => <li style="grid-template-columns:1fr"><div><span style="color:var(--bone)">{p}</span></div></li>)}</ul>
-      <h2 class="h2" style="margin-top:4rem" data-reveal>{h.faq.h2}</h2>
-      <div style="margin-top:1.5rem"><Faq lang={lang} /></div>
-      <div class="card" style="margin-top:3.5rem;display:grid;gap:1.25rem" data-reveal>
-        <h2 class="h2">{f.cta.h2}</h2>
-        <div class="btn-row">
-          <a class="btn btn--page" href={PRODUCTS.fastlanding.quote} data-outbound data-cta="fl-page-bottom-quote" rel="noopener">{f.cta.btn} <span class="arr" aria-hidden="true">→</span></a>
-          <a class="btn btn--ghost" href={isPl ? '/realizacje' : '/en/work'}>{f.cta.alt}</a>
-        </div>
-      </div>
-    </div></div></div>
-  </section>
 </Base>
-<style is:global>
-  @media (min-width: 900px) { .steps--grid { grid-template-columns: repeat(2, 1fr); } }
+<style>
+  .fl-cta-h { max-width: 16ch; }
+  .fl-usuk { margin-top: 1.25rem; }
+  .fl-cta { margin-top: 2rem; }
 </style>

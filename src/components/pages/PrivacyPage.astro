@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Breadcrumb from '../Breadcrumb.astro';
+import PageHead from '../ui/PageHead.astro';
 import { copy, formatDate } from '../../content/copy';
 import { SITE, type Lang } from '../../content/site';
 interface Props { lang: Lang }
@@ -11,19 +11,17 @@ const isPl = lang === 'pl';
 const path = isPl ? '/polityka-prywatnosci' : '/en/privacy';
 const home = isPl ? '/' : '/en';
 ---
-<Base lang={lang} path={path} title={p.title} description={p.description} kind="legal" scene={false}
+<Base lang={lang} path={path} title={p.title} description={p.description} kind="legal"
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: p.crumb, path }]}>
-  <section class="page-hero"><div class="wrap">
-    <Breadcrumb lang={lang} current={p.crumb} />
-    <h1 class="display" style="font-size:clamp(2.4rem,1rem + 5vw,5rem)">{p.h1}</h1>
-    <p class="muted" style="margin-top:1rem">{c.ui.updated}: <time datetime={SITE.lastModified}>{formatDate(lang)}</time></p>
-  </div></section>
-  <section class="section" style="padding-top:0"><div class="wrap">
-    <div class="prose">
-      {p.sections.map((s) => (<>
-        <h2>{s.h}</h2>
-        {s.p.map((t) => <p>{t}</p>)}
-      </>))}
+  <PageHead lang={lang} crumb={p.crumb} kicker={`${c.ui.updated}: ${formatDate(lang, SITE.lastModified)}`} h1={p.h1} scene={1} side="left" dim={0.4} />
+  <section class="section m-window" data-scene="1" data-scene-side="right" data-scene-dim="0.3">
+    <div class="wrap m-solid">
+      <div class="prose">
+        {p.sections.map((s) => (<>
+          <h2>{s.h}</h2>
+          {s.p.map((t) => <p>{t}</p>)}
+        </>))}
+      </div>
     </div>
-  </div></section>
+  </section>
 </Base>

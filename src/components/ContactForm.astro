@@ -155,7 +155,7 @@ const noscriptMailto = `mailto:${CONTACT.studioEmail}?subject=${encodeURICompone
         <div>
           <label class="lead-check-label" for={id('consent')}>
             {pl
-              ? 'Zapoznałem/am się z informacją o przetwarzaniu danych i chcę otrzymać odpowiedź na moje zapytanie.'
+              ? 'Akceptuję informację o przetwarzaniu danych i chcę otrzymać odpowiedź na zapytanie.'
               : 'I have read the data-processing notice and want a reply to my enquiry.'}
             <span class="lead-req" aria-hidden="true"> *</span>
           </label>
@@ -188,9 +188,9 @@ const noscriptMailto = `mailto:${CONTACT.studioEmail}?subject=${encodeURICompone
     <p class="form-status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1" data-status></p>
 
     <div class="btn-row">
-      <button type="submit" class="btn btn--signal">
+      <button type="submit" class="btn">
         <span data-label>{pl ? 'Wyślij zapytanie' : 'Send enquiry'}</span>
-        <span class="arr" aria-hidden="true">→</span>
+        <span class="btn-arr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h11M9 4l4 4-4 4" /></svg></span>
       </button>
     </div>
   </form>
@@ -200,18 +200,17 @@ const noscriptMailto = `mailto:${CONTACT.studioEmail}?subject=${encodeURICompone
     <h3 class="h3">{pl ? 'Wolisz porozmawiać od razu?' : 'Prefer to talk right away?'}</h3>
     <p class="muted">
       {pl
-        ? `${SALES.firstName} (${SALES.role.pl}) prowadzi rozmowy sprzedażowe. Wybierz dogodny termin.`
-        : `${SALES.firstName} (${SALES.role.en}) runs the sales conversations. Pick a time that suits you.`}
+        ? `${SALES.fullName}, Head of Sales, prowadzi rozmowy o stronach i o OutreachPilot. Wybierz termin w kalendarzu.`
+        : `${SALES.fullName}, Head of Sales, runs the calls about websites and OutreachPilot. Pick a time in her calendar.`}
     </p>
-    <a class="btn btn--page" data-outbound data-cta="after-form-booking" href={SALES.bookingUrl} target="_blank" rel="noopener">
-      {pl ? 'Umów 30 minut z Justyną' : 'Book 30 minutes with Justyna'}
-      <span class="arr" aria-hidden="true">↗</span>
-      <span class="sr-only">{pl ? ' (otwiera się w nowej karcie)' : ' (opens in a new tab)'}</span>
+    <a class="btn" data-outbound data-cta="after-form-booking" href={SALES.bookingUrl} target="_blank" rel="noopener">
+      <span>{pl ? 'Umów 30 minut z Justyną' : 'Book 30 minutes with Justyna'}<span class="sr-only">{pl ? ' (otwiera się w nowej karcie)' : ' (opens in a new tab)'}</span></span>
+      <span class="btn-arr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h11M9 4l4 4-4 4" /></svg></span>
     </a>
     <p class="lead-hint">
       {pl
-        ? 'Otworzy się strona rezerwacji na outreachpilot.pl. Rezerwacja jest dobrowolna — Twoje zapytanie już do nas trafiło.'
-        : 'This opens the booking page on outreachpilot.pl. Booking is optional — your enquiry has already reached us.'}
+        ? 'Otworzy się kalendarz Justyny w Calendly. Rezerwacja jest dobrowolna, a Twoje zapytanie już do mnie trafiło.'
+        : 'This opens Justyna’s calendar on Calendly. Booking is optional, and your enquiry has already reached me.'}
     </p>
   </div>
 </div>
@@ -232,16 +231,16 @@ const noscriptMailto = `mailto:${CONTACT.studioEmail}?subject=${encodeURICompone
   .lead-fieldset { display: block; min-width: 0; margin: 0; padding: 0; border: 0; }
   .lead-fieldset legend { padding: 0; margin-bottom: 0.5rem; }
   .lead-req { color: var(--signal); }
-  .lead-hint { margin: 0; font-size: 0.8rem; line-height: 1.5; color: var(--bone-dim); }
-  .lead-error { margin: 0; font-size: 0.85rem; line-height: 1.4; color: #ff8b9b; }
+  .lead-hint { margin: 0; font-size: 0.8rem; line-height: 1.5; color: var(--mute); }
+  .lead-error { margin: 0; font-size: 0.85rem; line-height: 1.4; color: #ff9b85; }
   .lead-error[hidden], .lead-after[hidden] { display: none; }
-  .lead-wrap [data-invalid] .choice span { border-color: #ff6b81; }
-  .lead-wrap .check input[aria-invalid='true'] { outline: 2px solid #ff6b81; outline-offset: 2px; }
+  .lead-wrap [data-invalid] .choice span { border-color: #ff8b73; }
+  .lead-wrap .check input[aria-invalid='true'] { outline: 2px solid #ff8b73; outline-offset: 2px; }
   .lead-check-label { display: block; min-height: 44px; padding-block: 0.1rem; color: var(--bone); cursor: pointer; }
-  .lead-notice { margin: 0.2rem 0 0; font-size: 0.78rem; line-height: 1.55; color: var(--bone-dim); }
+  .lead-notice { margin: 0.2rem 0 0; font-size: 0.78rem; line-height: 1.55; color: var(--faint); }
   .lead-notice a, .lead-wrap .form-status a, .lead-noscript a { text-decoration: underline; text-underline-offset: 3px; }
   .lead-wrap .form-status a { color: var(--bone); }
-  .lead-noscript { margin: 0; padding: 1rem 1.15rem; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--bone); }
+  .lead-noscript { margin: 0; padding: 1rem 1.15rem; border: 1px solid var(--line-2); border-radius: 3px; color: var(--bone); }
   .lead-after { display: grid; gap: 0.75rem; justify-items: start; padding-top: 1.5rem; border-top: 1px solid var(--line); }
   .lead-after > * { margin: 0; }
 </style>

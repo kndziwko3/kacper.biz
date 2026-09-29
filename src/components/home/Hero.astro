@@ -1,0 +1,75 @@
+---
+import { copy } from '../../content/copy';
+import type { Lang } from '../../content/site';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const h = copy[lang].home;
+const ui = copy[lang].ui;
+---
+<section class="hero" data-scene="1" data-scene-side="left" aria-labelledby="hero-name">
+  <h1 class="hero-h1 m-solid" id="hero-name">
+    <span class="hero-role data">{h.role}</span>
+    <span class="hero-name"><span class="hero-name-in">Kacper <span class="hero-last">Rękawek</span></span></span>
+  </h1>
+  <div class="wrap hero-top m-solid">
+    <p class="lead hero-lead" set:html={h.lead} />
+    <ul class="hero-index">
+      {h.index.map((i) => (
+        <li>
+          <a href={i.href}>
+            <span class="hi-name">{i.name}</span>
+            <span class="hi-text">{i.text}</span>
+            <svg class="hi-arr" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4" /></svg>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <p class="hero-place data" aria-hidden="true"><span class="hero-pin"></span>{ui.place} · {ui.coords}</p>
+</section>
+
+<style>
+  .hero {
+    position: relative; min-height: 100svh; display: grid; container-type: inline-size;
+    grid-template-rows: auto 1fr auto; padding-top: calc(var(--header-h) + clamp(1.5rem, 5vh, 3.5rem));
+  }
+  .hero-top { grid-row: 1; display: grid; gap: clamp(1.75rem, 4vh, 2.75rem); align-content: start; }
+  .hero-lead { max-width: 33ch; color: var(--mute); }
+  .hero-index { max-width: 30rem; border-top: 1px solid var(--line); }
+  .hero-index li { border-bottom: 1px solid var(--line); }
+  .hero-index a { display: grid; grid-template-columns: 1fr auto; column-gap: 1rem; padding: 0.95rem 0; align-items: center; }
+  .hi-name { font-family: var(--f-display); font-weight: 650; font-size: 1.12rem; letter-spacing: -0.02em; transition: color 0.3s; }
+  .hi-text { grid-column: 1; font-size: 0.9375rem; color: var(--mute); }
+  .hi-arr { grid-row: 1 / span 2; grid-column: 2; width: 18px; height: 18px; color: var(--mute); transition: transform 0.45s var(--ease), color 0.3s; }
+  .hero-index a:hover .hi-name { color: var(--signal); }
+  .hero-index a:hover .hi-arr { transform: translateY(4px); color: var(--signal); }
+
+  .hero-h1 { grid-row: 3; padding-inline: var(--gutter); padding-bottom: clamp(0.75rem, 2.5vh, 1.75rem); margin: 0; font-weight: 800; }
+  .hero-role { display: block; margin: 0 0 clamp(0.5rem, 1.5vh, 1rem) 0.2em; color: var(--mute); font-weight: 400; letter-spacing: 0.02em; }
+  .hero-name {
+    display: block; font-family: var(--f-display); font-weight: 800; font-stretch: 125%;
+    font-size: min(calc((100cqi - 2 * var(--gutter)) / 8.75), 17rem); line-height: 0.8; letter-spacing: -0.055em;
+    white-space: nowrap; margin-left: -0.04em; padding-bottom: 0.13em; color: var(--bone);
+  }
+  .hero-name-in { display: inline-block; animation: name-in 1.9s var(--ease) 0.1s backwards; }
+  @keyframes name-in { from { font-stretch: 75%; letter-spacing: -0.02em; } }
+  @supports (animation-timeline: view()) {
+    .hero-name { animation: name-out linear both; animation-timeline: view(); animation-range: exit 10% exit 110%; }
+    @keyframes name-out { to { font-stretch: 78%; opacity: 0.25; transform: translateY(-4vh); } }
+  }
+
+  .hero-place { position: absolute; right: var(--gutter); top: calc(var(--header-h) + clamp(1.5rem, 5vh, 3.5rem)); display: flex; align-items: center; gap: 0.6rem; }
+  .hero-pin { width: 7px; height: 7px; background: var(--signal); }
+
+  @media (max-width: 899px) {
+    .hero { padding-top: calc(var(--header-h) + 38svh); grid-template-rows: auto auto; }
+    .hero-h1 { grid-row: 1; padding-bottom: 1.5rem; box-shadow: none; background: linear-gradient(transparent, var(--ink) 2.5rem); padding-top: 1rem; }
+    .hero-name { font-size: calc((100cqi - 2 * var(--gutter)) / 4.62); font-stretch: 112%; white-space: normal; line-height: 0.86; }
+    .hero-last { display: block; }
+    .hero-top { grid-row: 2; padding-bottom: 3.5rem; }
+    .hero-place { top: calc(var(--header-h) + 0.75rem); left: var(--gutter); right: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-name, .hero-name-in { animation: none; }
+  }
+</style>

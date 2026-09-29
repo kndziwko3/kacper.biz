@@ -1,5 +1,5 @@
 /**
- * POST /api/lead — kacper.biz lead capture.
+ * POST /api/lead, kacper.biz lead capture.
  *
  * A Vercel Function in the Web-standard handler style (`export function POST(request) -> Response`).
  * The Astro site itself stays fully static; Vercel serves this file at /api/lead.
@@ -107,7 +107,7 @@ function logOutcome(code, detail = '') {
 /**
  * Browsers always send Origin on a cross-origin POST (and on same-origin fetch POSTs). If Origin is
  * absent we fall back to Referer. This stops other websites from posting through a visitor's browser;
- * it does NOT stop curl (anyone can forge headers) — the bot traps and rate limit are for that.
+ * it does NOT stop curl (anyone can forge headers), the bot traps and rate limit are for that.
  */
 function originAllowed(request) {
   const raw = request.headers.get('origin') ?? request.headers.get('referer');
@@ -133,7 +133,7 @@ function originAllowed(request) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Best-effort rate limit (in-memory; serverless instances do not share memory — a speed bump only)
+// Best-effort rate limit (in-memory; serverless instances do not share memory, a speed bump only)
 // ---------------------------------------------------------------------------------------------
 
 const hits = new Map();
@@ -235,7 +235,7 @@ function cleanPath(raw) {
   return /^\/[^\s]*$/.test(path) ? cap(path, 200) : '';
 }
 
-/** Referrer HOST only — never a path or query string. */
+/** Referrer HOST only, never a path or query string. */
 function hostOnly(raw) {
   const s = clean(raw).toLowerCase();
   if (!s) return '';
@@ -343,14 +343,14 @@ function botVerdict(body, now) {
 
 function buildMessages(lead, receivedAt) {
   const needLabel = NEEDS[lead.need];
-  const subject = cap(`[kacper.biz] ${needLabel} — ${lead.name}`, 200);
+  const subject = cap(`[kacper.biz] ${needLabel}: ${lead.name}`, 200);
   const a = lead.attribution;
 
   const rows = [
     ['Need', needLabel],
     ['Name', lead.name],
     ['Email', lead.email],
-    ['Website', lead.company || '—'],
+    ['Website', lead.company || '(brak)'],
     ['Language', lead.lang],
   ];
   const attrRows = [
@@ -372,7 +372,7 @@ function buildMessages(lead, receivedAt) {
     ...rows.map(([k, v]) => `${k}: ${v}`),
     '',
     'Message:',
-    lead.message || '—',
+    lead.message || '(brak)',
     '',
     '--- Attribution ---',
     ...(attrRows.length ? attrRows.map(([k, v]) => `${k}: ${v}`) : ['(direct / none captured)']),
@@ -385,7 +385,7 @@ function buildMessages(lead, receivedAt) {
     `<tr><td style="${cell}color:#666;white-space:nowrap">${escapeHtml(k)}</td><td style="${cell}">${escapeHtml(v)}</td></tr>`;
   const website = lead.company
     ? `<tr><td style="${cell}color:#666;white-space:nowrap">Website</td><td style="${cell}"><a href="${escapeHtml(lead.company)}">${escapeHtml(lead.company)}</a></td></tr>`
-    : tr(['Website', '—']);
+    : tr(['Website', '(brak)']);
   const email = `<tr><td style="${cell}color:#666;white-space:nowrap">Email</td><td style="${cell}"><a href="mailto:${escapeHtml(lead.email)}">${escapeHtml(lead.email)}</a></td></tr>`;
   const html = [
     '<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;font-size:15px;line-height:1.5;color:#111">',
@@ -398,7 +398,7 @@ function buildMessages(lead, receivedAt) {
     tr(rows[4]),
     '</table>',
     '<h3 style="margin:18px 0 6px;font-size:15px">Message</h3>',
-    `<div style="white-space:pre-wrap">${escapeHtml(lead.message || '—')}</div>`,
+    `<div style="white-space:pre-wrap">${escapeHtml(lead.message || '(brak)')}</div>`,
     '<h3 style="margin:18px 0 6px;font-size:15px">Attribution</h3>',
     attrRows.length
       ? `<table style="border-collapse:collapse">${attrRows.map(tr).join('')}</table>`
@@ -469,7 +469,7 @@ async function sendWebhook(lead, env, receivedAt, timeoutMs) {
   if (!res.ok) throw Object.assign(new Error('webhook_http'), { code: `http_${res.status}` });
 }
 
-/** @returns {'sent' | 'unconfigured' | 'failed'} — tries each configured channel in order until one succeeds. */
+/** @returns {'sent' | 'unconfigured' | 'failed'}, tries each configured channel in order until one succeeds. */
 async function deliver(lead) {
   const env = process.env;
   const channels = [];

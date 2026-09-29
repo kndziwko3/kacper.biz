@@ -1,0 +1,120 @@
+---
+import Btn from '../ui/Btn.astro';
+import { copy } from '../../content/copy';
+import { SECTORS, CITIES, CEIDG, fmt, sectorUrl } from '../../content/ceidg';
+import { typo } from '../../lib/typo';
+import type { Lang } from '../../content/site';
+interface Props { lang: Lang; id?: string; label?: string }
+const { lang, id = 'outreachpilot', label = 'OutreachPilot.pl' } = Astro.props;
+const d = copy[lang].home.demo;
+const ui = copy[lang].ui;
+const defSector = SECTORS.find((s) => s.slug === 'elektrycy')!;
+const defCity = CITIES.find((c) => c.slug === 'krakow')!;
+const mailParts = d.mail.split('{in}');
+// Payload for the client script: counts, names and inflections only.
+const payload = {
+  lang,
+  sectors: SECTORS.map((s) => ({ slug: s.slug, count: s.count, name: s.name[lang], url: sectorUrl(s) })),
+  cities: CITIES.map((c) => ({ slug: c.slug, count: c.count, name: c.name, in: c.in, lat: c.lat, lon: c.lon })),
+};
+---
+<section id={id} class="registry m-window" data-scene="1" data-scene-side="left" aria-labelledby={`${id}-h`}>
+  <div class="wrap grid">
+    <div class="reg c-1-6 m-solid">
+      <p class="label"><b>{label}</b>{d.label}</p>
+      <h2 class="h2" id={`${id}-h`} data-lines>{d.h2}</h2>
+      <p class="body reg-p">{d.p}</p>
+
+      <form class="reg-controls" data-registry aria-label={d.h2} onsubmit="return false">
+        <label class="reg-field">
+          <span class="data">{d.sector}</span>
+          <select name="sector" class="reg-select">
+            {SECTORS.map((s) => <option value={s.slug} selected={s.slug === defSector.slug}>{s.name[lang]}</option>)}
+          </select>
+        </label>
+        <label class="reg-field">
+          <span class="data">{d.city}</span>
+          <select name="city" class="reg-select">
+            {CITIES.map((c) => <option value={c.slug} selected={c.slug === defCity.slug}>{c.name}</option>)}
+          </select>
+        </label>
+      </form>
+
+      <div class="reg-out" aria-live="polite" aria-atomic="true">
+        <div class="reg-count">
+          <span class="reg-n num" data-out="sector">{fmt(defSector.count, lang)}</span>
+          <span class="data" set:html={typo(d.sectorCount, lang)} />
+        </div>
+        <div class="reg-count">
+          <span class="reg-n num" data-out="city">{fmt(defCity.count, lang)}</span>
+          <span class="data"><span data-out="cityName">{defCity.name}</span>, <span set:html={typo(d.cityCount, lang)} /></span>
+        </div>
+      </div>
+
+      <figure class="reg-mail">
+        <figcaption class="data">{d.mailLabel}</figcaption>
+        <p class="reg-mail-line" lang="pl">{mailParts[0]}<mark data-out="cityIn">{defCity.in}</mark>{mailParts[1]}</p>
+        <p class="note">{d.mailNote}</p>
+      </figure>
+
+      <div class="btn-row reg-cta">
+        <Btn href={sectorUrl(defSector)} outbound cta="registry-sector" arrow="up"><span data-out="ctaLabel">{d.cta}</span></Btn>
+      </div>
+
+      <details class="reg-all">
+        <summary class="data">{d.all}</summary>
+        <table class="table">
+          <thead><tr><th>{d.tableSector}</th><th>{d.tablePkd}</th><th class="n">{d.tableCount}</th></tr></thead>
+          <tbody>
+            {SECTORS.map((s) => (
+              <tr data-sector-row={s.slug}><td><a class="link" href={sectorUrl(s)} data-outbound data-cta="registry-table" rel="noopener">{s.name[lang]}</a></td><td class="data">{s.pkd}</td><td class="n">{fmt(s.count, lang)}</td></tr>
+            ))}
+          </tbody>
+          <tfoot><tr><td colspan="2">{lang === 'pl' ? 'Razem' : 'Total'}</td><td class="n">{fmt(CEIDG.total, lang)}</td></tr></tfoot>
+        </table>
+      </details>
+      <p class="note reg-src">{ui.source}: <a href={CEIDG.source} data-outbound data-cta="registry-source" rel="noopener">{d.source}</a></p>
+    </div>
+  </div>
+  <script type="application/json" data-registry-data set:html={JSON.stringify(payload)} />
+</section>
+
+<style>
+  .registry { position: relative; padding-block: clamp(6rem, 16vh, 10rem); }
+  .reg .h2 { margin-top: 1.5rem; max-width: 14ch; }
+  .reg-p { margin-top: 1.25rem; }
+  .reg-controls { margin-top: 2.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .reg-field { display: grid; gap: 0.4rem; }
+  .reg-select {
+    appearance: none; -webkit-appearance: none; width: 100%; min-height: 54px; padding: 0.8rem 2.6rem 0.8rem 0.95rem;
+    background: var(--ink-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%239c988f' stroke-width='1.5'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 0.9rem center / 14px;
+    border: 1px solid var(--line-2); border-radius: 3px; color: var(--bone); font-weight: 560; font-size: 1rem; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .reg-select:hover { border-color: var(--bone); }
+  .reg-select:focus-visible { outline: none; border-color: var(--signal); box-shadow: 0 0 0 3px rgb(255 90 31 / 0.2); }
+  .reg-select option { background: var(--ink-2); color: var(--bone); }
+  .reg-out { margin-top: 1.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .reg-count { display: grid; gap: 0.35rem; align-content: start; padding-top: 1rem; border-top: 1px solid var(--line-2); }
+  .reg-n { font-family: var(--f-display); font-weight: 700; font-stretch: 88%; font-size: clamp(2.2rem, 1.4rem + 2.6vw, 3.6rem); letter-spacing: -0.04em; line-height: 1; }
+  .reg-count:first-child .reg-n { color: var(--signal); }
+  .reg-mail { margin: 2rem 0 0; padding: 1.1rem 1.2rem; border: 1px solid var(--line); border-radius: 3px; background: var(--ink-2); display: grid; gap: 0.6rem; }
+  .reg-mail-line { font-size: 1.08rem; line-height: 1.5; color: var(--bone); }
+  .reg-mail mark { background: none; color: var(--signal); border-bottom: 1px solid currentColor; }
+  .reg-cta { margin-top: 1.75rem; }
+  .reg-all { margin-top: 2.25rem; border-top: 1px solid var(--line); }
+  .reg-all summary { list-style: none; padding: 1rem 0; display: flex; justify-content: space-between; color: var(--bone); }
+  .reg-all summary::-webkit-details-marker { display: none; }
+  .reg-all summary::after { content: '+'; font-size: 1rem; line-height: 1; color: var(--mute); }
+  .reg-all[open] summary::after { content: '−'; }
+  .reg-all tr.is-active td { color: var(--signal); }
+  .reg-all tfoot td { font-weight: 600; border-bottom: 0; }
+  .reg-src { margin-top: 1.25rem; }
+  @media (max-width: 899px) {
+    .registry { padding-bottom: 4rem; }
+    .reg { padding-top: 1rem; }
+  }
+  @media (max-width: 480px) {
+    .reg-controls, .reg-out { grid-template-columns: 1fr; }
+  }
+</style>

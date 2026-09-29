@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Tests for api/lead.js — no dependencies, no network (global fetch is mocked).
+ * Tests for api/lead.js: no dependencies, no network (global fetch is mocked).
  *
  *   node scripts/test-lead.mjs
  *
@@ -103,7 +103,7 @@ test('valid submission -> 200 and one Resend email (correct shape)', async () =>
   assert.deepEqual(c.body.to, ['kontakt@fastlanding.io']);
   assert.equal(c.body.from, 'Leads <leads@kacper.biz>');
   assert.equal(c.body.reply_to, 'jan@example.com');
-  assert.equal(c.body.subject, '[kacper.biz] Website / landing page — Jan Kowalski');
+  assert.equal(c.body.subject, '[kacper.biz] Website / landing page: Jan Kowalski');
   assert.match(c.body.text, /Potrzebuję landing page\./);
   assert.match(c.body.text, /utm_source: newsletter/);
   assert.ok(c.body.html.includes('Jan Kowalski'));

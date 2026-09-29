@@ -1,0 +1,25 @@
+---
+import { copy } from '../../content/copy';
+import type { Lang } from '../../content/site';
+interface Props { lang: Lang; crumb: string; kicker: string; h1: string; lead?: string; scene?: number; side?: 'left' | 'right' | 'center'; dim?: number }
+const { lang, crumb, kicker, h1, lead, scene = 1, side = 'left', dim } = Astro.props;
+const home = lang === 'pl' ? '/' : '/en';
+---
+<section class="page-head m-window" data-scene={scene} data-scene-side={side} data-scene-dim={dim} aria-labelledby="page-h1">
+  <div class="wrap grid">
+    <div class="c-1-7 m-solid ph-in">
+      <nav class="crumbs" aria-label={lang === 'pl' ? 'Okruszki' : 'Breadcrumb'}><a href={home}>{copy[lang].ui.home}</a><span aria-hidden="true">/</span><span aria-current="page">{crumb}</span></nav>
+      <p class="label ph-kicker"><b>{kicker}</b></p>
+      <h1 class="h1" id="page-h1">{h1}</h1>
+      {lead && <p class="lead">{lead}</p>}
+      <div class="btn-row ph-actions"><slot /></div>
+    </div>
+  </div>
+</section>
+<style>
+  .page-head { min-height: min(92svh, 58rem); display: grid; align-content: end; }
+  .ph-kicker { margin-top: 2rem; max-width: 30rem; }
+  .ph-actions:empty { display: none; }
+  .ph-actions { margin-top: 2rem; }
+  @media (max-width: 899px) { .page-head { min-height: 0; } .ph-in { padding-top: 1rem; } }
+</style>

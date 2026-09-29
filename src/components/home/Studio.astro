@@ -1,0 +1,51 @@
+---
+import Btn from '../ui/Btn.astro';
+import Showcase from './Showcase.astro';
+import Prices from './Prices.astro';
+import Clauses from './Clauses.astro';
+import Process from './Process.astro';
+import { copy } from '../../content/copy';
+import { PRODUCTS, SALES, type Lang } from '../../content/site';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const f = copy[lang].home.fl;
+---
+<section id="fastlanding" class="paper studio" data-scene="3" data-scene-occlude aria-labelledby="fl-h">
+  <div class="wrap studio-in">
+    <p class="label"><b>{f.label}</b></p>
+    <div class="grid studio-head">
+      <h2 class="h2 c-1-8" id="fl-h" data-lines>{f.h2}</h2>
+      <p class="lead c-1-6 studio-lead" data-reveal>{f.p}</p>
+    </div>
+
+    <Showcase lang={lang} />
+
+    <div class="grid studio-terms">
+      <div class="c-1-6"><Prices lang={lang} /></div>
+      <div class="c-8-12"><Clauses lang={lang} /></div>
+    </div>
+
+    <Process lang={lang} />
+
+    <div class="grid studio-ai">
+      <h3 class="h3 c-1-5">{f.ai.h3}</h3>
+      <p class="body c-6-12">{f.ai.p}</p>
+    </div>
+
+    <div class="btn-row studio-cta">
+      <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-quote" arrow="up">{f.cta}</Btn>
+      <Btn href={SALES.bookingUrl} variant="line" newTab cta="fl-booking" arrow="up">{f.ctaAlt}</Btn>
+    </div>
+  </div>
+</section>
+
+<style>
+  .studio { margin-top: clamp(2rem, 8vh, 5rem); }
+  .studio-in { padding-block: clamp(4.5rem, 12vh, 8rem) clamp(5rem, 13vh, 9rem); }
+  .studio .h2 { margin-top: 1.5rem; max-width: 15ch; font-size: clamp(2.4rem, 1.2rem + 4.6vw, 5.4rem); }
+  .studio-lead { margin-top: 1.5rem; color: var(--paper-mute); }
+  .studio-terms { margin-top: clamp(4rem, 12vh, 7rem); row-gap: 3.5rem; }
+  .studio :global(.process) { margin-top: clamp(4rem, 12vh, 7rem); }
+  .studio-ai { margin-top: clamp(4rem, 10vh, 6rem); padding-top: 1.5rem; border-top: 1px solid var(--line-2); row-gap: 1rem; }
+  .studio-cta { margin-top: clamp(3rem, 8vh, 4.5rem); }
+</style>

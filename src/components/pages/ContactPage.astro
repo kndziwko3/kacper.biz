@@ -1,9 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
-import PageHero from '../PageHero.astro';
-import ContactForm from '../ContactForm.astro';
+import PageHead from '../ui/PageHead.astro';
+import Talk from '../home/Talk.astro';
 import { copy } from '../../content/copy';
-import { CONTACT, SALES, type Lang } from '../../content/site';
+import type { Lang } from '../../content/site';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const c = copy[lang];
@@ -14,31 +14,6 @@ const home = isPl ? '/' : '/en';
 ---
 <Base lang={lang} path={path} title={k.title} description={k.description} kind="contact"
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: k.crumb, path }]} ogImage={isPl ? '/og/contact.png' : '/og/contact-en.png'}>
-  <PageHero lang={lang} crumb={k.crumb} eyebrow={k.eyebrow} tone="reply" h1={k.h1} lead={k.lead} scene={5} side="left" />
-  <section class="chapter chapter--tight section" data-scene="5" data-scene-side="center" style="padding-top:0">
-    <div class="wrap">
-      <div class="cgrid">
-        <div class="card" data-reveal><ContactForm lang={lang} idPrefix="contact" /></div>
-        <div class="stack" style="--stack:1rem">
-          <div class="card" data-reveal>
-            <h2 class="h3">{k.emails.h2}</h2>
-            <ul class="stack" style="--stack:.9rem;margin-top:1rem">
-              <li><span class="faint" style="font-size:.85rem">{k.emails.studio}</span><br /><a href={`mailto:${CONTACT.studioEmail}`} style="font-weight:600">{CONTACT.studioEmail}</a></li>
-              <li><span class="faint" style="font-size:.85rem">{k.emails.product}</span><br /><a href={`mailto:${CONTACT.productEmail}`} style="font-weight:600">{CONTACT.productEmail}</a></li>
-            </ul>
-          </div>
-          <div class="card" data-reveal>
-            <h2 class="h3">{k.call.h2}</h2>
-            <p class="muted" style="margin-top:.75rem">{c.home.talk2.p}</p>
-            <p style="margin-top:1.25rem"><a class="btn btn--page" href={SALES.bookingUrl} target="_blank" rel="noopener" data-outbound data-cta="contact-booking">{c.home.talk2.cta} <span class="arr" aria-hidden="true">→</span></a></p>
-            <p class="muted" style="margin-top:1.25rem;font-size:.92rem"><a href={CONTACT.aiPhone.href} style="color:var(--bone);font-weight:600">{CONTACT.aiPhone.display}</a> {c.home.talk2.phone.replace(CONTACT.aiPhone.display + ' ', '')}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <PageHead lang={lang} crumb={k.crumb} kicker={k.kicker} h1={k.h1} lead={k.lead} scene={5} side="left" />
+  <Talk lang={lang} heading={false} idPrefix="contact" />
 </Base>
-<style>
-  .cgrid { display: grid; gap: 1rem; }
-  @media (min-width: 960px) { .cgrid { grid-template-columns: 1.15fr 1fr; align-items: start; } }
-</style>

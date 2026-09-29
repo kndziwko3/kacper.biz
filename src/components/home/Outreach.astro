@@ -1,0 +1,107 @@
+---
+import Btn from '../ui/Btn.astro';
+import Pane from './Pane.astro';
+import { copy } from '../../content/copy';
+import { PRODUCTS, type Lang } from '../../content/site';
+interface Props { lang: Lang; heading?: boolean }
+const { lang, heading = true } = Astro.props;
+const o = copy[lang].home.op;
+const total = String(o.steps.length).padStart(2, '0');
+---
+<section class="outreach m-window" data-scene="2" data-scene-side="center" data-scene-dim="0.55" aria-labelledby="op-h">
+  <div class="wrap">
+    {heading && (
+      <div class="grid op-head m-solid">
+        <div class="c-1-7">
+          <h2 class="h2" id="op-h" data-lines>{o.h2}</h2>
+          <p class="lead op-lead" data-reveal>{o.p}</p>
+        </div>
+      </div>
+    )}
+
+    <div class="grid instrument m-solid" data-instrument>
+      <ol class="steps c-1-5">
+        {o.steps.map((s, i) => (
+          <li class="step" data-step={i}>
+            <span class="data step-n">{String(i + 1).padStart(2, '0')} / {total}</span>
+            <h3 class="h3">{s.title}</h3>
+            <p class="body">{s.text}</p>
+            <div class="step-pane"><Pane lang={lang} panel={s.panel} /></div>
+          </li>
+        ))}
+      </ol>
+      <div class="panel-col c-7-12" aria-hidden="true">
+        <div class="panel">
+          <div class="panel-bar data"><span>outreachpilot.pl</span><span data-panel-count>01 / {total}</span></div>
+          {o.steps.map((s, i) => (
+            <div class="panel-pane" data-pane={i}><Pane lang={lang} panel={s.panel} /></div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div class="bench m-solid">
+      <div class="bench-head">
+        <h3 class="h3">{o.benchmark.h3}</h3>
+        <a class="data link link--u" href={PRODUCTS.outreachpilot.methodology} data-outbound data-cta="op-methodology" rel="noopener">{o.benchmark.link}</a>
+      </div>
+      <dl class="bench-stats">
+        {o.benchmark.stats.map(([v, l]) => (
+          <div><dt class="data">{l}</dt><dd class="num">{v}</dd></div>
+        ))}
+      </dl>
+      <p class="note bench-note">{o.benchmark.note}</p>
+    </div>
+
+    <div class="grid op-foot m-solid">
+      <p class="body c-1-6">{o.plans}</p>
+      <p class="body c-7-12">{o.mcp} <a class="link link--u" href={PRODUCTS.outreachpilot.mcp} data-outbound data-cta="op-mcp" rel="noopener">MCP</a></p>
+      <div class="btn-row op-cta">
+        <Btn href={PRODUCTS.outreachpilot.signup} outbound cta="op-signup" arrow="up">{o.cta}</Btn>
+        <Btn href={PRODUCTS.outreachpilot.pricing} variant="line" outbound cta="op-pricing" arrow="up">{o.ctaAlt}</Btn>
+      </div>
+      <p class="note op-legal">{o.legal}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .outreach { position: relative; padding-block: clamp(5rem, 12vh, 8rem) clamp(6rem, 14vh, 9rem); }
+  .op-lead { margin-top: 1.5rem; max-width: 46ch; }
+  .instrument { margin-top: clamp(3rem, 10vh, 6rem); align-items: start; }
+  .step { position: relative; padding: 1.5rem 0 2rem; border-top: 1px solid var(--line); transition: opacity 0.5s var(--ease); }
+  .step .h3 { margin-top: 0.75rem; }
+  .step .body { margin-top: 0.6rem; }
+  .step-n { color: var(--faint); }
+  .step-pane { margin-top: 1.25rem; }
+  .panel-col { display: none; }
+
+  @media (min-width: 900px) {
+    .step { min-height: 62vh; padding-bottom: 0; }
+    :global(.js) .step { opacity: 0.32; }
+    :global(.js) .step.is-active { opacity: 1; }
+    :global(.js) .step.is-active .step-n { color: var(--signal); }
+    .step-pane { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .panel-col { display: block; position: sticky; top: calc(50vh - 11rem); }
+    .panel { position: relative; min-height: 22rem; border: 1px solid var(--line-2); border-radius: 4px; background: rgb(11 11 10 / 0.9); }
+    .panel-bar { display: flex; justify-content: space-between; padding: 0.8rem 1.1rem; border-bottom: 1px solid var(--line); }
+    .panel-pane { position: absolute; inset: 3rem 0 0; padding: 1.4rem 1.4rem 1.6rem; opacity: 0; transform: translateY(10px); transition: opacity 0.45s var(--ease), transform 0.6s var(--ease); pointer-events: none; }
+    .panel-pane.is-active { opacity: 1; transform: none; }
+    :global(html:not(.js)) .panel-pane[data-pane='0'] { opacity: 1; transform: none; }
+  }
+
+  .bench { margin-top: clamp(4rem, 12vh, 7rem); padding-top: 1.5rem; border-top: 1px solid var(--line-2); }
+  .bench-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .bench-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--col-gap); margin-top: 2rem; }
+  .bench-stats dd { font-family: var(--f-display); font-weight: 750; font-stretch: 80%; font-size: clamp(3rem, 1.5rem + 7vw, 8.5rem); letter-spacing: -0.05em; line-height: 0.9; margin-top: 0.5rem; }
+  .bench-stats div:nth-child(2) dd { color: var(--signal); }
+  .bench-note { margin-top: 1.5rem; max-width: 70ch; }
+  .op-foot { margin-top: clamp(3rem, 8vh, 5rem); row-gap: 1.25rem; }
+  .op-cta { margin-top: 0.75rem; }
+  .op-legal { max-width: 80ch; }
+  @media (max-width: 899px) {
+    .bench-stats { grid-template-columns: 1fr; gap: 1.25rem; }
+    .bench-stats div { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 0.75rem; }
+    .bench-stats dd { font-size: 3.4rem; }
+  }
+</style>

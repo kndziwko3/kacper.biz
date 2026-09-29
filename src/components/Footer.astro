@@ -1,5 +1,5 @@
 ---
-import { NAV, PRODUCTS, PERSON, CONTACT, SITE, ROUTE_PAIRS, type Lang } from '../content/site';
+import { NAV, PRODUCTS, PERSON, CONTACT, SITE, type Lang } from '../content/site';
 import { copy, formatDate } from '../content/copy';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -7,21 +7,19 @@ const ui = copy[lang].ui;
 const f = ui.footer;
 const privacy = lang === 'pl' ? '/polityka-prywatnosci' : '/en/privacy';
 ---
-<footer class="site-footer">
+<footer class="site-footer" transition:animate="none">
   <div class="wrap">
     <div class="footer-grid">
       <div>
-        <a class="brand" href={lang === 'pl' ? '/' : '/en'}>
-          <span class="brand__mark" aria-hidden="true">KR</span><span>kacper<span class="faint">.biz</span></span>
-        </a>
-        <p class="muted" style="margin-top:1rem;max-width:34ch">{f.tagline}</p>
+        <p class="footer-lead" set:html={f.lead} />
+        <p class="data" style="margin-top:1.25rem">{ui.place} · {ui.coords} · <time data-clock>--:--</time></p>
       </div>
       <div>
         <h2>{f.products}</h2>
         <ul>
           <li><a href={PRODUCTS.outreachpilot.url} data-outbound data-cta="footer-op" rel="noopener">OutreachPilot.pl</a></li>
           <li><a href={PRODUCTS.fastlanding.url} data-outbound data-cta="footer-fl" rel="noopener">FastLanding.io</a></li>
-          <li><a href={PRODUCTS.outreachpilot.mcp} data-outbound data-cta="footer-mcp" rel="noopener">OutreachPilot MCP</a></li>
+          <li><a href={PRODUCTS.outreachpilot.firms} data-outbound data-cta="footer-ceidg" rel="noopener">{lang === 'pl' ? 'Statystyki firm CEIDG' : 'CEIDG company statistics'}</a></li>
         </ul>
       </div>
       <div>
@@ -38,8 +36,9 @@ const privacy = lang === 'pl' ? '/polityka-prywatnosci' : '/en/privacy';
         </ul>
       </div>
     </div>
-    <div class="footer-fine">
-      <p>{f.fine}<br />{f.disambig}</p>
+    <div class="footer-fine note">
+      <p>© 2026 {f.company}</p>
+      <p>{f.disambig}</p>
       <p>{ui.updated}: <time datetime={SITE.lastModified}>{formatDate(lang)}</time></p>
     </div>
   </div>

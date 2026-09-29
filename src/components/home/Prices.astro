@@ -1,0 +1,45 @@
+---
+import { copy } from '../../content/copy';
+import { FASTLANDING_OFFERS, FASTLANDING_RECURRING, type Lang } from '../../content/site';
+import { typo } from '../../lib/typo';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const p = copy[lang].home.fl.prices;
+const price = (o: { price: string; priceEn: string }) => typo(lang === 'pl' ? o.price : o.priceEn, lang);
+---
+<div class="prices">
+  <h3 class="h3">{p.h3}</h3>
+  <table class="price-table">
+    <tbody>
+      {FASTLANDING_OFFERS.map((o) => (
+        <tr><th scope="row">{o.name[lang]}</th><td class="data">{typo(o.time[lang], lang)}</td><td class="pr" set:html={price(o)} /></tr>
+      ))}
+    </tbody>
+  </table>
+  <p class="data pr-group">{p.recurring}</p>
+  <table class="price-table">
+    <tbody>
+      {FASTLANDING_RECURRING.map((o) => (
+        <tr><th scope="row">{o.name[lang]}</th><td class="data"></td><td class="pr" set:html={price(o)} /></tr>
+      ))}
+    </tbody>
+  </table>
+  <p class="note pr-note">{p.note}</p>
+</div>
+<style>
+  .price-table { margin-top: 1.25rem; }
+  .price-table th, .price-table td { padding: 0.95rem 0; border-bottom: 1px solid var(--line); vertical-align: baseline; text-align: left; }
+  .price-table tr:first-child th, .price-table tr:first-child td { border-top: 1px solid var(--line-2); }
+  .price-table th { font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; padding-right: 1rem; }
+  .price-table td.data { white-space: nowrap; padding-right: 1rem; }
+  .price-table .pr { text-align: right; font-family: var(--f-display); font-weight: 700; font-stretch: 92%; font-size: 1.12rem; letter-spacing: -0.02em; white-space: nowrap; }
+  .pr-group { margin-top: 2rem; }
+  .pr-note { margin-top: 1rem; max-width: 60ch; }
+  @media (max-width: 560px) {
+    .price-table tr { display: grid; grid-template-columns: 1fr auto; }
+    .price-table th { grid-column: 1 / -1; border-bottom: 0; padding-bottom: 0.2rem; }
+    .price-table tr:first-child td { border-top: 0; }
+    .price-table td.data { padding-top: 0.2rem; }
+    .price-table td { padding-top: 0.2rem; }
+  }
+</style>

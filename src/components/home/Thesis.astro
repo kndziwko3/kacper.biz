@@ -1,0 +1,35 @@
+---
+import { copy } from '../../content/copy';
+import { PRODUCTS, type Lang } from '../../content/site';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = copy[lang].home.thesis;
+const ui = copy[lang].ui;
+---
+<section class="thesis m-window" data-scene="1" data-scene-focus="1" data-scene-side="right" aria-labelledby="thesis-h">
+  <div class="wrap grid">
+    <div class="thesis-text c-8-12 m-solid">
+      <p class="thesis-num" aria-hidden="true"><span class="n num">{t.numeral}</span><span class="of">{t.of}</span></p>
+      <h2 class="h2" id="thesis-h" data-lines>{t.h2}</h2>
+      <p class="body thesis-p" data-reveal>{t.p}</p>
+      <p class="note thesis-src" data-reveal>{ui.source}: <a href={PRODUCTS.outreachpilot.noWebsiteReport} data-outbound data-cta="thesis-source" rel="noopener">{t.source}</a></p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .thesis { position: relative; min-height: 115svh; display: grid; align-content: center; padding-block: clamp(6rem, 16vh, 10rem); }
+  .thesis-num { display: flex; align-items: flex-end; gap: 1rem; margin-bottom: clamp(1.5rem, 4vh, 2.5rem); line-height: 0.74; }
+  .thesis-num .n {
+    font-family: var(--f-display); font-weight: 800; font-stretch: 75%; letter-spacing: -0.06em;
+    font-size: clamp(9rem, 26vw, 24rem); color: var(--signal); margin-left: -0.06em;
+  }
+  .thesis-num .of { font-family: var(--f-mono); font-size: var(--t-data); color: var(--mute); padding-bottom: 0.8em; }
+  .thesis .h2 { max-width: 16ch; font-size: clamp(2rem, 1.2rem + 2.6vw, 3.5rem); }
+  .thesis-p { margin-top: 1.5rem; }
+  .thesis-src { margin-top: 1.25rem; max-width: 56ch; }
+  @media (max-width: 899px) {
+    .thesis { min-height: 0; padding-bottom: 4rem; }
+    .thesis-text { padding-top: 1rem; }
+  }
+</style>

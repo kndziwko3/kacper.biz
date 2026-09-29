@@ -1,0 +1,28 @@
+---
+import { copy } from '../../content/copy';
+import type { Lang } from '../../content/site';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const pr = copy[lang].home.fl.process;
+---
+<div class="process">
+  <h3 class="h3">{pr.h3}</h3>
+  <ol class="pr-steps">
+    {pr.steps.map(([t, d], i) => (
+      <li data-reveal style={`--d:${i}`}><span class="pr-dot" aria-hidden="true"></span><span class="data pr-n">{String(i + 1).padStart(2, '0')}</span><b>{t}</b><span class="pr-d">{d}</span></li>
+    ))}
+  </ol>
+</div>
+<style>
+  .pr-steps { margin-top: 1.75rem; display: grid; gap: 1.25rem; }
+  .pr-steps li { position: relative; display: grid; gap: 0.35rem; padding-left: 1.6rem; }
+  .pr-dot { position: absolute; left: 0; top: 0.45rem; width: 8px; height: 8px; border-radius: 50%; background: var(--paper-ink); }
+  .pr-steps li:last-child .pr-dot { background: var(--signal-ink); }
+  .pr-steps b { font-weight: 650; font-size: 1.05rem; letter-spacing: -0.01em; }
+  .pr-d { color: var(--mute); font-size: 0.95rem; }
+  @media (min-width: 900px) {
+    .pr-steps { grid-template-columns: repeat(5, 1fr); gap: var(--col-gap); border-top: 1px solid var(--line-2); padding-top: 0; }
+    .pr-steps li { padding: 1.5rem 0 0; }
+    .pr-dot { top: -4.5px; }
+  }
+</style>

@@ -63,11 +63,11 @@ const COPY: Record<Lang, Copy> = {
       },
       email: {
         required: 'Podaj adres e-mail, na który mamy odpowiedzieć.',
-        invalid: 'Ten adres e-mail wygląda na niepełny — sprawdź go.',
+        invalid: 'Ten adres e-mail wygląda na niepełny. Sprawdź go, proszę.',
         too_long: 'Adres e-mail jest za długi.',
       },
       company: {
-        invalid: 'Podaj adres strony, np. twojafirma.pl — albo zostaw puste.',
+        invalid: 'Podaj adres strony, np. twojafirma.pl, albo zostaw pole puste.',
         too_long: 'Adres strony może mieć maksymalnie 200 znaków.',
       },
       message: { too_long: 'Wiadomość może mieć maksymalnie 2000 znaków.' },
@@ -79,7 +79,7 @@ const COPY: Record<Lang, Copy> = {
     fixFields: (n) => (n === 1 ? 'Popraw zaznaczone pole.' : 'Popraw zaznaczone pola.'),
     rateLimited: (to) => `Zbyt wiele prób z tego połączenia. Odczekaj kilka minut albo napisz na ${to}.`,
     fallback: (to) =>
-      `Formularz nie mógł zostać wysłany przez serwer. Otwiera się Twój program pocztowy z gotową wiadomością do ${to} — nic nie zostało jeszcze wysłane. Jeśli okno się nie pojawiło, użyj linku: `,
+      `Formularz nie mógł zostać wysłany przez serwer. Otwiera się Twój program pocztowy z gotową wiadomością do ${to}. Nic nie zostało jeszcze wysłane. Jeśli okno się nie pojawiło, użyj linku: `,
     fallbackLink: 'Otwórz gotową wiadomość e-mail',
     mail: {
       subject: 'Zapytanie z kacper.biz',
@@ -102,11 +102,11 @@ const COPY: Record<Lang, Copy> = {
       },
       email: {
         required: 'Please enter the email address we should reply to.',
-        invalid: 'That email address looks incomplete — please check it.',
+        invalid: 'That email address looks incomplete. Please check it.',
         too_long: 'That email address is too long.',
       },
       company: {
-        invalid: 'Enter a website address, e.g. yourcompany.com — or leave it empty.',
+        invalid: 'Enter a website address, e.g. yourcompany.com, or leave it empty.',
         too_long: 'The website address can be at most 200 characters.',
       },
       message: { too_long: 'The message can be at most 2000 characters.' },
@@ -118,7 +118,7 @@ const COPY: Record<Lang, Copy> = {
     fixFields: (n) => (n === 1 ? 'Please fix the highlighted field.' : 'Please fix the highlighted fields.'),
     rateLimited: (to) => `Too many attempts from this connection. Wait a few minutes or write to ${to}.`,
     fallback: (to) =>
-      `The form could not be sent through the server. Your email app is opening with a ready-made message to ${to} — nothing has been sent yet. If no window appeared, use this link: `,
+      `The form could not be sent through the server. Your email app is opening with a ready-made message to ${to}. Nothing has been sent yet. If no window appeared, use this link: `,
     fallbackLink: 'Open the prepared email',
     mail: {
       subject: 'Enquiry from kacper.biz',
@@ -202,7 +202,7 @@ function buildMailto(to: string, lang: Lang, needLabel: string, v: Values): stri
   ]
     .filter(Boolean)
     .join('\n');
-  const tail = `— ${m.footer}`;
+  const tail = `-- ${m.footer}`;
   const compose = (message: string): string => `${head}\n\n${m.message}:\n${message}\n\n${tail}`;
 
   // Keep the *encoded* body under MAILTO_BODY_MAX so the whole URL stays inside common mail-client limits.

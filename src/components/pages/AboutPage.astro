@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
-import PageHero from '../PageHero.astro';
+import PageHead from '../ui/PageHead.astro';
+import Btn from '../ui/Btn.astro';
 import Faq from '../Faq.astro';
 import { copy, formatDate } from '../../content/copy';
 import { PERSON, PRODUCTS, SITE, type Lang } from '../../content/site';
@@ -13,44 +14,60 @@ const path = isPl ? '/o-mnie' : '/en/about';
 const home = isPl ? '/' : '/en';
 const contact = isPl ? '/kontakt' : '/en/contact';
 const finds = [
-  { label: 'LinkedIn', href: PERSON.linkedin, rel: 'me noopener' },
-  { label: isPl ? 'FastLanding.io — o nas' : 'FastLanding.io — about', href: PRODUCTS.fastlanding.about, rel: 'noopener' },
-  { label: isPl ? 'OutreachPilot.pl — o redakcji i autorze' : 'OutreachPilot.pl — editorial & author page', href: PRODUCTS.outreachpilot.about, rel: 'noopener' },
+  { label: 'LinkedIn', href: PERSON.linkedin, rel: 'me noopener', note: 'linkedin.com' },
+  { label: isPl ? 'OutreachPilot.pl, o redakcji i autorze' : 'OutreachPilot.pl, editorial and author page', href: PRODUCTS.outreachpilot.about, rel: 'noopener', note: 'outreachpilot.pl/o-redakcji' },
+  { label: isPl ? 'FastLanding.io, o nas' : 'FastLanding.io, about', href: PRODUCTS.fastlanding.about, rel: 'noopener', note: 'fastlanding.io/o-nas' },
+  ...PERSON.extraSameAs.map((u) => ({ label: new URL(u).hostname, href: u, rel: 'me noopener', note: u })),
 ];
+const faq = [c.faq[0]!, c.faq[5]!];
 ---
 <Base lang={lang} path={path} title={a.title} description={a.description} kind="about" ogType="profile"
-  breadcrumbs={[{ name: c.ui.home, path: home }, { name: a.crumb, path }]} faq={c.faq}
+  breadcrumbs={[{ name: c.ui.home, path: home }, { name: a.crumb, path }]} faq={faq}
   ogImage={isPl ? '/og/about.png' : '/og/about-en.png'}>
-  <PageHero lang={lang} crumb={a.crumb} eyebrow={a.eyebrow} h1={a.h1} lead={a.lead} scene={0} side="left">
-    <a class="btn btn--signal" href={contact}>{c.ui.write} <span class="arr" aria-hidden="true">→</span></a>
-  </PageHero>
+  <PageHead lang={lang} crumb={a.crumb} kicker={a.kicker} h1={a.h1} lead={a.lead} scene={5} side="left">
+    <Btn href={contact}>{c.ui.write}</Btn>
+  </PageHead>
 
-  <section class="chapter chapter--tight section" data-scene="1" data-scene-side="right">
-    <div class="wrap"><div class="chapter__grid"><div class="col-wide">
-      <h2 class="h2" data-reveal>{a.facts.h2}</h2>
-      <dl class="facts" style="margin-top:1.75rem" data-reveal>
-        {a.facts.rows.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
-      </dl>
-      <p class="note" data-reveal>{c.ui.updated}: <time datetime={SITE.lastModified}>{formatDate(lang)}</time></p>
-    </div></div></div>
+  <section class="section m-window" data-scene="5" data-scene-side="right" data-scene-dim="0.6" aria-label={a.kicker}>
+    <div class="wrap grid">
+      <div class="c-7-12 m-solid about-body">
+        {a.body.map((p) => <p class="lead" data-reveal>{p}</p>)}
+      </div>
+    </div>
   </section>
 
-  <section class="chapter chapter--tight section" data-scene="5" data-scene-side="center">
-    <div class="wrap"><div class="chapter__grid"><div class="col-wide">
-      <h2 class="h2" data-reveal>{a.disambig.h2}</h2>
-      <p class="lead" style="margin-top:1.25rem" data-reveal>{a.disambig.p}</p>
-
-      <h2 class="h2" style="margin-top:4rem" data-reveal>{a.notClaim.h2}</h2>
-      <ul class="prose" style="margin-top:1.25rem" data-reveal>{a.notClaim.items.map((i) => <li>{i}</li>)}</ul>
-
-      <h2 class="h2" style="margin-top:4rem" data-reveal>{a.find.h2}</h2>
-      <p class="muted" style="margin-top:1rem" data-reveal>{a.find.items}</p>
-      <ul class="prose" style="margin-top:1rem" data-reveal>
-        {finds.map((f) => <li><a href={f.href} rel={f.rel} target="_blank">{f.label}</a></li>)}
-      </ul>
-
-      <h2 class="h2" style="margin-top:4rem" data-reveal>{c.home.faq.h2}</h2>
-      <div style="margin-top:1.5rem"><Faq lang={lang} /></div>
-    </div></div></div>
+  <section class="section m-window" data-scene="1" data-scene-side="right" data-scene-dim="0.5" aria-labelledby="facts-h">
+    <div class="wrap grid about-grid m-solid">
+      <div class="c-1-6">
+        <h2 class="h2" id="facts-h" data-lines>{a.facts.h2}</h2>
+        <dl class="facts">
+          {a.facts.rows.map(([k, v]) => <div><dt class="data">{k}</dt><dd>{v}</dd></div>)}
+        </dl>
+        <p class="data facts-upd">{c.ui.updated}: <time datetime={SITE.lastModified}>{formatDate(lang)}</time></p>
+      </div>
+      <div class="c-8-12">
+        <h2 class="h3">{a.find.h2}</h2>
+        <ul class="finds">
+          {finds.map((f) => <li><a href={f.href} rel={f.rel} target="_blank"><span>{f.label}</span><span class="data">{f.note}</span></a></li>)}
+        </ul>
+        <h2 class="h3 about-ns">{a.disambig.h2}</h2>
+        <p class="body">{a.disambig.p}</p>
+      </div>
+    </div>
   </section>
+
+  <Faq lang={lang} items={faq} />
 </Base>
+<style>
+  .about-body { display: grid; gap: 1.5rem; }
+  .about-body .lead { max-width: 36ch; color: var(--bone); }
+  .about-grid { row-gap: 4rem; }
+  .facts { margin-top: 2rem; border-top: 1px solid var(--line-2); }
+  .facts div { display: grid; gap: 0.25rem 1.5rem; padding: 0.9rem 0; border-bottom: 1px solid var(--line); }
+  @media (min-width: 700px) { .facts div { grid-template-columns: 11rem 1fr; } }
+  .facts-upd { margin-top: 1rem; }
+  .finds { margin-top: 1rem; border-top: 1px solid var(--line); }
+  .finds a { display: grid; gap: 0.2rem; padding: 0.9rem 0; border-bottom: 1px solid var(--line); transition: color 0.3s; }
+  .finds a:hover span:first-child { color: var(--signal); }
+  .about-ns { margin-top: 3rem; margin-bottom: 0.75rem; }
+</style>

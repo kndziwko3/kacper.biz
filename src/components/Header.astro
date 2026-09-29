@@ -1,5 +1,5 @@
 ---
-import { NAV, ROUTE_PAIRS, type Lang } from '../content/site';
+import { NAV, ROUTE_PAIRS, CONTACT, type Lang } from '../content/site';
 import { copy } from '../content/copy';
 interface Props { lang: Lang; path: string }
 const { lang, path } = Astro.props;
@@ -12,26 +12,31 @@ const homeHref = lang === 'pl' ? '/' : '/en';
 const contactHref = lang === 'pl' ? '/kontakt' : '/en/contact';
 const isCurrent = (href: string) => path === href || path.startsWith(href + '/');
 ---
-<header class="site-header">
-  <div class="site-header__bar">
-    <a class="brand" href={homeHref} aria-label="Kacper Rękawek — kacper.biz">
-      <span class="brand__mark" aria-hidden="true">KR</span>
-      <span>kacper<span class="faint">.biz</span></span>
-    </a>
-    <nav class="nav" aria-label="Main">
+<header class="site-header" transition:animate="none">
+  <div class="wrap">
+    <a class="wordmark" href={homeHref}><i aria-hidden="true"></i>Kacper Rękawek</a>
+    <nav class="nav" aria-label={lang === 'pl' ? 'Główna' : 'Main'}>
       {items.map((i) => <a href={i.href} aria-current={isCurrent(i.href) ? 'page' : undefined}>{i.label}</a>)}
     </nav>
-    <div class="site-header__end">
-      <a class="lang" href={otherHref} hreflang={otherLang === 'pl' ? 'pl-PL' : 'en'} lang={otherLang} aria-label={ui.langLabel}>{ui.langSwitch}</a>
-      <a class="btn btn--signal nav-cta" href={contactHref} style="min-height:42px;padding:.5rem 1.1rem;font-size:.92rem">{ui.write}</a>
-      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label={ui.menu}><span></span></button>
+    <div class="header-end">
+      <span class="clock" aria-hidden="true"><span>{ui.place}</span> <time data-clock>--:--</time></span>
+      <a class="lang" href={otherHref} hreflang={otherLang === 'pl' ? 'pl-PL' : 'en'} lang={otherLang} aria-label={ui.langLabel} data-astro-reload>{ui.langSwitch}</a>
+      <a class="header-cta link link--u" href={contactHref}>{ui.write}</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label={ui.menu}><span></span></button>
     </div>
   </div>
-  <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile">
-    {items.map((i) => <a href={i.href}>{i.label}</a>)}
-  </nav>
 </header>
-<style>
-  .nav-cta { display: none; }
-  @media (min-width: 640px) { .nav-cta { display: inline-flex; } }
-</style>
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label={ui.menu}>
+  <div class="menu-top">
+    <a class="wordmark" href={homeHref}><i aria-hidden="true"></i>Kacper Rękawek</a>
+    <button class="menu-close lang" type="button" data-menu-close>{ui.close}</button>
+  </div>
+  <nav aria-label={lang === 'pl' ? 'Menu mobilne' : 'Mobile menu'}>
+    {items.map((i) => <a href={i.href} aria-current={isCurrent(i.href) ? 'page' : undefined}>{i.label}</a>)}
+  </nav>
+  <div class="menu-foot">
+    <a href={`mailto:${CONTACT.studioEmail}`}>{CONTACT.studioEmail}</a>
+    <a href={otherHref} lang={otherLang} data-astro-reload>{otherLang === 'pl' ? 'Polski' : 'English'}</a>
+    <span class="data">{ui.place} · {ui.coords}</span>
+  </div>
+</div>

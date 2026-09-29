@@ -1,21 +1,24 @@
 ---
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import type { TransitionDirectionalAnimations } from 'astro';
 import Seo from '../components/Seo.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import type { Lang } from '../content/site';
 import { copy } from '../content/copy';
-import displayLatin from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url';
-import displayExt from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-ext-wght-normal.woff2?url';
-import voiceLatin from '@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2?url';
+import monaLatin from '@fontsource-variable/mona-sans/files/mona-sans-latin-standard-normal.woff2?url';
+import monaExt from '@fontsource-variable/mona-sans/files/mona-sans-latin-ext-standard-normal.woff2?url';
+
+// The static dot-map poster is owned by the scene module; render it when present.
+const posterModules = import.meta.glob<{ default: (props: Record<string, unknown>) => unknown }>('../components/MapPoster.astro', { eager: true });
+const MapPoster = Object.values(posterModules)[0]?.default;
 
 interface Props {
   lang: Lang;
   path: string;
   title: string;
   description: string;
-  /** Mount the WebGL layer (needs at least one <section data-scene> in the page). */
-  scene?: boolean;
   ogImage?: string;
   ogType?: 'website' | 'profile' | 'article';
   noindex?: boolean;
@@ -24,32 +27,41 @@ interface Props {
   faq?: { q: string; a: string }[];
   extra?: Record<string, unknown>[];
 }
-const { lang, path, scene = true, ...seo } = Astro.props;
+const { lang, path, ...seo } = Astro.props;
 const ui = copy[lang].ui;
 const umamiSrc = import.meta.env.PUBLIC_UMAMI_SRC;
 const umamiId = import.meta.env.PUBLIC_UMAMI_ID;
+
+const pageAnim: TransitionDirectionalAnimations = {
+  forwards: {
+    old: { name: 'kb-out', duration: '0.32s', easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fillMode: 'forwards' },
+    new: { name: 'kb-in', duration: '0.8s', delay: '0.1s', easing: 'cubic-bezier(0.19, 1, 0.22, 1)', fillMode: 'backwards' },
+  },
+  backwards: {
+    old: { name: 'kb-out', duration: '0.32s', easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fillMode: 'forwards' },
+    new: { name: 'kb-in', duration: '0.8s', delay: '0.1s', easing: 'cubic-bezier(0.19, 1, 0.22, 1)', fillMode: 'backwards' },
+  },
+};
 ---
 <!doctype html>
 <html lang={lang} data-lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="color-scheme" content="dark" />
-    <link rel="preload" href={displayLatin} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={displayExt} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={voiceLatin} as="font" type="font/woff2" crossorigin />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="preload" href={monaLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={monaExt} as="font" type="font/woff2" crossorigin />
     <Seo lang={lang} path={path} {...seo} />
     <script is:inline>document.documentElement.classList.add('js');</script>
+    <ClientRouter fallback="swap" />
     {umamiSrc && umamiId && <script defer src={umamiSrc} data-website-id={umamiId} data-do-not-track="true"></script>}
   </head>
   <body>
     <a class="skip" href="#main">{ui.skip}</a>
-    <div class="progress" aria-hidden="true"></div>
-    <div class="poster" aria-hidden="true"></div>
-    {scene && <canvas id="scene" aria-hidden="true"></canvas>}
-    <div class="grain" aria-hidden="true"></div>
+    {MapPoster && <MapPoster transition:persist="kb-poster" />}
+    <canvas id="scene" aria-hidden="true" transition:persist="kb-scene"></canvas>
     <Header lang={lang} path={path} />
-    <main id="main">
+    <main id="main" transition:animate={pageAnim}>
       <slot />
     </main>
     <Footer lang={lang} />

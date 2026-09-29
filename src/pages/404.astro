@@ -1,12 +1,25 @@
 ---
 import Base from '../layouts/Base.astro';
+import Btn from '../components/ui/Btn.astro';
 import { copy } from '../content/copy';
 const n = copy.pl.notFound;
+const e = copy.en.notFound;
 ---
-<Base lang="pl" path="/404" title={n.title} description={n.p} noindex scene={false}>
-  <section class="chapter"><div class="wrap">
-    <h1 class="display" set:html={n.h1} />
-    <p class="lead" style="margin-top:1.5rem">{n.p}</p>
-    <p style="margin-top:2rem"><a class="btn btn--signal" href="/">{n.btn} <span class="arr" aria-hidden="true">→</span></a></p>
-  </div></section>
+<Base lang="pl" path="/404" title={n.title} description={n.p} noindex>
+  <section class="nf m-window" data-scene="5" data-scene-side="left">
+    <div class="wrap m-solid">
+      <p class="label"><b>404</b></p>
+      <h1 class="h1 nf-h">{n.h1}</h1>
+      <p class="lead nf-p">{n.p}</p>
+      <p class="data nf-en" lang="en">{e.p}</p>
+      <div class="btn-row nf-cta"><Btn href="/">{n.btn}</Btn><Btn href="/en" variant="line">{e.btn}</Btn></div>
+    </div>
+  </section>
 </Base>
+<style>
+  .nf { min-height: 100svh; display: grid; align-content: center; padding-block: 8rem 4rem; }
+  .nf-h { margin-top: 1.5rem; max-width: 12ch; }
+  .nf-p { margin-top: 1.5rem; }
+  .nf-en { margin-top: 0.75rem; }
+  .nf-cta { margin-top: 2rem; }
+</style>

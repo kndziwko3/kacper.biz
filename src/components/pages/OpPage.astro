@@ -1,6 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
-import PageHero from '../PageHero.astro';
+import PageHead from '../ui/PageHead.astro';
+import Btn from '../ui/Btn.astro';
+import Outreach from '../home/Outreach.astro';
+import Registry from '../home/Registry.astro';
 import Faq from '../Faq.astro';
 import { copy } from '../../content/copy';
 import { PRODUCTS, SALES, type Lang } from '../../content/site';
@@ -8,71 +11,79 @@ interface Props { lang: Lang }
 const { lang } = Astro.props;
 const c = copy[lang];
 const o = c.op;
-const h = c.home;
 const isPl = lang === 'pl';
 const path = isPl ? '/outreachpilot' : '/en/outreachpilot';
 const home = isPl ? '/' : '/en';
+const faq = [c.faq[1]!, c.faq[4]!, c.faq[5]!];
 ---
 <Base lang={lang} path={path} title={o.title} description={o.description} kind="product"
-  breadcrumbs={[{ name: c.ui.home, path: home }, { name: o.crumb, path }]} faq={c.faq}
+  breadcrumbs={[{ name: c.ui.home, path: home }, { name: o.crumb, path }]} faq={faq}
   ogImage={isPl ? '/og/outreachpilot.png' : '/og/outreachpilot-en.png'}>
-  <PageHero lang={lang} crumb={o.crumb} eyebrow={o.eyebrow} tone="signal" h1={o.h1} lead={o.lead} scene={2} side="left">
-    <a class="btn btn--signal" href={PRODUCTS.outreachpilot.signup} data-outbound data-cta="op-page-signup" rel="noopener">{h.op.cta} <span class="arr" aria-hidden="true">→</span></a>
-    <a class="btn btn--ghost" href={PRODUCTS.outreachpilot.url} data-outbound data-cta="op-page-site" rel="noopener">outreachpilot.pl</a>
-  </PageHero>
+  <PageHead lang={lang} crumb={o.crumb} kicker={o.kicker} h1={o.h1} lead={o.lead} scene={2} side="left">
+    <Btn href={PRODUCTS.outreachpilot.signup} outbound cta="op-page-signup" arrow="up">{c.home.op.cta}</Btn>
+    <Btn href={PRODUCTS.outreachpilot.url} variant="line" outbound cta="op-page-site" arrow="up">outreachpilot.pl</Btn>
+  </PageHead>
 
-  <section class="chapter chapter--tight section" data-scene="2" data-scene-side="right">
-    <div class="wrap"><div class="chapter__grid"><div class="col-text scrim chapter--right-col">
-      <h2 class="h2" data-reveal>{o.what.h2}</h2>
-      <div class="prose" style="margin-top:1.5rem" data-reveal><p>{o.what.p1}</p><p>{o.what.p2}</p></div>
-      <ol class="steps" data-reveal>{h.op.steps.map((s) => <li><div><b>{s.b}</b><span>{s.t}</span></div></li>)}</ol>
-    </div></div></div>
-  </section>
-
-  <section class="chapter chapter--tight section" data-scene="1" data-scene-side="left">
-    <div class="wrap"><div class="chapter__grid"><div class="col-wide">
-      <h2 class="h2" data-reveal>{o.forWho.h2}</h2>
-      <ul class="chips" data-reveal>
-        {o.forWho.items.map(([label, href]) => <li><a class="chip" href={href} data-outbound data-cta="op-vertical" rel="noopener">{label} <span aria-hidden="true">↗</span></a></li>)}
-      </ul>
-      <h2 class="h2" style="margin-top:4rem" data-reveal>{o.plans.h2}</h2>
-      <ul class="offers" data-reveal>
-        {o.plans.rows.map(([name, price, desc]) => <li><b>{name}</b><span class="price" style="color:var(--signal-2)">{price}</span><span class="time">{desc}</span></li>)}
-      </ul>
-      <p class="note" data-reveal>{o.plans.note}</p>
-    </div></div></div>
-  </section>
-
-  <section class="chapter chapter--tight section" data-scene="2" data-scene-side="right">
-    <div class="wrap"><div class="chapter__grid"><div class="col-text scrim">
-      <h2 class="h2" data-reveal>{o.proof.h2}</h2>
-      <div class="prose" style="margin-top:1.5rem" data-reveal>
-        <p>{o.proof.p} <a href={PRODUCTS.outreachpilot.methodology} data-outbound data-cta="op-method" rel="noopener">{o.proof.link}</a>.</p>
-        <p>{o.proof.mcp} <a href={PRODUCTS.outreachpilot.mcp} data-outbound data-cta="op-mcp" rel="noopener">{o.proof.mcpLink}</a>.</p>
-        <p class="faint" style="font-size:.9rem">{o.legal}</p>
+  <section class="section m-window" data-scene="2" data-scene-side="right" data-scene-dim="0.7" aria-labelledby="op-what">
+    <div class="wrap grid">
+      <div class="c-7-12 m-solid op-what">
+        <h2 class="h2" id="op-what" data-lines>{o.what.h2}</h2>
+        <p class="body" data-reveal>{o.what.p1}</p>
+        <p class="body" data-reveal>{o.what.p2}</p>
       </div>
-    </div></div></div>
+    </div>
   </section>
 
-  <section class="chapter chapter--tight section" data-scene="5" data-scene-side="center">
-    <div class="wrap"><div class="chapter__grid"><div class="col-wide">
-      <h2 class="h2" data-reveal>{o.disambig.h2}</h2>
-      <p class="lead" style="margin-top:1.25rem" data-reveal>{o.disambig.p}</p>
-      <h2 class="h2" style="margin-top:4rem" data-reveal>{h.faq.h2}</h2>
-      <div style="margin-top:1.5rem"><Faq lang={lang} /></div>
-      <div class="card" style="margin-top:3.5rem;display:grid;gap:1.25rem" data-reveal>
-        <h2 class="h2">{o.cta.h2}</h2>
-        <div class="btn-row">
-          <a class="btn btn--signal" href={PRODUCTS.outreachpilot.signup} data-outbound data-cta="op-page-bottom-signup" rel="noopener">{o.cta.btn} <span class="arr" aria-hidden="true">→</span></a>
-          <a class="btn btn--ghost" href={SALES.bookingUrl} target="_blank" rel="noopener" data-outbound data-cta="op-page-booking">{o.cta.alt}</a>
-        </div>
+  <Outreach lang={lang} heading={false} />
+  <Registry lang={lang} id="rejestr" label="OutreachPilot.pl" />
+
+  <section class="section m-window" data-scene="1" data-scene-side="right" data-scene-dim="0.6" aria-labelledby="op-plans">
+    <div class="wrap grid op-grid m-solid">
+      <div class="c-1-6">
+        <h2 class="h2" id="op-plans" data-lines>{o.plans.h2}</h2>
+        <table class="table plan-table">
+          <tbody>
+            {o.plans.rows.map(([n, p, d]) => <tr><th scope="row">{n}</th><td>{d}</td><td class="n">{p}</td></tr>)}
+          </tbody>
+        </table>
+        <p class="data op-note">{o.plans.note}</p>
       </div>
-    </div></div></div>
+      <div class="c-8-12 op-side">
+        <h3 class="h3">{o.forWho.h2}</h3>
+        <ul class="op-verticals">
+          {o.forWho.items.map(([label, href]) => <li><a class="link" href={href} data-outbound data-cta="op-vertical" rel="noopener">{label}</a></li>)}
+        </ul>
+        <h3 class="h3 op-mcp-h">{o.mcp.h2}</h3>
+        <p class="body">{o.mcp.p} <a class="link link--u" href={PRODUCTS.outreachpilot.mcp} data-outbound data-cta="op-mcp-page" rel="noopener">{o.mcp.link}</a></p>
+        <h3 class="h3 op-mcp-h">{o.disambig.h2}</h3>
+        <p class="body">{o.disambig.p}</p>
+      </div>
+    </div>
+  </section>
+
+  <Faq lang={lang} items={faq} />
+
+  <section class="section m-window" data-scene="5" data-scene-side="center" data-scene-dim="0.5">
+    <div class="wrap m-solid">
+      <h2 class="h2 op-cta-h" data-lines>{o.cta.h2}</h2>
+      <div class="btn-row op-cta">
+        <Btn href={PRODUCTS.outreachpilot.signup} outbound cta="op-page-bottom" arrow="up">{o.cta.btn}</Btn>
+        <Btn href={SALES.bookingUrl} variant="line" newTab cta="op-page-booking" arrow="up">{o.cta.alt}</Btn>
+      </div>
+    </div>
   </section>
 </Base>
-<style is:global>
-  .chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.5rem; }
-  .chip { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.1rem; border-radius: 999px; border: 1px solid var(--line-strong); background: rgb(13 13 19 / 0.6); backdrop-filter: blur(10px); font-size: 0.95rem; transition: all 0.25s; }
-  .chip:hover { border-color: var(--signal); background: rgb(255 106 61 / 0.1); }
-  @media (min-width: 900px) { .chapter--right-col { grid-column: 7 / span 6; } }
+<style>
+  .op-what .body { margin-top: 1.25rem; }
+  .op-grid { row-gap: 4rem; }
+  .plan-table { margin-top: 2rem; }
+  .plan-table th { font-family: var(--f-display); font-weight: 650; font-size: 1.1rem; }
+  .plan-table td:not(.n) { color: var(--mute); }
+  .plan-table .n { font-weight: 650; white-space: nowrap; }
+  .op-note { margin-top: 1rem; }
+  .op-verticals { margin-top: 1rem; border-top: 1px solid var(--line); }
+  .op-verticals li { border-bottom: 1px solid var(--line); padding: 0.7rem 0; }
+  .op-mcp-h { margin-top: 2.75rem; margin-bottom: 0.75rem; }
+  .op-cta-h { max-width: 14ch; }
+  .op-cta { margin-top: 2rem; }
 </style>
