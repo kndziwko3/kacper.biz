@@ -10,7 +10,7 @@ Why this is specific to Kacper and nobody else:
 - The numbers are his: 3 181 616 active sole proprietorships in 30 sectors (CEIDG via outreachpilot.pl/firmy,
   29.09.2026), 3% of micro-businesses list a website in their CEIDG entry (sample 4 700, 7.07.2026).
 - The mechanism is his: OutreachPilot finds companies and writes to them in correct Polish; FastLanding builds the
-  page and the bot that turn a visit into an enquiry.
+  page and the bot that answers customers after hours.
 - The place is his: Gliwice, 50,29° N 18,67° E, with a live local clock.
 
 ## Signature moments
@@ -21,6 +21,21 @@ Why this is specific to Kacper and nobody else:
    map, and a sample email line inflects the city correctly ("w Krakowie", "z Białegostoku").
 3. **Night to paper:** the dark instrument gives way to a paper sheet for FastLanding, where real client sites scroll
    inside frames as you scroll the page.
+
+## Scene chapters
+
+One point cloud, six shapes; sections pick one with `data-scene` and the dots flow directly between any two.
+
+| # | Shape | Where |
+|---|---|---|
+| 1 | Poland, Gliwice glowing; "3 in 100" highlight on the thesis; the chosen city pings in the registry demo | hero, thesis, registry, OutreachPilot page |
+| 2 | Same map, tilted further, emails fly out of Gliwice and replies come back | OutreachPilot chapter |
+| 3 | Wireframe landing page (behind the paper sheet on home; visible on FastLanding and Work heads) | FastLanding |
+| 4 | Chat bubbles with pulsing typing dots, behind the FastBot transcript | FastBot |
+| 5 | Close-up: the same map, low over Gliwice, Katowice and Kraków at the edges | contact, FAQ, About, 404 |
+
+Intro: the map drops in as a wave that starts in Gliwice. Without a hardware GPU (and for PageSpeed) a 5.5 KB SVG
+poster in the same frame stands in on the first screen. Reduced motion gets still frames only.
 
 ## Type
 
