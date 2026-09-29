@@ -1,0 +1,459 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-29T23:52:39Z",
+  "title": "Design System: kacper.biz",
+  "extensions": {
+    "colorMeta": {
+      "directory-yellow": {
+        "role": "primary",
+        "displayName": "Directory Yellow",
+        "canonical": "#f7d117",
+        "tonalRamp": [
+          "#0f0b00",
+          "#2d2401",
+          "#4f4101",
+          "#736000",
+          "#99810e",
+          "#c1a30e",
+          "#ebc70f",
+          "#ffefb2"
+        ]
+      },
+      "spot-red": {
+        "role": "secondary",
+        "displayName": "Spot Red",
+        "canonical": "#e1251b",
+        "tonalRamp": [
+          "#1f0000",
+          "#4d0101",
+          "#800302",
+          "#b90101",
+          "#e93024",
+          "#ff7462",
+          "#feb4a8",
+          "#ffe9e5"
+        ]
+      },
+      "spot-red-deep": {
+        "role": "secondary",
+        "displayName": "Spot Red Deep",
+        "canonical": "#b3170f",
+        "tonalRamp": [
+          "#1f0000",
+          "#4c0201",
+          "#800402",
+          "#b41810",
+          "#dc4738",
+          "#fe7463",
+          "#ffb3a7",
+          "#ffe9e5"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#000000",
+        "tonalRamp": [
+          "#000000",
+          "#3b3206",
+          "#5e4f09",
+          "#ad9210",
+          "#f7d117"
+        ]
+      },
+      "white-pages": {
+        "role": "neutral",
+        "displayName": "White Pages",
+        "canonical": "#f6f5f1",
+        "tonalRamp": [
+          "#000000",
+          "#3b3b3a",
+          "#5d5d5c",
+          "#acaba9",
+          "#f6f5f1"
+        ]
+      },
+      "reversed-black": {
+        "role": "neutral",
+        "displayName": "Reversed Black",
+        "canonical": "#000000",
+        "tonalRamp": [
+          "#000000",
+          "#4a3f07",
+          "#99820e",
+          "#bc9f11",
+          "#f7d117"
+        ]
+      },
+      "knockout-white": {
+        "role": "neutral",
+        "displayName": "Knockout White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Uppercase. The name in Kacper's entry (fills its column: min(14.6cqi, 9.5rem) from 700px, min(22cqi, 6.4rem) on phones) and, at local sizes, counts: register total, index counts, benchmark, step and day numbers, the FastBot clock."
+      },
+      "category": {
+        "displayName": "Category",
+        "purpose": "Uppercase. Department heads under an 8px ink rule, and the Spis title."
+      },
+      "ad-headline": {
+        "displayName": "Ad Headline",
+        "purpose": "Uppercase. Display-ad headlines; the OutreachPilot entry ad scales up to clamp(2.2rem, 1.3rem + 2.6vw, 3.5rem), the call ad down to clamp(1.7rem, 1.2rem + 1.2vw, 2.2rem)."
+      },
+      "statement": {
+        "displayName": "Statement",
+        "purpose": "Sentence case. The one-sentence claim under a category head, subpage H1 statements, the colophon lead."
+      },
+      "head": {
+        "displayName": "Head",
+        "purpose": "Sentence case. Step titles, questions, the coupon heading."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "The paragraph that opens a department, max 42ch."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text in --fg-2 (ink at 76% over its stock), max 64ch; 68ch for long reads."
+      },
+      "listing": {
+        "displayName": "Listing",
+        "purpose": "Uppercase. Labels, legends, sheet heads, table heads; register and index rows at 0.74-0.8rem; running-head title at 900."
+      },
+      "slip": {
+        "displayName": "Slip",
+        "purpose": "Uppercase. Order-slip (button) labels; 0.78rem in the phone running head, 0.82rem from 760px."
+      },
+      "micro": {
+        "displayName": "Micro",
+        "purpose": "Sources, captions, fine print, the running-head clock, in --fg-3 (ink at 62% over its stock); sources max 70ch. The only width outside the four voices."
+      }
+    },
+    "shadows": [
+      {
+        "name": "field-focus-ring",
+        "value": "0 0 0 3px var(--yellow), 0 0 0 5px var(--ink)",
+        "purpose": "Focus on inputs, selects and textareas (outline removed): a yellow gap inside an ink ring. Not elevation."
+      },
+      {
+        "name": "highlighter-band",
+        "value": "inset 0 -0.42em 0 var(--yellow)",
+        "purpose": "Marks the re-declined city in the sample email line on the index result page. Not elevation."
+      },
+      {
+        "name": "stock-extension",
+        "value": "0 -1.5rem 0 var(--stock)",
+        "purpose": "Phones only (below 960px): a text sheet under a map window extends its own stock 1.5rem upward. Same color as the paper, invisible as a shadow."
+      },
+      {
+        "name": "fore-edge",
+        "value": "-2px 0 0 var(--ink)",
+        "purpose": "The 2px ink edge of the incoming page during the page-turn keyframes (kb-in). Not elevation."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "--ease. Default for state transitions, print-ins, tab slides, guide-word and result-word swaps, scene and poster fades."
+      },
+      {
+        "name": "page-turn",
+        "value": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "purpose": "The page turn between pages (kb-out / kb-in / kb-in-back, 0.55s), set in Base.astro."
+      },
+      {
+        "name": "slip",
+        "value": "0.18s",
+        "purpose": "Order slip background, border, color and press (translate 1px, red plate 1.5px out of register)."
+      },
+      {
+        "name": "tab-slide",
+        "value": "0.28s",
+        "purpose": "Thumb tabs slide out of the fore-edge (8px) on hover, focus and while their department is in view."
+      },
+      {
+        "name": "guide-word",
+        "value": "260ms",
+        "purpose": "A changed running-head guide word rises from translateY(100%)."
+      },
+      {
+        "name": "page-turn",
+        "value": "0.55s",
+        "purpose": "Next page wipes in from the fore-edge (clip-path inset(0 0 0 100%) to 0), old page darkens to brightness(0.9) linearly; back navigation wipes from the left."
+      },
+      {
+        "name": "ad-print",
+        "value": "0.7s",
+        "purpose": "Entry ads clip in from the top (inset(0 0 100% 0) to 0) at 0.25s, 0.4s and 0.55s delays."
+      },
+      {
+        "name": "register-print",
+        "value": "0.7s",
+        "purpose": "Register leader dots are laid down left to right, 45ms apart after 120ms, while counts roll from zero."
+      },
+      {
+        "name": "counter-roll",
+        "value": "900ms",
+        "purpose": "Numbers roll on a critically damped curve, 1 - (1 + 7p)e^(-7p), normalised to land on time; never a jump."
+      },
+      {
+        "name": "result-swap",
+        "value": "320ms",
+        "purpose": "Changed words on the index result page rise 0.35em into place with an opacity fade."
+      },
+      {
+        "name": "panel-pane",
+        "value": "0.3s opacity, 0.45s transform",
+        "purpose": "OutreachPilot proof panel: the active step pane settles up from translateY(8px)."
+      },
+      {
+        "name": "scene-fade",
+        "value": "0.9s",
+        "purpose": "The live map canvas fades in; the poster fades out 1.2s after the scene mounts."
+      },
+      {
+        "name": "map-intro",
+        "value": "2.8s",
+        "purpose": "The printed map prints in the first time a window onto it is on screen."
+      },
+      {
+        "name": "smooth-scroll",
+        "value": "Lenis lerp 0.12",
+        "purpose": "Fine pointers only; touch keeps native momentum; off under reduced motion."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.001ms",
+        "purpose": "prefers-reduced-motion: every animation and transition collapses; no turntable, roll, print-in or smooth scroll."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "index-columns",
+        "value": "560px"
+      },
+      {
+        "name": "form-row",
+        "value": "640px"
+      },
+      {
+        "name": "ads-pair",
+        "value": "700px"
+      },
+      {
+        "name": "running-head-guide",
+        "value": "760px"
+      },
+      {
+        "name": "faq-columns",
+        "value": "900px"
+      },
+      {
+        "name": "grid-spans",
+        "value": "960px"
+      },
+      {
+        "name": "thumb-index",
+        "value": "1100px"
+      },
+      {
+        "name": "ads-row",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Order Slip",
+      "kind": "button",
+      "refersTo": "button-slip",
+      "description": "The primary action: a solid ink slip on its stock. Hover inks it red; press drops it 1px with the red plate printed 1.5px out of register.",
+      "html": "<div class=\"ds-slip-sheet\"><a class=\"ds-slip\" href=\"#\">Umów rozmowę</a></div>",
+      "css": ".ds-slip-sheet { background: var(--yellow, #f7d117); padding: 1.5rem; } .ds-slip { box-sizing: border-box; position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0.7rem 1.15rem; background: var(--ink, #000); color: var(--yellow, #f7d117); border: 2px solid var(--ink, #000); border-radius: 0; font-family: var(--f, 'Archivo', 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.02em; line-height: 1.05; text-decoration: none; isolation: isolate; transition: background-color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), border-color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), transform 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-slip::after { content: ''; position: absolute; inset: -2px; border: 2px solid var(--red, #e1251b); z-index: -1; opacity: 0; pointer-events: none; } .ds-slip:active { transform: translate(1px, 1px); } .ds-slip:active::after { opacity: 1; transform: translate(-1.5px, -1.5px); } .ds-slip:hover { background: var(--red, #e1251b); border-color: var(--red, #e1251b); color: #fff; } .ds-slip:focus-visible { outline: 3px solid var(--ink, #000); outline-offset: 3px; }"
+    },
+    {
+      "name": "Order Slip, Line",
+      "kind": "button",
+      "refersTo": "button-slip-line",
+      "description": "The secondary action beside a solid slip: a 2px ink outline that fills with ink on hover.",
+      "html": "<div class=\"ds-line-sheet\"><a class=\"ds-slip-line\" href=\"#\">Umów rozmowę z Justyną</a></div>",
+      "css": ".ds-line-sheet { background: var(--yellow, #f7d117); padding: 1.5rem; } .ds-slip-line { box-sizing: border-box; position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0.7rem 1.15rem; background: transparent; color: var(--ink, #000); border: 2px solid var(--ink, #000); border-radius: 0; font-family: var(--f, 'Archivo', 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.02em; line-height: 1.05; text-decoration: none; isolation: isolate; transition: background-color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), border-color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), transform 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-slip-line::after { content: ''; position: absolute; inset: -2px; border: 2px solid var(--red, #e1251b); z-index: -1; opacity: 0; pointer-events: none; } .ds-slip-line:active { transform: translate(1px, 1px); } .ds-slip-line:active::after { opacity: 1; transform: translate(-1.5px, -1.5px); } .ds-slip-line:hover { background: var(--ink, #000); border-color: var(--ink, #000); color: var(--yellow, #f7d117); } .ds-slip-line:focus-visible { outline: 3px solid var(--ink, #000); outline-offset: 3px; }"
+    },
+    {
+      "name": "Order Slip, Reversed",
+      "kind": "button",
+      "refersTo": "button-slip-reversed",
+      "description": "On reversed black stock and inside reversed ads the slip prints yellow with black type; hover still inks it red.",
+      "html": "<div class=\"ds-rev-sheet\"><a class=\"ds-rev-slip\" href=\"#\">Porozmawiaj z FastBotem na fastlanding.io</a></div>",
+      "css": ".ds-rev-sheet { background: #000; padding: 1.5rem; } .ds-rev-slip { box-sizing: border-box; position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0.7rem 1.15rem; background: var(--yellow, #f7d117); color: #000; border: 2px solid var(--yellow, #f7d117); border-radius: 0; font-family: var(--f, 'Archivo', 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.02em; line-height: 1.05; text-decoration: none; isolation: isolate; transition: background-color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), border-color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), transform 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-rev-slip::after { content: ''; position: absolute; inset: -2px; border: 2px solid var(--red, #e1251b); z-index: -1; opacity: 0; pointer-events: none; } .ds-rev-slip:active { transform: translate(1px, 1px); } .ds-rev-slip:active::after { opacity: 1; transform: translate(-1.5px, -1.5px); } .ds-rev-slip:hover { background: var(--red, #e1251b); border-color: var(--red, #e1251b); color: #fff; } .ds-rev-slip:focus-visible { outline: 3px solid var(--yellow, #f7d117); outline-offset: 3px; }"
+    },
+    {
+      "name": "Coupon Field",
+      "kind": "input",
+      "refersTo": "coupon-field",
+      "description": "Fields of the order coupon: square, 2px ink border on white, listing-caps labels, a yellow-and-ink focus ring, red-deep errors, inside a dashed cut line.",
+      "html": "<div class=\"ds-cf\"><svg class=\"ds-cf-scissors\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><circle cx=\"6\" cy=\"6\" r=\"3\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><path d=\"M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12\"/></svg><div class=\"ds-cf-in\"><div class=\"ds-cf-field\"><label class=\"ds-cf-label\" for=\"ds-cf-name\">Imię<span class=\"ds-cf-req\" aria-hidden=\"true\"> *</span></label><input class=\"ds-cf-input\" id=\"ds-cf-name\" type=\"text\" autocomplete=\"off\"></div><div class=\"ds-cf-field\"><label class=\"ds-cf-label\" for=\"ds-cf-email\">E-mail<span class=\"ds-cf-req\" aria-hidden=\"true\"> *</span></label><input class=\"ds-cf-input\" id=\"ds-cf-email\" type=\"email\" aria-invalid=\"true\" aria-describedby=\"ds-cf-err\" autocomplete=\"off\"><p class=\"ds-cf-error\" id=\"ds-cf-err\">Podaj adres e-mail, na który mam odpowiedzieć.</p></div><div class=\"ds-cf-field\"><label class=\"ds-cf-label\" for=\"ds-cf-msg\">Wiadomość (opcjonalnie)</label><textarea class=\"ds-cf-input ds-cf-textarea\" id=\"ds-cf-msg\"></textarea></div></div></div>",
+      "css": ".ds-cf { position: relative; max-width: 30rem; padding: 0.9rem; border: 2px dashed var(--ink, #000); background: var(--yellow, #f7d117); font-family: var(--f, 'Archivo', 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif); } .ds-cf-scissors { position: absolute; top: -13px; left: 1.25rem; width: 24px; height: 24px; padding: 0 2px; background: var(--yellow, #f7d117); color: var(--ink, #000); transform: rotate(-90deg); } .ds-cf-in { display: grid; gap: 1.05rem; padding: 1.4rem; background: var(--white, #f6f5f1); color: var(--ink, #000); } .ds-cf-field { display: grid; gap: 0.4rem; } .ds-cf-label { font-stretch: 75%; font-weight: 750; text-transform: uppercase; letter-spacing: 0.02em; font-size: 0.78rem; } .ds-cf-req { color: var(--red-deep, #b3170f); } .ds-cf-input { width: 100%; box-sizing: border-box; min-height: 50px; padding: 0.75rem 0.85rem; border: 2px solid var(--ink, #000); border-radius: 0; background: #fff; color: var(--ink, #000); font: inherit; font-size: 1rem; caret-color: var(--red, #e1251b); transition: box-shadow 0.15s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-cf-textarea { min-height: 7rem; resize: vertical; } .ds-cf-input:focus { outline: none; box-shadow: 0 0 0 3px var(--yellow, #f7d117), 0 0 0 5px var(--ink, #000); } .ds-cf-input[aria-invalid='true'] { border-color: var(--red-deep, #b3170f); } .ds-cf-error { margin: 0; font-size: 0.85rem; line-height: 1.4; font-weight: 700; color: var(--red-deep, #b3170f); }"
+    },
+    {
+      "name": "Enquiry Choices",
+      "kind": "chip",
+      "refersTo": "choice-chip",
+      "description": "Radio choices as square chips on white: a 2px ink outline, yellow under the pointer, an ink block with yellow type when chosen.",
+      "html": "<div class=\"ds-ch\" role=\"radiogroup\" aria-label=\"Czego dotyczy zapytanie?\"><p class=\"ds-ch-legend\">Czego dotyczy zapytanie?</p><div class=\"ds-ch-row\"><label class=\"ds-ch-item\"><input type=\"radio\" name=\"ds-ch\" checked><span>Cold mailing (OutreachPilot)</span></label><label class=\"ds-ch-item\"><input type=\"radio\" name=\"ds-ch\"><span>Strona / landing page</span></label><label class=\"ds-ch-item\"><input type=\"radio\" name=\"ds-ch\"><span>Chatbot AI</span></label><label class=\"ds-ch-item\"><input type=\"radio\" name=\"ds-ch\"><span>Inne</span></label></div></div>",
+      "css": ".ds-ch { padding: 1.1rem; background: var(--white, #f6f5f1); color: var(--ink, #000); font-family: var(--f, 'Archivo', 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif); } .ds-ch-legend { margin: 0 0 0.5rem; font-stretch: 75%; font-weight: 750; text-transform: uppercase; letter-spacing: 0.02em; font-size: 0.78rem; } .ds-ch-row { display: flex; flex-wrap: wrap; gap: 0.4rem; } .ds-ch-item { position: relative; } .ds-ch-item input { position: absolute; opacity: 0; pointer-events: none; } .ds-ch-item span { box-sizing: border-box; display: inline-flex; align-items: center; min-height: 44px; padding: 0.45rem 0.8rem; border: 2px solid var(--ink, #000); border-radius: 0; background: #fff; cursor: pointer; font-size: 0.92rem; font-weight: 600; transition: background-color 0.15s, color 0.15s; } .ds-ch-item span:hover { background: var(--yellow, #f7d117); } .ds-ch-item input:checked + span { background: var(--ink, #000); color: var(--yellow, #f7d117); } .ds-ch-item input:focus-visible + span { outline: 3px solid var(--ink, #000); outline-offset: 3px; }"
+    },
+    {
+      "name": "City Tabs",
+      "kind": "chip",
+      "refersTo": "city-tab",
+      "description": "The city picker of the index of sectors: outlined tabs on yellow; the selected city carries the red spot, the active state.",
+      "html": "<div class=\"ds-ct\" role=\"radiogroup\" aria-label=\"Miasto\"><p class=\"ds-ct-legend\">Miasto</p><div class=\"ds-ct-row\"><label class=\"ds-ct-tab\"><input type=\"radio\" name=\"ds-ct\" checked><span>Warszawa</span></label><label class=\"ds-ct-tab\"><input type=\"radio\" name=\"ds-ct\"><span>Kraków</span></label><label class=\"ds-ct-tab\"><input type=\"radio\" name=\"ds-ct\"><span>Wrocław</span></label><label class=\"ds-ct-tab\"><input type=\"radio\" name=\"ds-ct\"><span>Katowice</span></label></div></div>",
+      "css": ".ds-ct { padding: 1.1rem; background: var(--yellow, #f7d117); color: var(--ink, #000); font-family: var(--f, 'Archivo', 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif); } .ds-ct-legend { margin: 0 0 0.5rem; font-stretch: 75%; font-weight: 750; text-transform: uppercase; letter-spacing: 0.018em; font-size: 0.875rem; } .ds-ct-row { display: flex; flex-wrap: wrap; gap: 0.3rem; } .ds-ct-tab { position: relative; } .ds-ct-tab input { position: absolute; opacity: 0; pointer-events: none; } .ds-ct-tab span { box-sizing: border-box; display: inline-flex; align-items: center; min-height: 40px; padding: 0.3rem 0.65rem; border: 2px solid var(--ink, #000); border-radius: 0; background: var(--yellow, #f7d117); font-weight: 650; font-size: 0.88rem; cursor: pointer; transition: background-color 0.12s, color 0.12s; } .ds-ct-tab span:hover { background: color-mix(in srgb, var(--ink, #000) 10%, var(--yellow, #f7d117)); } .ds-ct-tab input:checked + span { background: var(--red, #e1251b); border-color: var(--red, #e1251b); color: #fff; } .ds-ct-tab input:focus-visible + span { outline: 3px solid var(--ink, #000); outline-offset: 2px; }"
+    },
+    {
+      "name": "Running Head and Thumb Index",
+      "kind": "nav",
+      "refersTo": "running-head",
+      "description": "The fixed 52px running head (title, guide words with a dotted leader, Gliwice clock, language, booking slip) and the black thumb tabs on the fore-edge; tabs rest 8px tucked in, slide out on hover, focus or when their department is in view, and the current page prints red.",
+      "html": "<div class=\"ds-rh-page\"><header class=\"ds-rh\"><a class=\"ds-rh-title\" href=\"#\">Kacper Rękawek</a><span class=\"ds-rh-guide\" aria-hidden=\"true\"><span>Indeks branż</span><i></i><span>OutreachPilot.pl</span></span><span class=\"ds-rh-end\"><span class=\"ds-rh-clock\">Gliwice <time>10:24</time></span><a class=\"ds-rh-lang\" href=\"#\" lang=\"en\">EN</a><a class=\"ds-rh-cta\" href=\"#\">Umów rozmowę</a></span></header><nav class=\"ds-tabs\" aria-label=\"Działy\"><a href=\"#\" class=\"is-here\"><span>OutreachPilot</span></a><a href=\"#\"><span>FastLanding</span></a><a href=\"#\" aria-current=\"page\"><span>Kontakt</span></a></nav></div>",
+      "css": ".ds-rh-page { position: relative; min-height: 31rem; overflow: hidden; background: var(--yellow, #f7d117); color: var(--ink, #000); font-family: var(--f, 'Archivo', 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif); font-variant-numeric: lining-nums tabular-nums; } .ds-rh { box-sizing: border-box; height: 52px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; padding: 0 calc(1rem + 44px) 0 1rem; background: var(--yellow, #f7d117); border-bottom: 2px solid var(--ink, #000); } .ds-rh a { color: inherit; text-decoration: none; } .ds-rh-title { font-stretch: 75%; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; font-size: 1rem; white-space: nowrap; } .ds-rh-guide { justify-self: center; display: flex; align-items: center; gap: 0.6em; font-stretch: 75%; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.78rem; white-space: nowrap; } .ds-rh-guide i { width: 2.4em; height: 2px; background: radial-gradient(circle, currentColor 0.9px, transparent 1.1px) 0 50% / 5px 2px repeat-x; } .ds-rh-end { display: flex; align-items: center; gap: 1rem; } .ds-rh-clock { font-size: 0.78rem; font-stretch: 90%; white-space: nowrap; } .ds-rh-lang { font-weight: 800; font-size: 0.875rem; padding: 0.6rem 0.2rem; } .ds-rh .ds-rh-lang:hover { text-decoration: underline; text-underline-offset: 4px; } .ds-rh .ds-rh-cta { box-sizing: border-box; white-space: nowrap; display: inline-flex; align-items: center; min-height: 36px; padding: 0.4rem 0.8rem; background: var(--ink, #000); color: var(--yellow, #f7d117); border: 2px solid var(--ink, #000); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 0.82rem; letter-spacing: 0.02em; transition: background-color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), border-color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-rh .ds-rh-cta:hover { background: var(--red, #e1251b); border-color: var(--red, #e1251b); color: #fff; } .ds-rh a:focus-visible { outline: 3px solid var(--ink, #000); outline-offset: 3px; } .ds-tabs { position: absolute; right: 0; top: calc(52px + 1.5rem); display: grid; gap: 4px; } .ds-tabs a { box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 44px; min-height: 7.4rem; padding: 0.9rem 0; background: var(--ink, #000); color: var(--yellow, #f7d117); text-decoration: none; transform: translateX(8px); transition: transform 0.28s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), background-color 0.2s; } .ds-tabs a span { writing-mode: vertical-rl; transform: rotate(180deg); font-stretch: 75%; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.8rem; white-space: nowrap; } .ds-tabs a:hover, .ds-tabs a:focus-visible, .ds-tabs a.is-here { transform: none; } .ds-tabs a[aria-current='page'] { transform: none; background: var(--red, #e1251b); color: #fff; } .ds-tabs a:focus-visible { outline: 3px solid var(--yellow, #f7d117); outline-offset: -5px; }"
+    },
+    {
+      "name": "Display Ad, Reversed",
+      "kind": "card",
+      "refersTo": "display-ad-reversed",
+      "description": "The OutreachPilot display ad: reversed black in a 3px frame, condensed caps headline, square bullets, red price sticker, a yellow order slip and the advertiser signature on a 2px rule. Pressing prints the red plate 1.5px out of register.",
+      "html": "<article class=\"ds-ad\" aria-labelledby=\"ds-ad-h\"><h3 class=\"ds-ad-h\" id=\"ds-ad-h\">Cold mailing do firm z CEIDG</h3><ul class=\"ds-ad-bul\"><li>Firmy z CEIDG, Google Maps i PKT.pl</li><li>AI pisze po polsku i odmienia imiona oraz miasta</li><li>Wysyłka z Twojej skrzynki, odpowiedzi w jednym miejscu</li></ul><div class=\"ds-ad-foot\"><span class=\"ds-ad-sticker\">0 zł <small>plan Free</small></span><a class=\"ds-ad-slip\" href=\"#\">Załóż darmowe konto</a></div><p class=\"ds-ad-sig\"><b>OutreachPilot.pl</b><i></i><a href=\"#\">Jak to działa</a></p></article>",
+      "css": ".ds-ad { box-sizing: border-box; position: relative; isolation: isolate; display: flex; flex-direction: column; gap: 0.9rem; max-width: 26rem; padding: clamp(1rem, 1.8vw, 1.5rem); background: #000; color: var(--yellow, #f7d117); border: var(--frame, 3px) solid #000; border-radius: 0; font-family: var(--f, 'Archivo', 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif); font-variant-numeric: lining-nums tabular-nums; } .ds-ad::before { content: ''; position: absolute; inset: calc(-1 * var(--frame, 3px)); border: var(--frame, 3px) solid var(--red, #e1251b); z-index: -1; opacity: 0; pointer-events: none; } .ds-ad:active::before { opacity: 1; transform: translate(1.5px, 1.5px); } .ds-ad-h { margin: 0; font-stretch: 62%; font-weight: 900; text-transform: uppercase; line-height: 0.88; letter-spacing: -0.003em; font-size: clamp(1.9rem, 1.2rem + 2vw, 3rem); } .ds-ad-bul { margin: 0; padding: 0; list-style: none; } .ds-ad-bul li { display: grid; grid-template-columns: 0.55em 1fr; gap: 0.6em; align-items: baseline; font-size: 0.97rem; line-height: 1.35; } .ds-ad-bul li + li { margin-top: 0.35rem; } .ds-ad-bul li::before { content: ''; width: 0.5em; height: 0.5em; background: currentColor; transform: translateY(-0.08em); } .ds-ad-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; } .ds-ad-sticker { display: inline-flex; align-items: baseline; gap: 0.35em; padding: 0.3rem 0.55rem 0.28rem; background: var(--red, #e1251b); color: #fff; font-stretch: 75%; font-weight: 800; font-size: 1rem; line-height: 1.1; white-space: nowrap; } .ds-ad-sticker small { font-weight: 600; font-size: 0.78em; } .ds-ad-slip { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0.7rem 1.15rem; background: var(--yellow, #f7d117); color: #000; border: 2px solid var(--yellow, #f7d117); font-stretch: 75%; font-weight: 800; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.02em; line-height: 1.05; text-decoration: none; transition: background-color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), border-color 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), transform 0.18s var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-ad-slip:hover { background: var(--red, #e1251b); border-color: var(--red, #e1251b); color: #fff; } .ds-ad-slip:active { transform: translate(1px, 1px); } .ds-ad-slip:focus-visible { outline: 3px solid var(--yellow, #f7d117); outline-offset: 3px; } .ds-ad-sig { display: flex; align-items: baseline; gap: 0.4em; margin: 0; padding-top: 0.55rem; border-top: 2px solid currentColor; font-stretch: 75%; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.78rem; } .ds-ad-sig b { font-weight: 850; font-size: 1.05rem; letter-spacing: 0.02em; white-space: nowrap; } .ds-ad-sig i { flex: 1 1 auto; min-width: 1.2em; height: 0.3em; background: radial-gradient(circle at 50% 50%, currentColor 0.075em, transparent 0.09em) 0 0 / 0.36em 0.3em repeat-x; opacity: 0.9; } .ds-ad-sig a { color: inherit; font-weight: 650; white-space: nowrap; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; } .ds-ad-sig a:hover { text-decoration-color: var(--red, #e1251b); } .ds-ad-sig a:focus-visible { outline: 3px solid var(--yellow, #f7d117); outline-offset: 3px; }"
+    },
+    {
+      "name": "Leader Line Register",
+      "kind": "custom",
+      "refersTo": "index-row-selected",
+      "description": "The directory's basic line (name, dotted leader, tabular value) as set in the CEIDG register column: an 8px head rule, the total in the display voice, rows that invert to ink on hover.",
+      "html": "<aside class=\"ds-reg\"><h4 class=\"ds-reg-h\">Rejestr CEIDG</h4><p class=\"ds-reg-total\"><span class=\"ds-reg-n\">3 181 616</span><span>aktywnych JDG w 30 branżach</span></p><ol class=\"ds-reg-list\"><li><a class=\"ds-ld\" href=\"#\"><span class=\"ds-ld-name\">Malarze i tapeciarze</span><i></i><span>270 950</span></a></li><li><a class=\"ds-ld\" href=\"#\"><span class=\"ds-ld-name\">Stolarze</span><i></i><span>268 305</span></a></li><li><a class=\"ds-ld\" href=\"#\"><span class=\"ds-ld-name\">Transport towarowy</span><i></i><span>265 393</span></a></li><li><a class=\"ds-ld\" href=\"#\"><span class=\"ds-ld-name\">Elektrycy</span><i></i><span>248 135</span></a></li></ol></aside>",
+      "css": ".ds-reg { max-width: 22rem; padding: 1rem; background: var(--yellow, #f7d117); color: var(--ink, #000); font-family: var(--f, 'Archivo', 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif); font-variant-numeric: lining-nums tabular-nums; } .ds-reg-h { margin: 0; padding-top: 0.7rem; border-top: 8px solid var(--ink, #000); font-stretch: 75%; font-weight: 750; text-transform: uppercase; letter-spacing: 0.018em; font-size: 0.875rem; line-height: 1.2; } .ds-reg-total { margin: 0.4rem 0 0; display: grid; gap: 0.1rem; } .ds-reg-n { font-stretch: 62%; font-weight: 900; font-size: clamp(2.3rem, 1.6rem + 1.8vw, 3.1rem); line-height: 0.9; } .ds-reg-total span:last-child { font-size: 0.875rem; color: color-mix(in srgb, var(--ink, #000) 76%, var(--yellow, #f7d117)); } .ds-reg-list { margin: 0.9rem 0 0; padding: 0.45rem 0 0; list-style: none; border-top: 1px solid var(--ink, #000); font-size: 0.8rem; } .ds-ld { box-sizing: border-box; display: flex; align-items: baseline; gap: 0.4em; min-height: 24px; padding: 0.28rem 0.25rem 0.1rem; margin-inline: -0.25rem; color: inherit; text-decoration: none; transition: background-color 0.12s, color 0.12s; } .ds-ld > i { flex: 1 1 auto; min-width: 1.2em; height: 0.3em; background: radial-gradient(circle at 50% 50%, currentColor 0.075em, transparent 0.09em) 0 0 / 0.36em 0.3em repeat-x; opacity: 0.9; } .ds-ld > :last-child { white-space: nowrap; } .ds-ld-name { font-stretch: 75%; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; font-size: 0.74rem; } .ds-ld:hover { background: var(--ink, #000); color: var(--yellow, #f7d117); } .ds-ld:focus-visible { outline: 3px solid var(--ink, #000); outline-offset: 3px; }"
+    },
+    {
+      "name": "Category Head",
+      "kind": "custom",
+      "description": "How a department opens: an 8px ink rule, the department name in 900 caps at 62% width, then the statement at 72% width.",
+      "html": "<section class=\"ds-cat-sheet\"><div class=\"ds-cat\"><h2 class=\"ds-cat-h\">OutreachPilot.pl</h2></div><p class=\"ds-cat-state\">Wpisujesz branżę i miasto, odpowiedzi czytasz w swojej skrzynce.</p></section>",
+      "css": ".ds-cat-sheet { padding: 1.5rem; background: var(--yellow, #f7d117); color: var(--ink, #000); font-family: var(--f, 'Archivo', 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif); } .ds-cat { padding-top: 0.9rem; border-top: 8px solid var(--ink, #000); } .ds-cat-h { margin: 0; font-stretch: 62%; font-weight: 900; text-transform: uppercase; font-size: clamp(2.6rem, 1.5rem + 4vw, 5.2rem); line-height: 0.86; letter-spacing: -0.004em; } .ds-cat-state { margin: 1.25rem 0 0; max-width: 22ch; font-stretch: 72%; font-weight: 800; font-size: clamp(1.9rem, 1.2rem + 2.3vw, 3.35rem); line-height: 0.98; letter-spacing: -0.014em; text-wrap: balance; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Printed Business Directory",
+    "overview": "kacper.biz is set as the book OutreachPilot reads companies from. Kacper Rękawek has an entry, OutreachPilot.pl and FastLanding.io are display ads billed by size, and the directory's own furniture carries the interface: a running head with guide words, thumb-index tabs cut into the fore-edge, leader dots, category heads, a rate card, an order coupon and a colophon on the back cover. Every surface is a printed sheet on one of three paper stocks, in black ink plus one red spot ink.\n\nDensity follows a real directory page: small listing caps, dotted leaders, tabular figures and hairline rules, broken by large condensed black caps for names, departments and counts. One family, Archivo, speaks in four widths. Motion behaves like a press: ad plates print in from the top, leader dots are laid down row by row, counters roll with damping, tabs slide out of the fore-edge and pages turn from the fore-edge. Nothing on the page emits light.\n\nBehind the opaque sheets sits one WebGL map of Poland printed as an ordered halftone screen, visible only through transparent window sections. Without a GPU, WebGL or JavaScript an SVG poster of the same map stands in, and the page stays complete and readable on a phone in daylight (PRODUCT.md). Two directions were refused in the surface brief: the incumbent dark page with a glowing 3D map, a giant name and one neon accent, and its opposite, a white editorial page with a serif display and a portrait.",
+    "keyCharacteristics": [
+      "Three stocks (directory yellow, white pages, reversed black), black ink, one red spot ink.",
+      "Archivo only, hierarchy by width: 62% display, 72% statement, 75% listing, 100% reading.",
+      "Leader lines, rules in four weights (8, 3, 2 and 1 px), square bullets, zero radius, no elevation.",
+      "Display ads whose area encodes importance, signed at the foot, with the price on a red sticker.",
+      "Order-slip buttons that ink red on hover and print a red plate out of register on press.",
+      "A printed halftone map behind window sections, with an SVG poster as the fallback.",
+      "Tabular lining figures everywhere; numbers roll with damping and never jump."
+    ],
+    "rules": [
+      {
+        "name": "The Three Stocks Rule",
+        "body": "Every sheet is printed on one stock: `.stock-yellow`, `.stock-white` or `.stock-black`. The stock re-points `--stock` and `--fg`, and the derived inks are recomputed on that element, so secondary type always belongs to its paper.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tinted Ink Rule",
+        "body": "Secondary type is ink mixed into its own stock at 76% (body, notes) and 62% (sources, captions, inactive steps). The palette has no gray token.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Spot Rule",
+        "body": "Red is the only hue besides the stocks. It fills prices and marks the active state (current tab, selected city, hovered or pressed slip) and Gliwice on the map. Red type at reading sizes uses Spot Red Deep.",
+        "section": "colors"
+      },
+      {
+        "name": "The Width Is The Voice Rule",
+        "body": "Hierarchy is set by width first (62 display, 72 statement, 75 listing, 100 reading), weight second, size third. A new role takes one of these widths; fine print at 90% is the single width outside the four voices.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Figures Rule",
+        "body": "Every number is set in lining tabular figures and glued to its unit and its thousand groups with no-break spaces (`src/lib/typo.ts`), so counts, prices and times align in columns and never break across a line.",
+        "section": "typography"
+      },
+      {
+        "name": "The Polish Setting Rule",
+        "body": "Copy passes through `typo()` at build time: no single-letter word ends a line, short Polish words bind to the next word, a numeric range keeps its en dash joined to both numbers, and an em dash in copy throws in development.",
+        "section": "typography"
+      },
+      {
+        "name": "The Size Is Billing Rule",
+        "body": "Ad area encodes importance: OutreachPilot takes the widest track (5fr), FastLanding the next (4fr), the call the smallest (3fr). A new ad is billed by the same logic.",
+        "section": "layout"
+      },
+      {
+        "name": "The Window Rule",
+        "body": "The map is visible only through transparent window sections. Every other section is an opaque stock, and the sheets on either side of a window carry a printed 2px rule, so the map reads as passing under paper.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Stock Rule",
+        "body": "Surfaces never lift. A panel is another sheet of stock inside a 3px ink frame.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Misregistration Rule",
+        "body": "Press feedback is print: an order slip drops 1px and its red plate prints 1.5px out of register; a display ad prints its red plate 1.5px out while pressed.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Square Corner Rule",
+        "body": "Radius is zero on every element. Roundness is reserved for printed dots.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Rule Weight Rule",
+        "body": "8px opens a department, 3px frames an ad or a sheet, 2px closes a section or edges a control, 1px separates rows and columns. A new element takes the weight of its job.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do print every section on one stock class (`.stock-yellow`, `.stock-white`, `.stock-black`) and let `--fg-2` (76%) and `--fg-3` (62%) derive from it.",
+      "Do put prices on the red sticker, and keep red fills to prices and active states.",
+      "Do set name and value pairs as leader lines: registers, rate cards, contacts, signatures, menus.",
+      "Do open a department with the category head: an 8px ink rule over 900-weight caps at 62% width.",
+      "Do sign each display ad at its foot: a 2px rule, the advertiser's name, a leader, and a cross-reference or place.",
+      "Do make every action an order slip: square, 48px minimum, 800-weight caps at 75% width; hover inks it red, press drops it 1px with the red plate 1.5px out of register.",
+      "Do separate rows with 1px ink rules, close sections with 2px rules and frame ads and inner sheets at 3px.",
+      "Do set counts, prices and times in tabular lining figures, and roll changing numbers with damping (900ms) under reduced-motion guards.",
+      "Do keep the map printed in black ink and the red spot, tone carried by dot size, with the SVG poster as the fallback for no GPU, no WebGL and no JavaScript.",
+      "Do collapse every transition and animation under `prefers-reduced-motion: reduce`: no turntable, no roll, no print-in, no smooth scroll."
+    ],
+    "donts": [
+      "Don't add gray tokens; secondary type is ink mixed into its stock.",
+      "Don't round a corner or lift a surface with a shadow.",
+      "Don't add a second typeface, italics or monospace, or set proportional figures.",
+      "Don't let anything glow: no bloom, no additive light, no transparency fades on halftone dots.",
+      "Don't introduce a second accent hue; red is the only spot ink.",
+      "Don't use em dashes in copy; an en dash appears only inside numeric ranges.",
+      "Don't put eyebrow labels above headings; the department name is the category head itself.",
+      "Don't fold answers into accordions; questions print open in ruled columns.",
+      "Don't put arrows on buttons; an external link names its domain in the label."
+    ]
+  }
+}

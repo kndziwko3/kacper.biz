@@ -51,7 +51,7 @@
        :root), because a custom property is resolved where it is declared, not where it is used */
     --stock: var(--yellow);
     --fg: var(--ink);
-    --accent: var(--red);
+   
 
     --f: 'Archivo', 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif;
 
@@ -76,7 +76,6 @@
     --tabs-w: 0px;
     --frame: 3px;
     --ease: cubic-bezier(0.16, 1, 0.3, 1);
-    --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
   }
   @media (min-width: 1100px) { :root { --tabs-w: 44px; } }
 
@@ -85,13 +84,12 @@
     --fg-2: color-mix(in srgb, var(--fg) 76%, var(--stock));
     --fg-3: color-mix(in srgb, var(--fg) 62%, var(--stock));
     --rule: var(--fg);
-    --rule-soft: color-mix(in srgb, var(--fg) 30%, var(--stock));
   }
 
-  .stock-yellow { --stock: var(--yellow); --fg: var(--ink); --accent: var(--red); background: var(--yellow); color: var(--ink); }
-  .stock-white { --stock: var(--white); --fg: var(--ink); --accent: var(--red-deep); background: var(--white); color: var(--ink); }
+  .stock-yellow { --stock: var(--yellow); --fg: var(--ink); background: var(--yellow); color: var(--ink); }
+  .stock-white { --stock: var(--white); --fg: var(--ink); background: var(--white); color: var(--ink); }
   /* reversed: yellow ink on black, the directory's reversed display ad */
-  .stock-black { --stock: var(--black); --fg: var(--yellow); --accent: var(--yellow); background: var(--black); color: var(--yellow); color-scheme: dark; }
+  .stock-black { --stock: var(--black); --fg: var(--yellow); background: var(--black); color: var(--yellow); color-scheme: dark; }
 }
 
 @layer base {
@@ -165,7 +163,6 @@
     .c-7-12 { grid-column: 7 / -1; } .c-8-12 { grid-column: 8 / -1; } .c-9-12 { grid-column: 9 / -1; }
   }
   .sec { padding-block: clamp(4rem, 10vh, 7.5rem); }
-  .sec--tight { padding-block: clamp(2.5rem, 6vh, 4.5rem); }
   /* Mobile: a map window opens at the top of the section; the text sits on the stock below it. */
   @media (max-width: 959px) {
     .m-window { padding-top: calc(var(--head-h) + 34svh) !important; }
@@ -200,8 +197,6 @@
   .ld-list > li { padding-block: 0.16rem; }
 
   /* ── rules ── */
-  .rule-top { border-top: var(--frame) solid var(--rule); }
-  .hair-top { border-top: 1px solid var(--rule); }
 
   /* ── category head: the directory's section heading, a heavy rule over black caps ── */
   .cat { border-top: 8px solid var(--rule); padding-top: 0.9rem; }
@@ -211,7 +206,7 @@
 
   /* ── display ad ── */
   .ad { position: relative; border: var(--frame) solid var(--rule); padding: clamp(1rem, 1.8vw, 1.5rem); display: flex; flex-direction: column; gap: 0.9rem; background: var(--stock); color: var(--fg); }
-  .ad--rev { --stock: var(--black); --fg: var(--yellow); --accent: var(--yellow); background: var(--black); color: var(--yellow); border-color: var(--black); }
+  .ad--rev { --stock: var(--black); --fg: var(--yellow); background: var(--black); color: var(--yellow); border-color: var(--black); }
   .ad--white { --stock: var(--white); --fg: var(--ink); background: var(--white); }
   .ad-h { font-stretch: var(--w-display); font-weight: 900; text-transform: uppercase; line-height: 0.88; letter-spacing: -0.003em; font-size: clamp(1.9rem, 1.2rem + 2vw, 3rem); }
   .ad-bul li { display: grid; grid-template-columns: 0.55em 1fr; gap: 0.6em; align-items: baseline; font-size: 0.97rem; line-height: 1.35; }
@@ -229,11 +224,10 @@
   .ad { isolation: isolate; }
   .ad::before { content: ''; position: absolute; inset: calc(-1 * var(--frame)); border: var(--frame) solid var(--red); z-index: -1; opacity: 0; pointer-events: none; }
   .ad:active::before { opacity: 1; transform: translate(1.5px, 1.5px); }
-  /* price sticker: the only red block on a page */
+  /* price sticker: a price is always printed on a red block */
   .sticker { display: inline-flex; align-items: baseline; gap: 0.35em; background: var(--red); color: #fff; padding: 0.3rem 0.55rem 0.28rem; font-stretch: var(--w-list); font-weight: 800; font-size: 1rem; line-height: 1.1; white-space: nowrap; }
   .sticker small { font-weight: 600; font-size: 0.78em; }
-  .ad--rev .sticker { background: var(--red); color: #fff; }
-
+  
   /* ── buttons: printed order slips, no radius, no arrows ── */
   .btn {
     position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0.7rem 1.15rem;
@@ -248,9 +242,6 @@
   .btn:active::after { opacity: 1; transform: translate(-1.5px, -1.5px); }
   .btn--line { background: transparent; color: var(--fg); }
   .btn--line:hover { background: var(--fg); border-color: var(--fg); color: var(--stock); }
-  .btn--red { background: var(--red); border-color: var(--red); color: #fff; }
-  .btn--red:hover { background: var(--fg); border-color: var(--fg); color: var(--stock); }
-  .btn--red::after { border-color: var(--fg); }
   .ad--rev .btn { background: var(--yellow); color: var(--black); border-color: var(--yellow); }
   .ad--rev .btn:hover { background: var(--red); border-color: var(--red); color: #fff; }
   .ad--rev .btn--line { background: transparent; color: var(--yellow); }
@@ -262,10 +253,6 @@
   .tlink:hover { text-decoration-color: var(--red); }
 
   /* ── tables as directory columns ── */
-  .dtable { font-size: var(--t-small); }
-  .dtable th, .dtable td { text-align: left; padding: 0.5rem 0.75rem 0.5rem 0; border-bottom: 1px solid var(--rule-soft); vertical-align: baseline; }
-  .dtable thead th { font-stretch: var(--w-list); font-weight: 750; text-transform: uppercase; letter-spacing: 0.02em; font-size: var(--t-micro); color: var(--fg-2); border-bottom: 2px solid var(--rule); }
-  .dtable td.n, .dtable th.n { text-align: right; padding-right: 0; font-variant-numeric: tabular-nums; }
 
   /* ── forms: the order coupon ── */
   .form { display: grid; gap: 1.05rem; }
@@ -276,9 +263,9 @@
     background: #fff; color: var(--ink); transition: box-shadow 0.15s var(--ease);
   }
   .textarea { min-height: 7rem; resize: vertical; }
-  .input::placeholder, .textarea::placeholder { color: #6b6a64; }
+  .input::placeholder, .textarea::placeholder { color: var(--fg-3); }
   .input:focus, .select:focus, .textarea:focus { outline: none; box-shadow: 0 0 0 3px var(--yellow), 0 0 0 5px var(--ink); }
-  .input[aria-invalid='true'], .textarea[aria-invalid='true'] { border-color: var(--red-deep); background: #fff4f2; }
+  .input[aria-invalid='true'], .textarea[aria-invalid='true'] { border-color: var(--red-deep); background: color-mix(in srgb, var(--red) 6%, #fff); }
   .field-row { display: grid; gap: 1.05rem; }
   @media (min-width: 640px) { .field-row { grid-template-columns: 1fr 1fr; } }
   .choices { display: flex; flex-wrap: wrap; gap: 0.4rem; border: 0; padding: 0; margin: 0; }

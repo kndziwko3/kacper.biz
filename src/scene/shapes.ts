@@ -18,7 +18,7 @@ export const PALETTE: ReadonlyArray<readonly [number, number, number]> = [
   [0.07, 0.06, 0.04], // ink, light halftone      (slot 0)
   [0, 0, 0], // ink, solid                          (slot 1)
   [0.882, 0.145, 0.106], // red spot #e1251b        (slot 2)
-  [0.78, 0.11, 0.07], // red spot, deep             (slot 3)
+  [0.702, 0.09, 0.059], // red spot, deep #b3170f  (slot 3)
   [0, 0, 0], // ink (page wireframe)                (slot 4)
   [0, 0, 0], // ink (page wireframe, strong)        (slot 5)
   [0.882, 0.145, 0.106], // replies: red spot       (slot 6)
