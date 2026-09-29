@@ -1,7 +1,7 @@
 /**
  * Polish micro-typography, applied to every copy string at build time.
  * - no single-letter word at a line end (a, i, o, u, w, z and capitals): the space after it becomes a no-break space
- * - numbers stay glued to their units and to their thousand groups ("1 499 zł", "7 dni", "30 minut")
+ * - numbers stay glued to their units and to their thousand groups ("1 499 zł", "7 dni", "30 minut", "14 days")
  * - em dashes are banned in copy; this throws in dev so they cannot sneak back in
  * Strings may contain simple inline HTML (<strong>, <br>): the regexes never touch text inside tags.
  */
@@ -10,7 +10,7 @@ const WJ = '\u2060'; // word joiner
 
 const SINGLE = /(^|[\s(„>])([aiouwzAIOUWZ])\s+/g;
 const THOUSANDS = /(\d)[   ](\d{3})(?!\d)/g;
-const UNITS = /(\d)\s+(zł|PLN|dni|dnia|min|minut|godzin|h|%|×|mies\.|osób|firm|maili|kampanii|wpisów|narzędzi|leadów|wiadomości|znaków|zł\/mies\.|m²)(?=[\s.,;:)!? ]|$)/g;
+const UNITS = /(\d)\s+(zł|PLN|dni|dnia|min|minut|godzin|h|%|×|mies\.|osób|firm|maili|kampanii|wpisów|narzędzi|leadów|wiadomości|znaków|zł\/mies\.|m²|days?|minutes?|hours?|weeks?|months?|companies|firms|emails)(?=[\s.,;:)!? ]|$)/g;
 const RANGE = /(\d)–(?!\u2060)(\d)/g;
 const PREFIX_UNITS = /\b(od|do|ok\.|nr|str\.|PLN|USD|GBP|€|\$)\s+(?=\d)/g;
 const SHORT_WORDS_PL = /(^|[\s(„>])(do|od|na|po|we|ze|ku|co|to|że|by|go|mu|mi|ci|Ci|się|nie|lub|oraz|jak|bez|dla|pod|nad|przy)\s+(?=\S)/g;
