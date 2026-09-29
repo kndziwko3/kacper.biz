@@ -1,93 +1,52 @@
 # kacper.biz: art direction
 
+The visual system is recorded in `DESIGN.md` (tokens in `.impeccable/design.json`); the direction contract for the
+site lives in `.impeccable/surfaces/src-pages-index-astro.md`, product truth in `PRODUCT.md`. This file keeps the
+idea and the copy rules in one place for people editing texts.
+
 ## Idea
 
-**Mapa, z której piszą się maile.** The protagonist is one object: a dot map of Poland made of light, with Gliwice
-at the point where everything starts. Every chapter changes what the map is doing: it gathers, it counts, it sends,
-it gets answers. The site is a working instrument built on real registry numbers, not a moodboard.
+**kacper.biz is a printed business directory,** the book OutreachPilot reads companies from. Kacper has an entry;
+his products are the display ads; the directory's own furniture is the interface: running heads with guide words,
+thumb-index tabs, leader dots, category heads, a rate card, an order coupon, a colophon on the back cover.
 
-Why this is specific to Kacper and nobody else:
+Why it belongs to Kacper and nobody else:
+- OutreachPilot literally finds companies by sector and city in CEIDG, Google Maps and PKT.pl: a directory.
+- The boxed display ad in the phone book was a small business's landing page; FastLanding builds today's version.
 - The numbers are his: 3 181 616 active sole proprietorships in 30 sectors (CEIDG via outreachpilot.pl/firmy,
-  29.09.2026), 3% of micro-businesses list a website in their CEIDG entry (sample 4 700, 7.07.2026).
-- The mechanism is his: OutreachPilot finds companies and writes to them in correct Polish; FastLanding builds the
-  page and the bot that answers customers after hours.
-- The place is his: Gliwice, 50,29° N 18,67° E, with a live local clock.
+  29.09.2026); 3 in 100 micro-firms list a website in CEIDG (sample 4 700, 7.07.2026).
 
-## Signature moments
+## Stocks and inks
 
-1. **Hero:** the name set at full width in Mona Sans, the letters breathing from condensed (wdth 75) to expanded
-   (wdth 125) on load, while the points gather into Poland and Gliwice ignites. No blocking loader.
-2. **Registry demo:** pick a sector and a city; real CEIDG counts roll on a tabular counter, the city lights up on the
-   map, and a sample email line inflects the city correctly ("w Krakowie", "z Białegostoku").
-3. **Night to paper:** the dark instrument gives way to a paper sheet for FastLanding, where real client sites scroll
-   inside frames as you scroll the page.
-
-## Scene chapters
-
-One point cloud, six shapes; sections pick one with `data-scene` and the dots flow directly between any two.
-
-| # | Shape | Where |
-|---|---|---|
-| 1 | Poland, Gliwice glowing; "3 in 100" highlight on the thesis; the chosen city pings in the registry demo | hero, thesis, registry, OutreachPilot page |
-| 2 | Same map, tilted further, emails fly out of Gliwice and replies come back | OutreachPilot chapter |
-| 3 | Wireframe landing page (behind the paper sheet on home; visible on FastLanding and Work heads) | FastLanding |
-| 4 | Chat bubbles with pulsing typing dots, behind the FastBot transcript | FastBot |
-| 5 | Close-up: the same map, low over Gliwice, Katowice and Kraków at the edges | contact, FAQ, About, 404 |
-
-Intro: the map drops in as a wave that starts in Gliwice. Without a hardware GPU (and for PageSpeed) a 5.5 KB SVG
-poster in the same frame stands in on the first screen. Reduced motion gets still frames only.
+Directory yellow for business pages, white pages for the personal and reading parts (the 3-in-100 register, work,
+about, questions), reversed black for FastBot at night and the back cover. Black ink plus one red spot ink (prices,
+the Gliwice marker, active states). Secondary text is black tinted by its stock, never gray.
 
 ## Type
 
-- **Mona Sans** (variable: wght 200–900, wdth 75–125), self-hosted, latin + latin-ext. Display and text. Width is an
-  expressive axis: condensed for dense data headlines, expanded for the name and chapter numerals.
-- **Martian Mono** (variable) for data only: counts, timestamps, PKD codes, field labels. Never as decorative eyebrows.
-- No serif, no italic accent words.
-- Scale (desktop): display 12–15vw name; H1 subpage 64–96px; H2 44–56px; H3 22–26px; body 18px/1.55; data 12–13px.
-  H1 max 3 lines. Measure 58–68ch.
+Archivo only, in four voices by width: 62 black caps for display and category heads, 72 heavy for statements, 75
+bold caps for listings, 100 regular for reading. Tabular lining numerals everywhere. No mono, no serif, no italics.
 
-## Colour
+## The printed map (WebGL)
 
-| token | hex | use |
+One point cloud printed in ink on the stock, visible through transparent map windows:
+
+| chapter | shape | where |
 |---|---|---|
-| ink | #0b0b0a | page background (night) |
-| ink-2 | #141412 | raised surfaces |
-| paper | #ebe7de | FastLanding sheet (day) |
-| bone | #ece8df | text on ink |
-| mute | #9c988f | secondary text on ink (≥ 6:1) |
-| signal | #ff5a1f | the only accent: a send, a count, the one primary CTA |
-| signal-ink | #b8360a | signal on paper for text (≥ 4.5:1) |
+| 1 | Poland, Gliwice in red with its marker ring; the chosen city pings in the index | index of sectors, OutreachPilot page head |
+| 2 | Same map, email trails in black ink leave Gliwice, replies come back in red | OutreachPilot window |
+| 3 | Landing-page wireframe | FastLanding page head |
+| 5 | Close-up low over Gliwice | About, Contact, 404 |
 
-Replies are rendered in bright bone, not a second hue. One accent across the whole site.
-
-## Layout
-
-- 12-column grid, 24px gutters, 1440 max for text, full-bleed for the map and screenshots.
-- Rules (1px hairlines) and alignment carry structure. No glass cards, no drop shadows, no rounded "feature cards".
-- Vary compositions: full-bleed type, sticky side rail with a scrubbed instrument, a paper sheet with framed
-  screenshots, a two-column index. Never repeat "text column + empty half" twice in a row.
-- Mobile: map pinned in a 42vh band above the text on solid ink; text never sits on moving points.
-
-## Motion
-
-- Lenis smooth scroll (disabled for reduced motion), GSAP ScrollTrigger for pinned sequences, SplitText line masks
-  for H2 reveals (once, 0.9s expo.out, 70ms stagger). Hero H1 is never hidden (LCP): it animates width only.
-- Astro ClientRouter: the canvas and header persist between pages; the map morphs to the next page's state.
-- Hover: underline draws from the left; arrows move 3px. No magnetic buttons, no custom cursor.
-- `prefers-reduced-motion`: no smooth scroll, no pins, one static map frame, content fully visible.
+It prints (a wave from Gliwice) the first time a window is on screen, sleeps under opaque stock, and falls back to
+the SVG poster (`public/map-poster.svg`, `npm run poster`) without a GPU, WebGL or JavaScript.
 
 ## Copy rules (hard)
 
 - No em dashes. En dash only inside numeric ranges (7–14 dni). Use a full stop, a comma or a colon.
-- No "X, nie Y" antithesis, no triads of adjectives, no three-word fragment headlines as a pattern, no rhetorical
-  questions as headings, no "w dniach, nie miesiącach", no "gdy śpisz", no filler ("kompleksowo", "innowacyjne",
-  "rozwiązania", "najwyższa jakość").
-- First person singular for Kacper, "my" only when describing FastLanding's team process.
-- Every claim carries a number, a source or a date. Illustrative UI is labelled "przykład".
-- Polish typography: non-breaking space after single-letter words (a, i, o, u, w, z) and between a number and its
-  unit; „cudzysłów”; numbers grouped with a non-breaking space from 10 000 up.
-
-## Removed on purpose
-
-Italic serif accents, numbered mono eyebrows, glass cards, film grain, gradient blobs, marquee, pulsing status dot,
-scroll cue, progress bar, conic-gradient logo tile, count-up stat strip of unrelated vanity metrics, magnetic buttons.
+- No "X, nie Y" antithesis, no triads of adjectives, no rhetorical questions as headings, no filler
+  ("kompleksowo", "innowacyjne", "rozwiązania", "najwyższa jakość"), no eyebrow labels above headings.
+- First person singular for Kacper, "my" only for FastLanding's team process.
+- Every market or results number carries its source and date. Illustrative material is labelled as such.
+- Polish typography (`src/lib/typo.ts`): no-break spaces after single-letter words and between numbers and units,
+  numeric ranges never break at the dash, „cudzysłów”, numbers grouped with a no-break space.

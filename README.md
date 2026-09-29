@@ -1,16 +1,18 @@
 # kacper.biz
 
 Osobista strona Kacpra Rękawka, założyciela [OutreachPilot.pl](https://outreachpilot.pl) i [FastLanding.io](https://fastlanding.io).
-Jedna scena 3D sterowana scrollem, PL + EN, zbudowana pod SEO, GEO i AEO oraz jako źródło zapytań dla obu produktów.
-Kierunek wizualny i zasady tekstów: `docs/art-direction.md`.
+Strona jest drukowanym katalogiem firm (żółte strony): wpis Kacpra, ogłoszenia ramkowe obu produktów, indeks branż
+z danymi CEIDG i mapa Polski drukowana w WebGL. PL + EN, zbudowana pod SEO, GEO i AEO oraz jako źródło zapytań.
+System wizualny: `DESIGN.md`; kontrakt kierunku: `.impeccable/surfaces/`; fakty o produkcie: `PRODUCT.md`;
+idea i zasady tekstów: `docs/art-direction.md`.
 
 ## Stack
 - **Astro 7** (statyczny HTML) + TypeScript strict, ClientRouter (scena i poster przeżywają nawigację)
-- **Three.js**: jedna chmura punktów, która morfuje między rozdziałami (mapa Polski, ruch maili, landing, czat, zbliżenie na Gliwice).
-  Ładowana po `load` + idle przez `import()`, tylko na sprzętowym GPU. Bez GPU, bez WebGL, przy save-data i bez JS
-  działa statyczny poster `public/map-poster.svg` (5,5 KB) w tym samym kadrze.
-- GSAP (ScrollTrigger, SplitText), Lenis tylko na myszy/touchpadzie, natywny scroll na dotyku
-- Fonty self-hosted, przycięte do znaków używanych na stronie (Mona Sans, Martian Mono)
+- **Three.js**: jedna chmura punktów drukowana tuszem na żółtym papierze (mapa Polski, trasy maili, szkielet strony,
+  zbliżenie na Gliwice), widoczna przez przezroczyste „okna” sekcji. Ładowana po `load` + idle przez `import()`, tylko na
+  sprzętowym GPU. Bez GPU, bez WebGL, przy save-data i bez JS w każdym oknie jest statyczny poster `public/map-poster.svg`.
+- Lenis tylko na myszy/touchpadzie, natywny scroll na dotyku; przejście między stronami jak przewrócenie kartki
+- Jeden krój: Archivo (self-hosted, przycięty do znaków używanych na stronie, 72 KB)
 - Formularz: Vercel Function `api/lead.js` (Resend albo webhook, fallback `mailto`)
 
 ## Komendy

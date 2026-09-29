@@ -136,7 +136,7 @@ export function buildTraffic(routeCount: number, ringPoints: number, seed = 4242
   const glow = new Rows();
   const [hx, hy] = project(GLIWICE[0], GLIWICE[1]);
   const hz = terrainZ(hx, hy) + 0.05;
-  glow.push(hx, hy, hz, 1.6, 0.5, 2, 0, 1, 2);
+  glow.push(hx, hy, hz, 1.6, 0.9, 2, 0, 1, 2);
   glow.push(hx, hy, hz, 0.5, 0.95, 3, 1.3, 1, 2);
   // closing close-up on Gliwice (chapter 5): tighter, calmer halo
   glow.push(hx, hy, hz, 0.9, 0.26, 2, 0.6, 5, 5);
