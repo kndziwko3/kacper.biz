@@ -16,6 +16,8 @@ export interface ChapterView {
   gainY: number; gainX: number;
   /** Local point that is framed at the centre (the close-up looks at Gliwice). */
   focus: readonly [number, number, number];
+  /** Turntable: radians the shape turns in its own plane per unit of scroll progress through its window. */
+  spin: number;
 }
 
 const [GX, GY] = project(GLIWICE[0], GLIWICE[1]);
@@ -24,17 +26,17 @@ const O = [0, 0, 0] as const;
 
 export const VIEWS: readonly ChapterView[] = [
   // 0 cloud
-  { rx: 0.16, ry: 0, rz: 0, w: 9.0, h: 6.2, hFracDesktop: 0.8, hFracMobile: 0.46, gainY: 0.2, gainX: 0.12, focus: O },
+  { rx: 0.16, ry: 0, rz: 0, w: 9.0, h: 6.2, hFracDesktop: 0.8, hFracMobile: 0.46, gainY: 0.2, gainX: 0.12, focus: O, spin: 0 },
   // 1 map
-  { rx: -0.56, ry: 0.05, rz: -0.03, w: 6.3, h: 5.15, hFracDesktop: 0.66, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05, focus: O },
-  // 2 traffic (same map, a touch more tilt so the arcs read)
-  { rx: -0.68, ry: 0.05, rz: -0.03, w: 6.3, h: 4.95, hFracDesktop: 0.64, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05, focus: O },
+  { rx: -0.56, ry: 0.05, rz: -0.03, w: 6.3, h: 5.15, hFracDesktop: 0.66, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05, focus: O, spin: 0.55 },
+  // 2 traffic (same map, laid back further so the arcs stand up off the paper)
+  { rx: -0.84, ry: 0.0, rz: -0.03, w: 6.3, h: 4.6, hFracDesktop: 0.62, hFracMobile: 0.37, gainY: 0.08, gainX: 0.05, focus: O, spin: 1.15 },
   // 3 page
-  { rx: -0.1, ry: 0.36, rz: 0.0, w: 6.9, h: 5.0, hFracDesktop: 0.62, hFracMobile: 0.32, gainY: 0.3, gainX: 0.2, focus: O },
+  { rx: -0.1, ry: 0.36, rz: 0.0, w: 6.9, h: 5.0, hFracDesktop: 0.62, hFracMobile: 0.32, gainY: 0.3, gainX: 0.2, focus: O, spin: 0 },
   // 4 chat
-  { rx: -0.07, ry: 0.3, rz: 0.0, w: 7.0, h: 5.8, hFracDesktop: 0.6, hFracMobile: 0.38, gainY: 0.14, gainX: 0.09, focus: O },
+  { rx: -0.07, ry: 0.3, rz: 0.0, w: 7.0, h: 5.8, hFracDesktop: 0.6, hFracMobile: 0.38, gainY: 0.14, gainX: 0.09, focus: O, spin: 0 },
   // 5 close-up: the same map, low and tight over Gliwice (Katowice, Opole and Kraków at the edges)
-  { rx: -0.9, ry: 0.04, rz: -0.08, w: 2.7, h: 1.9, hFracDesktop: 0.72, hFracMobile: 0.4, gainY: 0.06, gainX: 0.04, focus: HOME },
+  { rx: -0.9, ry: 0.04, rz: -0.08, w: 2.7, h: 1.9, hFracDesktop: 0.72, hFracMobile: 0.4, gainY: 0.06, gainX: 0.04, focus: HOME, spin: 0.4 },
 ];
 
 export interface Frame {

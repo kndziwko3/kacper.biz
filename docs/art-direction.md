@@ -29,7 +29,13 @@ bold caps for listings, 100 regular for reading. Tabular lining numerals everywh
 
 ## The printed map (WebGL)
 
-One point cloud printed in ink on the stock, visible through transparent map windows:
+One point cloud printed in ink on the stock, visible through transparent map windows. The map is an ordered
+halftone screen: an even hex lattice at full ink, tone carried by dot size (bigger around the cities, from a density
+field over the published cities), a solid border, city dots, a small red Gliwice marker. Traffic prints the same way:
+full-ink dots that thin by size, never by transparency. The shape sits in its window and travels with it; scrolling
+through a window turns the map in its own plane like a turntable, and the email arcs stand up off the paper.
+Picking a city in the index spreads red ink from it across the screen, prints a ring and a callout label (HTML type
+placed by projecting the city through the frame).
 
 | chapter | shape | where |
 |---|---|---|

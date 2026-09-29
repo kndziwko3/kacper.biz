@@ -8,9 +8,12 @@ idea i zasady tekstów: `docs/art-direction.md`.
 
 ## Stack
 - **Astro 7** (statyczny HTML) + TypeScript strict, ClientRouter (scena i poster przeżywają nawigację)
-- **Three.js**: jedna chmura punktów drukowana tuszem na żółtym papierze (mapa Polski, trasy maili, szkielet strony,
-  zbliżenie na Gliwice), widoczna przez przezroczyste „okna” sekcji. Ładowana po `load` + idle przez `import()`, tylko na
-  sprzętowym GPU. Bez GPU, bez WebGL, przy save-data i bez JS w każdym oknie jest statyczny poster `public/map-poster.svg`.
+- **Three.js**: jedna chmura punktów drukowana tuszem na żółtym papierze, widoczna przez przezroczyste „okna” sekcji:
+  mapa Polski jako uporządkowany raster (halftone: pełny tusz, ton niesie wielkość kropki), trasy maili wznoszące się nad
+  papierem, szkielet strony, zbliżenie na Gliwice. Mapa siedzi w swoim oknie i obraca się jak na talerzu w rytm scrolla;
+  wybrane w indeksie miasto rozlewa czerwony tusz i dostaje drukowaną etykietę (HTML). Ładowana po `load` + idle przez
+  `import()`, tylko na sprzętowym GPU. Bez GPU, bez WebGL, przy save-data i bez JS w oknach jest poster
+  `public/map-poster.svg` (ten sam raster, stopniowany).
 - Lenis tylko na myszy/touchpadzie, natywny scroll na dotyku; przejście między stronami jak przewrócenie kartki
 - Jeden krój: Archivo (self-hosted, przycięty do znaków używanych na stronie, 72 KB)
 - Formularz: Vercel Function `api/lead.js` (Resend albo webhook, fallback `mailto`)
@@ -46,6 +49,8 @@ Każda sekcja z `data-scene="0..5"` to plateau: dopóki jest na ekranie, kształ
 z jednego rozdziału do drugiego (dowolna para, bez przechodzenia przez rozdziały pośrednie).
 `data-scene-side` mówi, gdzie jest tekst (kształt idzie na drugą stronę), `data-scene-dim` przygasza scenę pod gęstym
 tekstem, `data-scene-focus="1"` włącza efekt „3 na 100”, a `data-scene-occlude` usypia render pod papierowym arkuszem.
+Postęp scrolla przez okno obraca mapę w jej płaszczyźnie (`spin` w `view.ts`); na telefonie mapa trzyma się miejsca,
+w którym stoi poster okna (`::before` z `data-poster`), na desktopie środka widocznej części okna.
 
 ## Wdrożenie (Vercel)
 1. Zaimportuj repo na Vercel (framework: Astro, build `npm run build`, output `dist`).
@@ -61,8 +66,8 @@ Co musisz dostarczyć albo potwierdzić: `docs/owner-todo.md`. Co poprawić na o
 | `scripts/validate-seo.mjs` | 0 błędów, 0 ostrzeżeń |
 | `scripts/test-lead.mjs` | 29/29 przypadków |
 | axe-core (WCAG 2.1 AA + best practice) | 0 naruszeń na 14 stronach (PL, EN, 404) |
-| Lighthouse mobile (headless, bez GPU, więc z posterem) | Performance 97–99, A11y 100, Best Practices 100, SEO 100 |
-| Lighthouse desktop | Performance 100, CLS 0,017 |
+| Lighthouse mobile (headless, bez GPU, więc z posterem) | `/` 100 · `/outreachpilot` 100 · `/fastlanding` 99; A11y, Best Practices, SEO 100; CLS 0–0,011 |
+| impeccable detect | 0 wzorców „AI slop” w `src/` |
 | Em dashe | 0 w `src/`, `public/` i `dist/` (typo.ts rzuca błąd w dev, jeśli jakiś wróci) |
 
 ### Znane ograniczenia

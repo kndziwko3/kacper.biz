@@ -39,7 +39,6 @@ const top = [...SECTORS].sort((a, b) => b.count - a.count).slice(0, 16);
 
       <div class="ads">
         <article class="ad ad--rev ad-op" aria-labelledby="ad-op-h">
-          <p class="ad-domain">OutreachPilot.pl</p>
           <h2 class="ad-h" id="ad-op-h">{e.adOp.h}</h2>
           <ul class="ad-bul">{e.adOp.bullets.map((b) => <li>{b}</li>)}</ul>
           <div class="ad-foot">
@@ -49,10 +48,10 @@ const top = [...SECTORS].sort((a, b) => b.count - a.count).slice(0, 16);
               <a class="tlink" href="#outreachpilot">{e.adOp.more}</a>
             </div>
           </div>
+          <p class="ad-sig ld"><b>OutreachPilot.pl</b><i></i><span>{c.dir.sig.op}</span></p>
         </article>
 
         <article class="ad ad-fl" aria-labelledby="ad-fl-h">
-          <p class="ad-domain">FastLanding.io</p>
           <h2 class="ad-h" id="ad-fl-h">{e.adFl.h}</h2>
           <ul class="ad-bul">{e.adFl.bullets.map((b) => <li>{b}</li>)}</ul>
           <div class="ad-foot">
@@ -62,6 +61,7 @@ const top = [...SECTORS].sort((a, b) => b.count - a.count).slice(0, 16);
               <a class="tlink" href="#fastlanding">{e.adFl.more}</a>
             </div>
           </div>
+          <p class="ad-sig ld"><b>FastLanding.io</b><i></i><span>{c.dir.sig.fl}</span></p>
         </article>
 
         <article class="ad ad--white ad-call" aria-labelledby="ad-call-h">
@@ -105,7 +105,6 @@ const top = [...SECTORS].sort((a, b) => b.count - a.count).slice(0, 16);
 
   /* display ads: size is billing */
   .ads { margin-top: clamp(1.4rem, 3.5vh, 2.2rem); display: grid; gap: 0.9rem; }
-  .ad-domain { font-stretch: var(--w-list); font-weight: 800; letter-spacing: 0.02em; font-size: 0.95rem; }
   .ad-op .ad-h { font-size: clamp(2.2rem, 1.3rem + 2.6vw, 3.5rem); }
   .ad-h--s { font-size: clamp(1.7rem, 1.2rem + 1.2vw, 2.2rem); }
   .ad-who { font-weight: 700; font-size: 0.95rem; }
@@ -122,9 +121,18 @@ const top = [...SECTORS].sort((a, b) => b.count - a.count).slice(0, 16);
   @media (min-width: 1280px) {
     .ads { grid-template-columns: 5fr 4fr 3fr; }
     .ad-call { grid-column: auto; display: flex; }
+    .ad-call .ad-foot { margin-top: auto; }
   }
 
   /* first print: rows lay their dots down one after another, counts roll in (main.ts adds .is-printing) */
   :global(.js) .register.is-printing .ld > i { clip-path: inset(0 100% 0 0); animation: kb-dots 0.7s var(--ease) forwards; animation-delay: calc(var(--i, 0) * 45ms + 120ms); }
   @keyframes kb-dots { to { clip-path: inset(0 0 0 0); } }
+  /* the ads print in after the register, one plate at a time, top to bottom like the press roller */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .ads .ad { animation: kb-ink 0.7s var(--ease) backwards; }
+    :global(.js) .ads .ad-op { animation-delay: 0.25s; }
+    :global(.js) .ads .ad-fl { animation-delay: 0.4s; }
+    :global(.js) .ads .ad-call { animation-delay: 0.55s; }
+  }
+  @keyframes kb-ink { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
 </style>

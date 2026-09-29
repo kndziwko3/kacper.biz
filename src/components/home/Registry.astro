@@ -78,6 +78,7 @@ const sorted = [...SECTORS].sort((a, b) => a.name[lang].localeCompare(b.name[lan
     </div>
   </div>
   <script type="application/json" data-registry-data set:html={JSON.stringify(payload)} />
+  <p class="map-label" data-map-label aria-hidden="true"><span class="map-label-in"><b data-label="name">{defCity.name}</b><span class="map-label-n"><span data-label="count">{fmt(defCity.count, lang)}</span> {dir.lookup.mapUnit}</span></span></p>
 </section>
 
 <style>
@@ -116,4 +117,16 @@ const sorted = [...SECTORS].sort((a, b) => a.name[lang].localeCompare(b.name[lan
   .ix-mail mark { background: none; color: inherit; box-shadow: inset 0 -0.42em 0 var(--yellow); padding-inline: 0.08em; }
   .ix-src { margin-top: 1rem; }
   @media (max-width: 480px) { .ix-counts { grid-template-columns: 1fr; } }
+
+  /* the picked city's label on the live map: placed by the scene next to the city's ring */
+  .map-label { position: fixed; left: 0; top: 0; z-index: 2; pointer-events: none; opacity: 0; transition: opacity 0.3s var(--ease); }
+  .map-label[data-on] { opacity: 1; }
+  /* a map callout: a short red leader from the ring, the name knocked out of the screen on the stock */
+  .map-label-in { position: relative; display: grid; gap: 0.1rem; translate: 16px -50%; padding: 0.2rem 0.45rem 0.25rem; background: var(--yellow); font-stretch: var(--w-list); text-transform: uppercase; line-height: 1.05; white-space: nowrap; }
+  .map-label-in::before { content: ''; position: absolute; top: 50%; left: -16px; width: 16px; height: 2px; background: var(--red); }
+  .map-label.is-flip .map-label-in { translate: calc(-100% - 16px) -50%; text-align: right; }
+  .map-label.is-flip .map-label-in::before { left: auto; right: -16px; }
+  .map-label b { font-weight: 850; font-size: 1.05rem; letter-spacing: 0.03em; }
+  .map-label-n { font-weight: 700; font-size: 0.74rem; letter-spacing: 0.05em; color: var(--red-deep); font-variant-numeric: tabular-nums; }
+  @media (max-width: 959px) { .map-label { display: none; } }
 </style>

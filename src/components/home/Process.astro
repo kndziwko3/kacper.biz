@@ -16,12 +16,15 @@ const pr = copy[lang].home.fl.process;
 <style>
   .pr-h { padding-bottom: 0.4rem; border-bottom: 8px solid var(--ink); }
   .pr-steps { display: grid; }
-  .pr-steps li { display: grid; grid-template-columns: 2.6rem 1fr; column-gap: 0.75rem; row-gap: 0.25rem; padding: 0.9rem 0; border-bottom: 1px solid var(--ink); }
+  .pr-steps li { display: grid; grid-template-columns: 2.6rem 1fr; column-gap: 0.75rem; row-gap: 0.25rem; align-content: start; padding: 0.9rem 0; border-bottom: 1px solid var(--ink); }
   .pr-steps li > :not(.pr-n) { grid-column: 2; }
   .pr-n { grid-row: span 2; font-stretch: var(--w-display); font-weight: 900; font-size: 2.4rem; line-height: 0.85; }
   @media (min-width: 960px) {
-    .pr-steps { grid-template-columns: repeat(5, 1fr); column-gap: var(--col-gap); border-top: 0; }
-    .pr-steps li { grid-template-columns: 1fr; border-bottom: 0; border-top: 2px solid var(--ink); padding-top: 0.8rem; }
+    /* five columns under one heavy rule, split by hairline column rules like a timetable */
+    .pr-steps { grid-template-columns: repeat(5, 1fr); }
+    .pr-steps li { grid-template-columns: 1fr; border-bottom: 0; padding: 0.9rem 1rem 0.4rem; }
+    .pr-steps li:first-child { padding-left: 0; }
+    .pr-steps li + li { border-left: 1px solid var(--ink); }
     .pr-steps li > :not(.pr-n) { grid-column: 1; }
     .pr-n { grid-row: auto; font-size: 3rem; margin-bottom: 0.5rem; }
   }

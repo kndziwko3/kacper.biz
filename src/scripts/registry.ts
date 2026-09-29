@@ -1,7 +1,7 @@
 /**
  * Index of sectors: radio choices re-typeset the result page (published CEIDG counts, city locative in the email
- * line) and tell the printed map which city to ping. Counters move like a mechanical meter: a damped spring, never
- * a jump (reduced motion: instant).
+ * line) and tell the printed map which city to ink (the scene places the city's label). Counters move like a
+ * mechanical meter: a damped spring, never a jump (reduced motion: instant).
  */
 interface Payload {
   lang: 'pl' | 'en';
@@ -58,10 +58,14 @@ export function initRegistry(reduced: boolean): () => void {
   };
 
   let visible = false;
+  const maxCity = Math.max(...data.cities.map((x) => x.count));
   const emitCity = () => {
     const c = data.cities.find((x) => x.slug === val('city'));
-    document.dispatchEvent(new CustomEvent('kb:city', { detail: visible && c ? { lat: c.lat, lon: c.lon } : null }));
+    // w: how far the red ink spreads on the map, by the city's share of firms
+    const detail = visible && c ? { lat: c.lat, lon: c.lon, w: Math.sqrt(c.count / maxCity) } : null;
+    document.dispatchEvent(new CustomEvent('kb:city', { detail }));
   };
+  const label = (k: string) => section.querySelector<HTMLElement>(`[data-label="${k}"]`);
 
   const update = () => {
     const s = data.sectors.find((x) => x.slug === val('sector'));
@@ -76,6 +80,9 @@ export function initRegistry(reduced: boolean): () => void {
       swap(out('cityName'), c.name);
       swap(out('cityLoc'), data.lang === 'pl' ? c.in : c.name);
       swap(out('cityIn'), c.in);
+      const ln = label('name'), lc = label('count');
+      if (ln) ln.textContent = c.name;
+      if (lc) lc.textContent = fmt(c.count);
     }
     emitCity();
   };

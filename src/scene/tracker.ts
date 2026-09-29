@@ -14,7 +14,7 @@
  *   data-scene-occlude         an opaque sheet: when it covers the whole viewport the scene can sleep
  */
 
-interface Plateau { y0: number; y1: number; v: number; s: number; focus: number; dim: number }
+interface Plateau { y0: number; y1: number; top: number; bottom: number; anchor: number; v: number; s: number; focus: number; dim: number }
 interface Span { y0: number; y1: number }
 
 export interface Sample {
@@ -28,6 +28,15 @@ export interface Sample {
   dim: number;
   /** An opaque section covers the whole viewport. */
   occluded: boolean;
+  /**
+   * Scroll progress through the scene windows on screen, -0.5 (entering) to +0.5 (leaving), faded by how much of the
+   * viewport each window covers, so it is continuous across windows and opaque sheets (drives the turntable).
+   */
+  spin: number;
+  /** Viewport y (px) of the middle of the scene windows' visible part, so the shape can sit inside its window. */
+  cy: number;
+  /** Phones: viewport y (px) of the windows' map anchor (where the poster sits), so the shape travels with it. */
+  cyM: number;
 }
 
 export class SectionTracker {
@@ -35,6 +44,7 @@ export class SectionTracker {
   private occluders: Span[] = [];
   private ro: ResizeObserver | null = null;
   private timer = 0;
+  private headH = 0;
   private onFonts = (): void => this.schedule();
 
   constructor(private readonly onMeasured?: () => void) {}
@@ -74,7 +84,11 @@ export class SectionTracker {
       const dim = parseFloat(el.dataset.sceneDim ?? '');
       // hold while the viewport centre is well inside the section; morph across the boundary
       const m = Math.min(r.height * 0.3, vh * 0.32);
-      list.push({ y0: top + m, y1: bottom - m, v, s, focus: el.dataset.sceneFocus === '1' ? 1 : 0, dim: Number.isFinite(dim) ? dim : 1 });
+      // phones: the map is pinned where the window's poster sits (its ::before top), else in the band under the head
+      let anchor = NaN;
+      if (el.hasAttribute('data-poster')) anchor = parseFloat(getComputedStyle(el, '::before').top);
+      if (!Number.isFinite(anchor)) anchor = (document.querySelector('.rhead')?.getBoundingClientRect().height ?? 0) + vh * 0.17;
+      list.push({ y0: top + m, y1: bottom - m, top, bottom, anchor, v, s, focus: el.dataset.sceneFocus === '1' ? 1 : 0, dim: Number.isFinite(dim) ? dim : 1 });
     });
     // opaque stock (any element marked data-scene-occlude, with or without a chapter of its own)
     document.querySelectorAll<HTMLElement>('[data-scene-occlude]').forEach((el) => {
@@ -87,6 +101,7 @@ export class SectionTracker {
       if (occ[i]!.y0 <= occ[i - 1]!.y1 + 2) { occ[i - 1]!.y1 = Math.max(occ[i - 1]!.y1, occ[i]!.y1); occ.splice(i, 1); }
     }
     list.sort((p, q) => p.y0 - q.y0);
+    this.headH = document.querySelector('.rhead')?.getBoundingClientRect().height ?? 0;
     this.plateaus = list;
     this.occluders = occ;
     this.onMeasured?.();
@@ -99,6 +114,21 @@ export class SectionTracker {
     const p = this.plateaus;
     const n = p.length;
     out.occluded = this.occluders.some((o) => o.y0 <= scrollY + 1 && o.y1 >= scrollY + viewportH - 1);
+    let spin = 0, cyAcc = 0, cyMAcc = 0, wAcc = 0;
+    for (const q of p) {
+      const top = q.top - scrollY, bottom = q.bottom - scrollY;
+      const cover = (Math.min(viewportH, bottom) - Math.max(0, top)) / viewportH;
+      if (cover <= 0) continue;
+      const w = Math.min(1, cover / 0.4);
+      spin += (clamp01((viewportH - top) / (viewportH + bottom - top)) - 0.5) * w;
+      cyAcc += w * (Math.max(this.headH, top) + Math.min(viewportH, bottom)) / 2;
+      cyMAcc += w * (top + q.anchor);
+      wAcc += w;
+    }
+    out.spin = spin;
+    // fades from the viewport's middle toward the window's as the window comes on screen (no jumps)
+    out.cy = (cyAcc + Math.max(0, 1 - wAcc) * viewportH * 0.5) / Math.max(1, wAcc);
+    out.cyM = (cyMAcc + Math.max(0, 1 - wAcc) * viewportH * 0.35) / Math.max(1, wAcc);
     if (n === 0) { out.a = out.b = 1; out.t = 0; out.side = 1; out.focus = 0; out.dim = 1; return out; }
     const y = scrollY + viewportH * 0.5;
     let i = 0;

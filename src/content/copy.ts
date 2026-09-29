@@ -41,6 +41,7 @@ const pl = {
     indexTitle: 'Spis treści',
     tabsLabel: 'Działy',
     book: 'Umów rozmowę',
+    bookShort: 'Rozmowa',
     guide: { home: 'Wpis', three: 'Firmy bez www', lookup: 'Indeks branż', op: 'OutreachPilot.pl', fl: 'FastLanding.io', bot: 'FastBot', faq: 'Pytania', contact: 'Kontakt', work: 'Realizacje', about: 'O mnie', privacy: 'Polityka prywatności', notFound: 'Brak wpisu' },
     menuNotes: { '/outreachpilot': 'cold mailing', '/fastlanding': 'strony i chatboty', '/realizacje': 'strony klientów', '/o-mnie': 'fakty', '/kontakt': 'rozmowa i formularz' } as Record<string, string>,
     entry: {
@@ -84,7 +85,8 @@ const pl = {
       www: 'www',
       tel: 'tel.',
     },
-    lookup: { cat: 'Indeks branż', pickCity: 'Miasto', listLabel: 'Branże i liczba aktywnych JDG w całej Polsce' },
+    sig: { op: 'cold mailing, Gliwice', fl: 'strony i chatboty, Gliwice' },
+    lookup: { cat: 'Indeks branż', pickCity: 'Miasto', listLabel: 'Branże i liczba aktywnych JDG w całej Polsce', mapUnit: 'aktywnych JDG' },
     op: { cat: 'OutreachPilot.pl', mapCap: 'Ilustracja: maile wychodzą z Twojej skrzynki do firm z listy, odpowiedzi wracają do Ciebie.', step: 'krok', of: 'z', bench: 'Wyniki kampanii użytkowników', rate: 'Plany', ctaH: 'Zacznij od planu Free', ctaP: 'Plan Free kosztuje 0 zł i nie ma limitu czasu. Każde nowe konto dostaje 14 dni planu Pro bez karty.' },
     fl: {
       cat: 'FastLanding.io',
@@ -472,6 +474,7 @@ const en: Copy = {
     indexTitle: 'Contents',
     tabsLabel: 'Sections',
     book: 'Book a call',
+    bookShort: 'Call',
     guide: { home: 'Entry', three: 'Firms without a website', lookup: 'Index of sectors', op: 'OutreachPilot.pl', fl: 'FastLanding.io', bot: 'FastBot', faq: 'Questions', contact: 'Contact', work: 'Work', about: 'About', privacy: 'Privacy policy', notFound: 'No entry' },
     menuNotes: { '/en/outreachpilot': 'cold outreach', '/en/fastlanding': 'websites and chatbots', '/en/work': 'client sites', '/en/about': 'facts', '/en/contact': 'call and form' } as Record<string, string>,
     entry: {
@@ -515,7 +518,8 @@ const en: Copy = {
       www: 'www',
       tel: 'tel.',
     },
-    lookup: { cat: 'Index of sectors', pickCity: 'City', listLabel: 'Sectors and active sole proprietorships across Poland' },
+    sig: { op: 'cold outreach, Gliwice', fl: 'websites and chatbots, Gliwice' },
+    lookup: { cat: 'Index of sectors', pickCity: 'City', listLabel: 'Sectors and active sole proprietorships across Poland', mapUnit: 'sole traders' },
     op: { cat: 'OutreachPilot.pl', mapCap: 'Illustration: emails leave your own mailbox for the companies on your list, replies come back to you.', step: 'step', of: 'of', bench: 'Results from user campaigns', rate: 'Plans', ctaH: 'Start with the Free plan', ctaP: 'The Free plan costs PLN 0 and has no time limit. Every new account gets 14 days of Pro with no card.' },
     fl: {
       cat: 'FastLanding.io',

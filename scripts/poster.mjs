@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * public/map-poster.svg: the printed stand-in for the WebGL map (no WebGL, software GL, save-data, no JS, and
- * the first second before the scene mounts). A few KB: a halftone pattern clipped to the same Poland polygon the
- * scene uses (src/scene/poland.ts), a dotted border, city dots and Gliwice in red.
+ * the first second before the scene mounts). A few KB: the live map's ordered halftone (dots growing around the
+ * cities, in three steps) clipped to the same Poland polygon the scene uses (src/scene/poland.ts), a solid border,
+ * city dots and the small Gliwice marker in red.
  * Usage: node scripts/poster.mjs
  */
 import fs from 'node:fs';
@@ -25,20 +26,36 @@ const [gx, gy] = px(...project(GLIWICE[0], GLIWICE[1]));
 
 const cities = CITIES.map((c) => {
   const [x, y] = px(...project(c.lon, c.lat));
-  return `<circle cx="${x}" cy="${y}" r="${(1.8 + 3.2 * Math.sqrt(c.w)).toFixed(1)}"/>`;
+  return `<circle cx="${x}" cy="${y}" r="${(2.2 + 3 * Math.sqrt(c.w)).toFixed(1)}"/>`;
 }).join('');
 
-// printed in ink on transparent paper: a halftone pattern clipped to the country, a dotted border, city dots,
-// and Gliwice in the red spot ink with its marker ring
+// The live map's halftone, stepped: one ordered screen, its dots growing around the cities. The density field is the
+// scene's (a Gaussian per city, sigma 0.16 + 0.24 * sqrt(w)); each step is the same lattice with bigger dots, clipped
+// to where the field passes a threshold, so the bigger dots print over the smaller ones in register.
+const zone = (t) => CITIES.filter((c) => c.w > t).map((c) => {
+  const [x, y] = px(...project(c.lon, c.lat));
+  const sg = 0.16 + 0.24 * Math.sqrt(c.w);
+  return `<circle cx="${x}" cy="${y}" r="${(sg * Math.sqrt(Math.log(c.w / t)) * K).toFixed(1)}"/>`;
+}).join('');
+const cell = (r) => `<circle cx="1.85" cy="1.6" r="${r}"/><circle cx="5.55" cy="4.8" r="${r}"/>`;
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
 <defs>
-<pattern id="p" width="7.4" height="6.4" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.15"/><circle cx="5.2" cy="4.7" r="1.15"/></pattern>
+<clipPath id="c"><path d="${d}"/></clipPath>
+<clipPath id="z1">${zone(0.3)}</clipPath>
+<clipPath id="z2">${zone(0.65)}</clipPath>
+<pattern id="p0" width="7.4" height="6.4" patternUnits="userSpaceOnUse">${cell(1.2)}</pattern>
+<pattern id="p1" width="7.4" height="6.4" patternUnits="userSpaceOnUse">${cell(1.7)}</pattern>
+<pattern id="p2" width="7.4" height="6.4" patternUnits="userSpaceOnUse">${cell(2.25)}</pattern>
 </defs>
-<path d="${d}" fill="url(#p)" opacity=".42"/>
-<path d="${d}" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="0 4.4"/>
+<g clip-path="url(#c)" fill="#120f0a">
+<rect width="${W}" height="${H}" fill="url(#p0)"/>
+<rect width="${W}" height="${H}" fill="url(#p1)" clip-path="url(#z1)"/>
+<rect width="${W}" height="${H}" fill="url(#p2)" clip-path="url(#z2)"/>
+</g>
+<path d="${d}" fill="none" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
 <g fill="#000">${cities}</g>
-<circle cx="${gx}" cy="${gy}" r="7" fill="#e1251b"/>
-<circle cx="${gx}" cy="${gy}" r="27" fill="none" stroke="#e1251b" stroke-width="2.4"/>
+<circle cx="${gx}" cy="${gy}" r="4.6" fill="#e1251b"/>
+<circle cx="${gx}" cy="${gy}" r="9.5" fill="none" stroke="#e1251b" stroke-width="2.2"/>
 </svg>
 `;
 fs.writeFileSync(path.join(ROOT, 'public/map-poster.svg'), svg);

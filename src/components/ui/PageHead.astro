@@ -1,7 +1,8 @@
 ---
 /**
  * Department opener for subpages: breadcrumb, the department name set as the category head, the statement as the
- * H1 and the page's actions. With a scene chapter it opens a window onto the printed map on the right.
+ * H1 and the page's actions. With a scene chapter it opens a window onto the printed map on the right. The `aside`
+ * slot fills that right half where no live scene runs (no GPU, no WebGL, no JS) and the chapter has no poster.
  */
 import { copy } from '../../content/copy';
 import type { Lang } from '../../content/site';
@@ -20,7 +21,7 @@ const poster = scene === 1 || scene === 2 || scene === 5;
   data-scene-occlude={scene === undefined ? '' : undefined} data-poster={poster ? '' : undefined}
   data-guide={guide ?? crumb} aria-labelledby="page-h1"
 >
-  <div class="wrap">
+  <div class:list={['wrap', Astro.slots.has('aside') && 'ph-grid']}>
     <div class="ph-in m-solid">
       <nav class="crumbs" aria-label={lang === 'pl' ? 'Ścieżka nawigacji' : 'Breadcrumb'}><a href={home}>{copy[lang].ui.home}</a><span aria-hidden="true">/</span><span aria-current="page">{crumb}</span></nav>
       <h1 class="ph-h1" id="page-h1">
@@ -30,6 +31,7 @@ const poster = scene === 1 || scene === 2 || scene === 5;
       {lead && <p class="v-lead ph-lead">{lead}</p>}
       <div class="btn-row ph-actions"><slot /></div>
     </div>
+    {Astro.slots.has('aside') && <div class="ph-aside"><slot name="aside" /></div>}
   </div>
 </section>
 <style>
@@ -46,4 +48,12 @@ const poster = scene === 1 || scene === 2 || scene === 5;
   .ph-actions { margin-top: 1.75rem; }
   .ph-actions:empty { display: none; }
   @media (max-width: 959px) { .page-head.is-window { min-height: 0; } }
+
+  .ph-grid { display: grid; gap: 2.5rem var(--col-gap); align-items: end; }
+  @media (min-width: 960px) { .ph-grid { grid-template-columns: minmax(0, 44rem) minmax(0, 1fr); } .ph-aside { justify-self: end; width: min(100%, 26rem); } }
+  .ph-aside { display: none; }
+  :global(html:is(.scene-off, :not(.js))) .ph-aside { display: block; animation: kb-fade 0.4s var(--ease) both; }
+  /* without a live scene, a window with no poster closes up like an opaque page head (no empty band) */
+  :global(html:is(.scene-off, :not(.js))) .page-head.m-window:not([data-poster]) { padding-top: calc(var(--head-h) + clamp(2rem, 7vh, 4.5rem)) !important; min-height: 0; }
+  @keyframes kb-fade { from { opacity: 0; } }
 </style>

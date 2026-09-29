@@ -15,7 +15,7 @@ import { initBooking } from './booking';
 interface SceneHandle {
   destroy(): void;
   rescan?(): void;
-  setCity?(lat: number, lon: number): void;
+  setCity?(lat: number, lon: number, w?: number): void;
   clearCity?(): void;
 }
 type Cleanup = () => void;
@@ -24,7 +24,7 @@ const root = document.documentElement;
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let scene: SceneHandle | null = null;
 let starting = false;
-let lastCity: { lat: number; lon: number } | null = null;
+let lastCity: { lat: number; lon: number; w?: number } | null = null;
 let cleanups: Cleanup[] = [];
 
 /* ── live clock (Gliwice) ── */
@@ -56,10 +56,28 @@ function wayfinding(): Cleanup {
     tabs.forEach((t) => t.classList.toggle('is-here', !!key && (t.getAttribute('href') ?? '').endsWith(key === 'kontakt' ? (root.lang === 'en' ? '/contact' : '/kontakt') : '/' + key)));
   };
   const io = new IntersectionObserver((entries) => {
-    for (const e of entries) if (e.isIntersecting) set(e.target as HTMLElement);
+    for (const e of entries) if (e.isIntersecting) { set(e.target as HTMLElement); pair(); }
   }, { rootMargin: '-30% 0px -65% 0px' });
   sections.forEach((s) => io.observe(s));
-  return () => io.disconnect();
+  // the second guide word: the department at the foot of the screen, when it differs from the first
+  const last = document.querySelector<HTMLElement>('[data-guide-last]');
+  const box = last?.closest<HTMLElement>('.rhead-guide');
+  let foot: HTMLElement | null = null;
+  const pair = () => {
+    if (!last || !box) return;
+    const word = foot && foot.dataset.guide !== guide.textContent ? foot.dataset.guide ?? '' : '';
+    box.classList.toggle('has-last', !!word);
+    if (word && last.textContent !== word) {
+      last.textContent = word;
+      if (!reduced) last.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 260, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+    }
+  };
+  const io2 = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) foot = e.target as HTMLElement;
+    pair();
+  }, { rootMargin: '-96% 0px 0px 0px' });
+  sections.forEach((s) => io2.observe(s));
+  return () => { io.disconnect(); io2.disconnect(); };
 }
 
 /* ── first print: the register column lays its leader dots down and the counts roll in, once per page view ── */
@@ -129,18 +147,20 @@ function hardwareGL(): boolean {
 }
 
 let posterOnly = false;
+/** No live scene on this device: pages can show what stands in for it (html.scene-off). */
+const sceneOff = (): void => { posterOnly = true; root.classList.add('scene-off'); };
 function startScene(): void {
   if (scene || starting || posterOnly) return;
   const canvas = document.getElementById('scene') as HTMLCanvasElement | null;
   if (!canvas) return;
   const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } };
-  if (nav.connection?.saveData || /(^|-)2g$/.test(nav.connection?.effectiveType ?? '')) { posterOnly = true; return; }
+  if (nav.connection?.saveData || /(^|-)2g$/.test(nav.connection?.effectiveType ?? '')) { sceneOff(); return; }
   // ?gl=high|mid|low forces a tier and the live scene even on software GL (QA only)
   const tier = /[?&]gl=(high|mid|low)\b/.exec(location.search)?.[1] as 'high' | 'mid' | 'low' | undefined;
   starting = true;
   const go = async () => {
     try {
-      if (!tier && !hardwareGL()) { posterOnly = true; return; }
+      if (!tier && !hardwareGL()) { sceneOff(); return; }
       const { mountScene } = await import('../scene/index');
       const handle = (await mountScene(canvas, { reducedMotion: reduced, tier })) as SceneHandle | null;
       if (handle) {
@@ -148,10 +168,11 @@ function startScene(): void {
         canvas.classList.add('is-live');
         // the live map prints over the poster before the poster goes
         window.setTimeout(() => root.classList.add('scene-live'), reduced ? 0 : 1200);
-        if (lastCity) scene.setCity?.(lastCity.lat, lastCity.lon);
-      }
+        if (lastCity) scene.setCity?.(lastCity.lat, lastCity.lon, lastCity.w);
+      } else sceneOff();
     } catch {
       /* the poster and the HTML are the fallback */
+      sceneOff();
     } finally {
       starting = false;
     }
@@ -163,9 +184,9 @@ function startScene(): void {
 }
 
 document.addEventListener('kb:city', (e) => {
-  const d = (e as CustomEvent<{ lat: number; lon: number } | null>).detail;
+  const d = (e as CustomEvent<{ lat: number; lon: number; w?: number } | null>).detail;
   lastCity = d;
-  if (d) scene?.setCity?.(d.lat, d.lon);
+  if (d) scene?.setCity?.(d.lat, d.lon, d.w);
   else scene?.clearCity?.();
 });
 
@@ -203,6 +224,6 @@ const boot = () => {
 
 initSmooth(reduced);
 document.addEventListener('astro:before-swap', () => { cleanups.forEach((f) => f()); cleanups = []; });
-document.addEventListener('astro:after-swap', () => { swapped = true; root.classList.add('js'); if (scene) root.classList.add('scene-live'); });
+document.addEventListener('astro:after-swap', () => { swapped = true; root.classList.add('js'); if (scene) root.classList.add('scene-live'); if (posterOnly) root.classList.add('scene-off'); });
 document.addEventListener('astro:page-load', boot);
 boot();

@@ -74,7 +74,6 @@ const n = o.steps.length;
 
       <div class="grid op-close">
         <article class="ad ad--rev c-1-8 op-ad" aria-labelledby="op-ad-h">
-          <p class="ad-domain">OutreachPilot.pl</p>
           <h3 class="ad-h" id="op-ad-h">{dir.ctaH}</h3>
           <p>{dir.ctaP} {o.mcp} <a class="tlink" href={PRODUCTS.outreachpilot.mcp} data-outbound data-cta="op-mcp" rel="noopener">MCP</a></p>
           <div class="ad-foot">
@@ -84,6 +83,7 @@ const n = o.steps.length;
               <Btn href={PRODUCTS.outreachpilot.pricing} variant="line" outbound cta="op-pricing">{o.ctaAlt}</Btn>
             </div>
           </div>
+          <p class="ad-sig ld"><b>OutreachPilot.pl</b><i></i><span>{c.dir.sig.op}</span></p>
         </article>
         <p class="src c-9-12 op-legal">{o.legal}</p>
       </div>
@@ -104,7 +104,7 @@ const n = o.steps.length;
 
   .op-body { padding-block: clamp(3rem, 8vh, 5rem) clamp(4rem, 10vh, 6rem); }
   .instrument { align-items: start; }
-  .step { position: relative; padding: 1.25rem 0 2rem; border-top: 2px solid var(--ink); display: grid; grid-template-columns: 3.2rem 1fr; column-gap: 1rem; }
+  .step { position: relative; padding: 1.25rem 0 2rem; border-top: 2px solid var(--ink); display: grid; grid-template-columns: 3.2rem 1fr; column-gap: 1rem; align-content: start; }
   .step > :not(.step-n) { grid-column: 2; }
   .step-n { grid-row: span 3; font-stretch: var(--w-display); font-weight: 900; font-size: 3.2rem; line-height: 0.8; }
   .step .v-body { margin-top: 0.5rem; }

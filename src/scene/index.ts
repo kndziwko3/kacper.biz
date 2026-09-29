@@ -16,7 +16,7 @@ import {
 } from 'three';
 import { project } from './poland';
 import { GLOW_FRAG, GLOW_VERT, MAIN_VERT, RIPPLE_VERT, SPRITE_FRAG, TRAFFIC_VERT } from './shaders';
-import { CHAPTER_COUNT, PALETTE, buildTargets, terrainZ } from './shapes';
+import { CHAPTER_COUNT, PALETTE, buildTargets, mapPitch, terrainZ } from './shapes';
 import { SectionTracker, type Sample } from './tracker';
 import { TRAIL_SPAN, buildTraffic } from './traffic';
 import { HOME, VIEWS, chapterScales, type Frame, type Scales } from './view';
@@ -25,8 +25,8 @@ export interface SceneHandle {
   destroy(): void;
   /** Re-read [data-scene] sections after a page swap. */
   rescan(): void;
-  /** Light up a city on the map (registry demo). */
-  setCity(lat: number, lon: number): void;
+  /** Light up a city on the map (registry demo); `w` (0..1) sets how far the ink spreads. */
+  setCity(lat: number, lon: number, w?: number): void;
   clearCity(): void;
 }
 
@@ -241,18 +241,21 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
     const uFocus = { value: 0 };
     const uCity = { value: new Vector3(0, 0, 0) };
     const uCityAmt = { value: 0 };
+    const uCityR = { value: 0 };
 
     const mainUniforms = {
       uTime: shared.uTime, uPx: shared.uPx, uRef: shared.uRef, uMaxPt: shared.uMaxPt, uPal: shared.uPal,
-      uA, uB, uT, uChatW, uMapW, uIntro, uDim, uFocus, uCity, uCityAmt,
+      uA, uB, uT, uChatW, uMapW, uIntro, uDim, uFocus, uCity, uCityAmt, uCityR,
+      uPitch: { value: mapPitch(n) }, uGScale: shared.uGScale, uPxW: shared.uPxW,
       uHome: { value: new Vector3(HOME[0], HOME[1], HOME[2]) },
       uSize: { value: [2.9, 2.3, 2.3, 2.3, 2.4, 3.1] },
-      uDrift: { value: [0.085, 0.012, 0.012, 0.01, 0.01, 0.004] },
+      // the printed map holds still (an ordered screen cannot wobble); only the cloud and the drawings breathe
+      uDrift: { value: [0.085, 0, 0, 0.01, 0.01, 0] },
       uBloomK: { value: [0.07, 0.09, 0.09, 0.14, 0.14, 0.11] },
     };
     const mainMat = makeMaterial(MAIN_VERT, SPRITE_FRAG, { ...mainUniforms, uBloom: { value: 0 } });
     const glowMat = makeMaterial(GLOW_VERT, GLOW_FRAG, {
-      uTime: shared.uTime, uW, uDim: uFade, uPxW: shared.uPxW, uGScale: shared.uGScale, uMaxPt: shared.uMaxPt, uPal: shared.uPal,
+      uW, uDim: uFade, uCity, uCityAmt, uCityR, uPxW: shared.uPxW, uGScale: shared.uGScale, uMaxPt: shared.uMaxPt, uPal: shared.uPal,
     });
     const packetMat = makeMaterial(TRAFFIC_VERT, SPRITE_FRAG, {
       uTime: shared.uTime, uPx: shared.uPx, uRef: shared.uRef, uMaxPt: shared.uMaxPt, uPal: shared.uPal,
@@ -286,7 +289,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
 
     // ------------------------------------------------------------------ state
     const tracker = new SectionTracker(() => { if (staticMode && ready) renderStatic(); });
-    const sample: Sample = { a: 1, b: 1, t: 0, side: 1, focus: 0, dim: 1, occluded: false };
+    const sample: Sample = { a: 1, b: 1, t: 0, side: 1, focus: 0, dim: 1, occluded: false, spin: 0, cy: 450, cyM: 300 };
     const vis: Vis = { a: 1, b: 1, t: 0 };
     const frame: Frame = { visW: VIS_H, visH: VIS_H, mobile: false };
     const focusV = new Vector3();
@@ -298,7 +301,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
     let destroyed = false;
     let lost = false;
 
-    let side = 1, focus = 0, dim = 1, fade = 1, cityAmt = 0, cityTarget = 0;
+    let side = 1, focus = 0, dim = 1, fade = 1, spin = 0, cy = -1, cityAmt = 0, cityTarget = 0, cityR = 0, cityRTarget = 0.2;
     let time = staticMode ? 6 : 0, intro = staticMode ? 1 : 0;
     let px = 0, py = 0, tpx = 0, tpy = 0;
     let first = true;
@@ -342,7 +345,8 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       const gy = mix(a.gainY, b.gainY), gx = mix(a.gainX, b.gainX);
       const rx = mix(a.rx, b.rx) - py * gx + 0.018 * Math.sin(t * 0.13 + 1.0);
       const ry = mix(a.ry, b.ry) * sideEff + px * gy + 0.045 * Math.sin(t * 0.17);
-      const rz = mix(a.rz, b.rz) + 0.02 * Math.sin(t * 0.11) * (frame.mobile ? 0.5 : 1);
+      // turntable: scrolling through a window turns the map in its own plane (rz is applied first in YXZ)
+      const rz = mix(a.rz, b.rz) + spin * mix(a.spin, b.spin) * (frame.mobile ? 0.6 : 1) + 0.02 * Math.sin(t * 0.11) * (frame.mobile ? 0.5 : 1);
 
       world.rotation.set(rx, ry, rz);
       world.scale.setScalar(scale);
@@ -353,7 +357,9 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       // Lens shift instead of moving the object: the shape is always seen down the optical axis, so a tilted
       // shape on the far side of the screen doesn't shear with perspective.
       const shiftX = sideEff * 0.25 * width;
-      const shiftY = (frame.mobile ? 0.18 : 0.0) * height;
+      // the shape sits in its window and travels with it: desktop in the middle of the window's visible part,
+      // phones where the window's poster is pinned (the band above the text)
+      const shiftY = cy < 0 ? (frame.mobile ? 0.18 * height : 0) : -(cy - height / 2);
       camera.setViewOffset(width, height, -shiftX, shiftY, width, height);
       shared.uGScale.value = scale;
 
@@ -366,6 +372,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       uMapW.value = w[1]! + w[2]! + w[5]!;
       uFocus.value = focus;
       uCityAmt.value = cityAmt;
+      uCityR.value = cityR;
 
       // more points = more light: keep perceived brightness roughly constant across tiers / downshifts
       const densK = clamp(Math.pow(8000 / drawCount, 0.35), 0.6, 1);
@@ -377,6 +384,33 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       const tr = staticMode ? 0 : smoothstep(0.35, 1, w[2]!);
       uTraffic.value = tr * fade;
       packetPts.visible = ripplePts.visible = tr * fade > 0.004;
+    };
+
+    /**
+     * The picked city's printed label (HTML, so it stays crisp type): placed next to the city's ring by projecting
+     * the city through the same matrices the frame was drawn with. Hidden when the index map isn't what's on screen.
+     */
+    let label: HTMLElement | null = null;
+    let labelOn = false;
+    const cityV = new Vector3(), edgeV = new Vector3();
+    const findLabel = (): void => {
+      if (label && labelOn) label.removeAttribute('data-on');
+      label = document.querySelector<HTMLElement>('[data-map-label]');
+      labelOn = false;
+    };
+    const placeLabel = (): void => {
+      if (!label) return;
+      const show = !frame.mobile && cityAmt > 0.5 && cityR > 0.05 && fade > 0.6 && uW.value[1]! > 0.85;
+      if (show) {
+        cityV.copy(uCity.value).applyMatrix4(world.matrixWorld).project(camera);
+        edgeV.set(uCity.value.x + cityR + 0.05, uCity.value.y, uCity.value.z).applyMatrix4(world.matrixWorld).project(camera);
+        const x = (cityV.x + 1) * 0.5 * width, y = (1 - cityV.y) * 0.5 * height;
+        const r = Math.hypot((edgeV.x - cityV.x) * 0.5 * width, (edgeV.y - cityV.y) * 0.5 * height);
+        const flip = x + r + 260 > width;
+        label.classList.toggle('is-flip', flip);
+        label.style.transform = `translate3d(${Math.round(flip ? x - r - 1 : x + r + 1)}px, ${Math.round(y)}px, 0)`;
+      }
+      if (show !== labelOn) { labelOn = show; label.toggleAttribute('data-on', show); }
     };
 
     const stats = (): SceneStats => ({
@@ -397,9 +431,14 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       focus = sample.focus > 0.5 ? 1 : 0;
       dim = sample.dim;
       fade = sample.occluded ? 0 : 1;
+      // reduced motion: no turntable and no travelling, the still is framed on the viewport
+      spin = 0;
+      cy = -1;
       cityAmt = cityTarget;
+      cityR = cityRTarget;
       apply(time);
       renderer.render(scene, camera);
+      placeLabel();
       opts.onStats?.(stats());
     };
 
@@ -417,7 +456,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       tracker.sample(window.scrollY, window.innerHeight, sample);
       if (first) {
         vis.a = vis.b = sample.t < 0.5 ? sample.a : sample.b; vis.t = 0;
-        side = sample.side; focus = sample.focus; dim = sample.dim; fade = sample.occluded ? 0 : 1;
+        side = sample.side; focus = sample.focus; dim = sample.dim; fade = sample.occluded ? 0 : 1; spin = sample.spin; cy = frame.mobile ? sample.cyM : sample.cy;
         first = false;
       } else {
         advance(vis, sample, dt);
@@ -426,8 +465,15 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
         focus += (sample.focus - focus) * (1 - Math.exp(-dt * 2.2));
         dim += (sample.dim - dim) * k;
         fade += ((sample.occluded ? 0 : 1) - fade) * (1 - Math.exp(-dt * 6));
+        spin += (sample.spin - spin) * (1 - Math.exp(-dt * 5));
+        // a touch of lag: the printed sheet slides a hair behind the window, never out of it
+        const cyT = frame.mobile ? sample.cyM : sample.cy;
+        // phones scroll natively and fast: the map must stay glued to its window there
+        cy = frame.mobile ? cyT : cy + (cyT - cy) * (1 - Math.exp(-dt * 14));
       }
       cityAmt += (cityTarget - cityAmt) * (1 - Math.exp(-dt * 3));
+      // the ink spreads out from the city and settles (critically damped, no overshoot)
+      cityR += (cityRTarget - cityR) * (1 - Math.exp(-dt * 2.6));
       const kp = 1 - Math.exp(-dt * 4);
       px += (tpx - px) * kp;
       py += (tpy - py) * kp;
@@ -447,6 +493,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
         asleep = true;
       } else asleep = false;
       renderer.render(scene, camera);
+      placeLabel();
       frames++;
       if (raw < 250) {
         ema += (Math.min(raw, 100) - ema) * 0.06;
@@ -513,6 +560,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
     // ------------------------------------------------------------------ first frame (before we return)
     tracker.start();
     applySize();
+    findLabel();
     // Link all programs up front (traffic layers included) so the first scroll into the traffic chapter doesn't hitch.
     packetPts.visible = ripplePts.visible = true;
     try {
@@ -537,12 +585,16 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       rescan(): void {
         if (destroyed) return;
         cityTarget = 0;
+        findLabel();
         tracker.measure();
         if (staticMode) renderStatic();
       },
-      setCity(lat: number, lon: number): void {
+      setCity(lat: number, lon: number, w = 0.5): void {
         const [x, y] = project(lon, lat);
-        uCity.value.set(x, y, terrainZ(x, y));
+        // a different city: the ink spreads again from nothing
+        if (Math.hypot(uCity.value.x - x, uCity.value.y - y) > 1e-4 || cityTarget === 0) cityR = 0;
+        uCity.value.set(x, y, terrainZ(x, y) + 0.04);
+        cityRTarget = 0.1 + 0.2 * clamp(w, 0, 1);
         cityTarget = 1;
         if (staticMode) renderStatic();
       },
@@ -564,6 +616,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
         canvas.removeEventListener('webglcontextlost', onLost);
         canvas.removeEventListener('webglcontextrestored', onRestored);
         tracker.destroy();
+        if (label) label.removeAttribute('data-on');
         world.clear();
         scene.clear();
         for (const d of disposables) d.dispose();

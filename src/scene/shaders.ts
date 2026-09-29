@@ -1,7 +1,7 @@
 /**
  * GLSL for the four draw calls:
  *   1. MAIN    - the morphing point world (six chapter targets as vertex attributes)
- *   2. GLOW    - a handful of big soft halos (Gliwice + cities)
+ *   2. GLOW    - printed marker rings (Gliwice, the picked city, neighbours in the close-up)
  *   3. TRAFFIC - packets, trails and arc traces (all motion is computed from uTime in the vertex shader)
  *   4. RIPPLE  - expanding rings of dots at destinations
  *
@@ -62,6 +62,10 @@ uniform float uFocus;   // "3 in 100": 97% of dots fade, 3% light up
 uniform vec3 uHome;     // Gliwice, local coordinates
 uniform vec3 uCity;     // highlighted city, local coordinates
 uniform float uCityAmt;
+uniform float uCityR;   // radius the red ink has spread to around the picked city
+uniform float uPitch;   // halftone lattice pitch (local units)
+uniform float uGScale;  // world scale
+uniform float uPxW;     // device pixels per world unit at depth 1
 uniform float uSize[6];
 uniform float uDrift[6];
 uniform float uBloomK[6];
@@ -190,15 +194,11 @@ void main() {
   tint = mix(tint, mix(tint * 0.5, uPal[2], pick), fo);
   br *= mix(1.0, mix(0.36, 2.4, pick), fo);
 
-  // registry demo: the chosen city lights up, with a slow ping ring
+  // registry demo: red ink spreads from the picked city across the screen, heaviest at the centre
   float cd = length(p.xy - uCity.xy);
-  float ca2 = uCityAmt * uMapW;
-  float core = exp(-cd * cd / 0.05);
-  float r = fract(uTime * 0.38) * 1.1;
-  float ring = exp(-(cd - r) * (cd - r) / 0.004) * (1.0 - r / 1.1);
-  float hot = (core + 0.8 * ring) * ca2;
-  tint = mix(tint, uPal[3], clamp(hot, 0.0, 0.9));
-  br *= 1.0 + 1.3 * hot;
+  float blot = (1.0 - smoothstep(uCityR * 0.72, uCityR, cd)) * uCityAmt * uMapW * step(0.2, br);
+  tint = mix(tint, uPal[2], blot);
+  br = mix(br, 0.95 + 0.85 * (1.0 - clamp(cd / max(uCityR, 0.01), 0.0, 1.0)), blot);
 
   // chat: the three typing dots pulse
   float dotIdx = mod(flag, 10.0);
@@ -206,53 +206,64 @@ void main() {
   float ph = 0.5 + 0.5 * sin(uTime * 5.2 - dotIdx * 1.15);
   br *= mix(1.0, 0.3 + 1.1 * ph, isDot);
 
+  // the map chapters print as an ordered halftone: full ink, dot SIZE carries the tone; the other shapes keep
+  // their size and let brightness set the ink density
+  float halftone = mix(isMap(ia) ? 1.0 : 0.0, isMap(ib) ? 1.0 : 0.0, e);
   float sz = mix(uSize[ia], uSize[ib], e) * (0.86 + 0.28 * aRand.z);
   sz *= (1.0 + 0.35 * max(br - 1.0, 0.0)) * mix(1.0, 0.85 + 0.45 * ph, isDot);
 
-  float twinkle = 0.95 + 0.05 * sin(uTime * (0.7 + aRand.x * 1.6) + aRand.y * 6.2831);
-  float depthFade = clamp(1.0 + (uRef - depth) * 0.08, 0.45, 1.3);
+  float twinkle = mix(0.95 + 0.05 * sin(uTime * (0.7 + aRand.x * 1.6) + aRand.y * 6.2831), 1.0, halftone);
+  float depthFade = clamp(1.0 + (uRef - depth) * 0.08, mix(0.45, 0.8, halftone), 1.3);
 
   float bk = mix(uBloomK[ia], uBloomK[ib], e);
   sz *= mix(1.0, 3.8, uBloom);
   float px = sz * uPx * uRef / depth;
+  // halftone dots are sized in map units, as a fraction of the lattice pitch, so the screen keeps its tone at any
+  // zoom (about 12% ink in open country, 45% around the big cities)
+  px = mix(px, uPitch * (0.22 + 0.28 * br) * uGScale * uPxW / depth, halftone);
+  // below the 2 px sprite floor, ink falls with the dot's area, so small halftone dots stay the right tone
   float sub = uBloom > 0.5 ? 1.0 : clamp(px / 2.0, 0.0, 1.0);
+  sub = mix(sub, sub * sub, halftone);
   gl_PointSize = clamp(px, 2.0, uMaxPt);
 
-  // ink density from brightness: dust nearly vanishes, the interior prints as a light halftone, borders and
-  // cities print solid, Gliwice in the red spot ink
+  float ink = mix(clamp((br - 0.42) / 0.9, 0.0, 1.0), clamp((br - 0.12) / 0.3, 0.0, 1.0), halftone);
   vCol = tint;
-  vA = clamp((br - 0.42) / 0.9, 0.0, 1.0) * twinkle * depthFade * uDim * ie * sub * mix(1.0, bk, uBloom);
+  vA = clamp(ink * twinkle * depthFade * uDim * ie * sub * mix(1.0, bk, uBloom), 0.0, 1.0);
 }
 `;
 
 // ------------------------------------------------------------------------------------------ GLOW
 export const GLOW_VERT = /* glsl */ `
-uniform float uTime;
 uniform float uW[6];  // weight of each chapter on screen (sums to 1)
 uniform float uDim;
 uniform float uPxW;
 uniform float uGScale;
 uniform float uMaxPt;
 uniform vec3 uPal[8];
-attribute vec4 aInfo; // x: diameter (local units), y: intensity, z: palette id, w: phase
-attribute vec2 aRange; // chapters [from, to] in which the halo is visible
+uniform vec3 uCity;
+uniform float uCityAmt;
+uniform float uCityR;
+attribute vec4 aInfo; // x: diameter (local units), y: intensity, z: palette id, w: unused
+attribute vec2 aRange; // chapters [from, to] in which the ring is printed; x < 0 marks the picked-city ring
 varying vec3 vCol;
 varying float vA;
 varying float vPx;
 void main() {
-  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  bool city = aRange.x < -0.5;
+  vec3 pos = city ? uCity : position;
+  float dia = city ? uCityR * 2.0 + 0.1 : aInfo.x;
+  vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mv;
   float depth = -mv.z;
-  float pulse = 1.0 + 0.22 * sin(uTime * 1.5 + aInfo.w);
-  gl_PointSize = clamp(aInfo.x * uGScale * uPxW / depth * (0.94 + 0.08 * pulse), 2.0, uMaxPt);
+  gl_PointSize = clamp(dia * uGScale * uPxW / depth, 2.0, uMaxPt);
   vPx = gl_PointSize;
   vCol = uPal[int(aInfo.z + 0.5)];
   float vis = 0.0;
   for (int i = 0; i < 6; i++) {
     float f = float(i);
-    if (f > aRange.x - 0.5 && f < aRange.y + 0.5) vis += uW[i];
+    if (city ? (i == 1 || i == 2) : (f > aRange.x - 0.5 && f < aRange.y + 0.5)) vis += uW[i];
   }
-  vA = aInfo.y * smoothstep(0.0, 1.0, vis) * pulse * uDim;
+  vA = aInfo.y * smoothstep(0.0, 1.0, vis) * uDim * (city ? smoothstep(0.02, 0.1, uCityR) * uCityAmt : 1.0);
 }
 `;
 export const GLOW_FRAG = /* glsl */ `
@@ -301,21 +312,22 @@ void main() {
 
   float s; float alpha; float size;
   vec3 col;
+  // printed like the map: every dot is full ink, the trail thins by dot SIZE, never by transparency
   if (!trace) {
     float vs = v - fj * uSpan;
     s = easeOut(vs);
     float vis = step(0.0, vs) * step(vs, 1.0);
-    alpha = pow(1.0 - fj, 1.6) * smoothstep(0.0, 0.05, vs) * (1.0 - smoothstep(0.9, 1.0, vs)) * vis;
-    size = mix(1.0, 0.4, fj) * (fj < 0.001 ? 1.3 : 1.0);
+    alpha = vis * (1.0 - step(0.97, vs));
+    size = mix(1.05, 0.16, pow(fj, 0.8)) * (fj < 0.001 ? 1.25 : 1.0) * mix(1.0, 0.4, smoothstep(0.8, 1.0, vs));
     col = reply ? uPal[6] : uPal[1];
-    if (!reply && fj < 0.001) alpha *= 1.15;
   } else {
+    // the route stays printed as a fine dotted arc; the stretch the packet just flew is inked heavier
     s = fj;
     float age = v - invEase(fj);
     float lit = age > 0.0 ? exp(-age * 1.35) : 0.0;
-    alpha = (0.05 + 0.7 * lit) * step(-0.15, v);
-    size = 0.5;
-    col = reply ? uPal[6] : uPal[0];
+    alpha = step(-0.15, v);
+    size = 0.2 + 0.2 * lit;
+    col = reply ? uPal[6] : uPal[1];
   }
   size *= aK.w;
   alpha *= uTraffic;
@@ -330,9 +342,12 @@ void main() {
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
   float depth = -mv.z;
-  gl_PointSize = clamp(5.4 * size * uPx * uRef / depth, 2.0, uMaxPt);
+  float px = 5.4 * size * uPx * uRef / depth;
+  gl_PointSize = clamp(px, 2.0, uMaxPt);
   vCol = col;
-  vA = alpha;
+  // below the 2 px sprite floor the ink falls with the dot's area
+  float sub = clamp(px / 2.0, 0.0, 1.0);
+  vA = alpha * sub * sub;
 }
 `;
 
@@ -367,10 +382,11 @@ void main() {
   vec4 probe = modelViewMatrix * vec4(position, 1.0);
   float depth0 = -probe.z;
   if (aRing.y < 0.5) {
+    // a ring of full-ink dots that spreads out and thins by dot size (strength sets the dot)
     float r = aRing.z * (1.0 - pow(1.0 - age, 2.4));
     p += vec3(cos(aRing.x), sin(aRing.x), 0.0) * r;
-    alpha = aRing.w * pow(1.0 - age, 1.5) * smoothstep(0.0, 0.06, age);
-    px = 3.6 * (1.15 - 0.5 * age) * uPx * uRef / depth0;
+    alpha = 1.0;
+    px = 3.4 * aRing.w * pow(1.0 - age, 1.2) * uPx * uRef / depth0;
   } else {
     float f = age / 0.24;
     if (f > 1.0) {
@@ -380,13 +396,15 @@ void main() {
       vA = 0.0;
       return;
     }
-    alpha = aRing.w * (1.0 - f) * (1.0 - f);
-    px = aRing.z * 0.5 * (0.35 + 0.65 * f) * uGScale * uPxW / depth0;
+    // the arrival mark: a solid dot that swells and shrinks away
+    alpha = 1.0;
+    px = aRing.z * 0.34 * sin(3.14159 * f) * aRing.w * uGScale * uPxW / depth0;
   }
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
   gl_PointSize = clamp(px, 2.0, uMaxPt);
   vCol = uPal[int(aCol + 0.5)];
-  vA = alpha * uTraffic;
+  float sub = clamp(px / 2.0, 0.0, 1.0);
+  vA = alpha * sub * sub * uTraffic;
 }
 `;

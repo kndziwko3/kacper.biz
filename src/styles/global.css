@@ -218,7 +218,16 @@
   .ad-bul li + li { margin-top: 0.35rem; }
   .ad-bul li::before { content: ''; width: 0.5em; height: 0.5em; background: currentColor; transform: translateY(-0.08em); }
   .ad-foot { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; }
-  .ad-domain { font-stretch: var(--w-list); font-weight: 800; font-size: 0.95rem; letter-spacing: 0.01em; }
+  /* the advertiser signs the ad at the foot, like the name-and-address line of a boxed ad */
+  .ad-sig { border-top: 2px solid var(--rule); padding-top: 0.55rem; font-stretch: var(--w-list); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.78rem; }
+  .ad-sig b { font-weight: 850; font-size: 1.05rem; letter-spacing: 0.02em; }
+  .ad-sig span { font-weight: 650; }
+  /* hovering an ad prints its red plate a few pixels out of register */
+  @media (hover: hover) {
+    .ad { isolation: isolate; }
+    .ad::before { content: ''; position: absolute; inset: calc(-1 * var(--frame)); border: var(--frame) solid var(--red); z-index: -1; opacity: 0; transform: translate(0, 0); transition: transform 0.28s var(--ease), opacity 0.2s var(--ease); pointer-events: none; }
+    .ad:hover::before, .ad:focus-within::before { opacity: 1; transform: translate(5px, 5px); }
+  }
   /* price sticker: the only red block on a page */
   .sticker { display: inline-flex; align-items: baseline; gap: 0.35em; background: var(--red); color: #fff; padding: 0.3rem 0.55rem 0.28rem; font-stretch: var(--w-list); font-weight: 800; font-size: 1rem; line-height: 1.1; white-space: nowrap; }
   .sticker small { font-weight: 600; font-size: 0.78em; }
@@ -231,20 +240,22 @@
     font-stretch: var(--w-list); font-weight: 800; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 0.02em; line-height: 1.05;
     isolation: isolate; transition: background-color 0.18s var(--ease), color 0.18s var(--ease), border-color 0.18s var(--ease), transform 0.18s var(--ease);
   }
-  /* on press the slip prints a hair out of register in red, then lands */
-  .btn::after { content: ''; position: absolute; inset: -2px; border: 2px solid var(--red); z-index: -1; transform: translate(0, 0); opacity: 0; transition: transform 0.24s var(--ease), opacity 0.24s var(--ease); }
-  .btn:hover::after { transform: translate(4px, 4px); opacity: 1; }
-  .btn:active { transform: translate(2px, 2px); }
-  .btn:active::after { transform: translate(0, 0); }
+  /* hover inks the slip in the red spot; a press lands it a pixel down with the red plate a hair out of register */
+  .btn:hover { background: var(--red); border-color: var(--red); color: #fff; }
+  .btn::after { content: ''; position: absolute; inset: -2px; border: 2px solid var(--red); z-index: -1; opacity: 0; pointer-events: none; }
+  .btn:active { transform: translate(1px, 1px); }
+  .btn:active::after { opacity: 1; transform: translate(-1.5px, -1.5px); }
   .btn--line { background: transparent; color: var(--fg); }
-  .btn--line:hover { background: var(--fg); color: var(--stock); }
+  .btn--line:hover { background: var(--fg); border-color: var(--fg); color: var(--stock); }
   .btn--red { background: var(--red); border-color: var(--red); color: #fff; }
+  .btn--red:hover { background: var(--fg); border-color: var(--fg); color: var(--stock); }
   .btn--red::after { border-color: var(--fg); }
   .ad--rev .btn { background: var(--yellow); color: var(--black); border-color: var(--yellow); }
+  .ad--rev .btn:hover { background: var(--red); border-color: var(--red); color: #fff; }
   .ad--rev .btn--line { background: transparent; color: var(--yellow); }
-  .ad--rev .btn--line:hover { background: var(--yellow); color: var(--black); }
+  .ad--rev .btn--line:hover { background: var(--yellow); border-color: var(--yellow); color: var(--black); }
   .stock-black .btn { background: var(--yellow); color: var(--black); border-color: var(--yellow); }
-  .stock-black .btn::after { border-color: var(--red); }
+  .stock-black .btn:hover { background: var(--red); border-color: var(--red); color: #fff; }
   .btn-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
   .tlink { font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
   .tlink:hover { text-decoration-color: var(--red); }

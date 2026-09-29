@@ -24,8 +24,10 @@ const d = copy[lang].dir;
 </section>
 <style>
   .faq-sec { padding-block: clamp(4rem, 10vh, 7rem); border-bottom: 2px solid var(--ink); }
-  .faq-list { margin-top: 1.75rem; display: grid; gap: 0 var(--col-gap); }
-  @media (min-width: 900px) { .faq-list { grid-template-columns: 1fr 1fr; column-rule: 1px solid var(--ink); } }
-  .faq-item { padding-block: 1.1rem 1.4rem; border-top: 2px solid var(--ink); break-inside: avoid; }
-  .faq-item dd { margin-top: 0.6rem; }
+  /* set like the directory's own pages: two columns split by a hairline column rule, questions in the listing voice */
+  .faq-list { margin-top: 1.75rem; border-top: 2px solid var(--ink); }
+  @media (min-width: 900px) { .faq-list { columns: 2; column-gap: calc(var(--col-gap) * 2); column-rule: 1px solid var(--ink); } }
+  .faq-item { padding-block: 1rem 1.3rem; break-inside: avoid; }
+  .faq-item + .faq-item { border-top: 1px solid var(--ink); }
+  .faq-item dd { margin-top: 0.55rem; }
 </style>

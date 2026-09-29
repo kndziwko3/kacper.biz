@@ -20,11 +20,12 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
 <header class="rhead" transition:animate="none">
   <div class="rhead-in">
     <a class="rhead-title" href={homeHref} aria-label={`${d.title}, ${ui.home}`}>{d.title}</a>
-    <span class="rhead-guide" aria-hidden="true"><span data-guide>{guide ?? d.guide.home}</span></span>
+    <!-- guide words, as at the top of a directory page: the first and the last department in view -->
+    <span class="rhead-guide" aria-hidden="true"><span class="rg-w"><span data-guide>{guide ?? d.guide.home}</span></span><i></i><span class="rg-w rg-last"><span data-guide-last></span></span></span>
     <div class="rhead-end">
       <span class="rhead-clock" aria-hidden="true">{ui.place} <time data-clock>--:--</time></span>
       <a class="rhead-lang" href={otherHref} hreflang={otherLang === 'pl' ? 'pl-PL' : 'en'} lang={otherLang} aria-label={ui.langLabel} data-astro-reload>{ui.langSwitch}</a>
-      <a class="btn rhead-cta" href={SALES.bookingUrl} data-outbound data-cta="head-booking" rel="noopener">{d.book}</a>
+      <a class="btn rhead-cta" href={SALES.bookingUrl} data-outbound data-cta="head-booking" rel="noopener"><span class="rc-long">{d.book}</span><span class="rc-short">{d.bookShort}</span></a>
       <button class="rhead-menu" type="button" aria-expanded="false" aria-controls="menu">{d.index}</button>
     </div>
   </div>
@@ -61,15 +62,21 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
   .rhead { position: fixed; z-index: 50; top: 0; left: 0; right: 0; height: var(--head-h); background: var(--yellow); color: var(--ink); border-bottom: 2px solid var(--ink); }
   .rhead-in { height: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter) calc(var(--gutter) + var(--tabs-w)); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; }
   .rhead-title { font-stretch: var(--w-list); font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; font-size: 1rem; white-space: nowrap; }
-  .rhead-guide { justify-self: center; font-stretch: var(--w-list); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: var(--t-micro); display: none; overflow: hidden; height: 1.3em; }
-  .rhead-guide span { display: block; }
+  .rhead-guide { justify-self: center; align-items: center; gap: 0.6em; font-stretch: var(--w-list); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: var(--t-micro); display: none; white-space: nowrap; }
+  .rg-w { display: block; overflow: hidden; height: 1.3em; }
+  .rg-w > span { display: block; }
+  .rhead-guide > i { width: 2.4em; height: 2px; background: radial-gradient(circle, currentColor 0.9px, transparent 1.1px) 0 50% / 5px 2px repeat-x; }
+  .rhead-guide:not(.has-last) > i, .rhead-guide:not(.has-last) .rg-last { display: none; }
   .rhead-end { display: flex; align-items: center; gap: 1rem; justify-self: end; }
   .rhead-clock { font-size: var(--t-micro); font-stretch: 90%; display: none; white-space: nowrap; }
   .rhead-lang { font-weight: 800; font-size: var(--t-small); padding: 0.6rem 0.2rem; }
   .rhead-lang:hover { text-decoration: underline; text-underline-offset: 4px; }
-  .rhead-cta { min-height: 36px; padding: 0.4rem 0.8rem; font-size: 0.82rem; display: none; }
+  .rhead-cta { min-height: 40px; padding: 0.4rem 0.7rem; font-size: 0.78rem; }
+  .rc-long { display: none; }
+  /* phones: the short order slip stays in the head; the language switch lives in the Spis */
+  @media (max-width: 759px) { .rhead-lang { display: none; } .rhead-end { gap: 0.5rem; } .rhead-title { font-size: 0.9rem; } }
   .rhead-menu { min-height: 40px; padding: 0.35rem 0.8rem; border: 2px solid var(--ink); font-stretch: var(--w-list); font-weight: 800; text-transform: uppercase; font-size: 0.82rem; letter-spacing: 0.03em; }
-  @media (min-width: 760px) { .rhead-guide { display: block; } .rhead-cta { display: inline-flex; } }
+  @media (min-width: 760px) { .rhead-guide { display: flex; } .rhead-cta { min-height: 36px; padding: 0.4rem 0.8rem; font-size: 0.82rem; } .rc-long { display: inline; } .rc-short { display: none; } }
   @media (min-width: 1100px) { .rhead-clock { display: inline; } .rhead-menu { display: none; } }
 
   /* thumb index: black tabs cut into the fore-edge, one per department, stepped down the page */

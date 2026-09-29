@@ -15,6 +15,7 @@ const isPl = lang === 'pl';
 const path = isPl ? '/fastlanding' : '/en/fastlanding';
 const home = isPl ? '/' : '/en';
 const faq = [c.faq[2]!, c.faq[3]!];
+const ad = c.dir.entry.adFl;
 ---
 <Base lang={lang} path={path} title={f.title} description={f.description} kind="product" guide={c.dir.guide.fl}
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: f.crumb, path }]} faq={faq}
@@ -22,6 +23,12 @@ const faq = [c.faq[2]!, c.faq[3]!];
   <PageHead lang={lang} crumb={f.crumb} cat="FastLanding.io" h1={f.h1} lead={f.lead} scene={3} side="left" guide={c.dir.guide.fl}>
     <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-page-quote">{c.home.fl.cta}</Btn>
     <Btn href={SALES.bookingUrl} variant="line" outbound cta="fl-page-booking">{c.home.fl.ctaAlt}</Btn>
+    <article slot="aside" class="ad ad--white fl-head-ad" aria-labelledby="fl-head-ad-h">
+      <h2 class="ad-h" id="fl-head-ad-h">{ad.h}</h2>
+      <ul class="ad-bul">{ad.bullets.map((b) => <li>{b}</li>)}</ul>
+      <div class="ad-foot"><span class="sticker">{ad.price} <small>{ad.priceNote}</small></span></div>
+      <p class="ad-sig ld"><b>FastLanding.io</b><i></i><span>{c.dir.sig.fl}</span></p>
+    </article>
   </PageHead>
   <Studio lang={lang} heading={false} />
   <Bot lang={lang} />

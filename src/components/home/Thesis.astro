@@ -51,12 +51,18 @@ const rows = Array.from({ length: 100 }, (_, i) => ({ a: 34 + Math.round(rnd() *
   @media (min-width: 960px) { .three-text { position: sticky; top: calc(var(--head-h) + 2rem); } }
 
   .three-fig { border-top: 8px solid var(--ink); padding-top: 0.6rem; }
-  .wp { columns: 2; column-gap: 1.6rem; column-rule: 1px solid var(--ink); font-size: 0.8rem; }
-  @media (min-width: 700px) { .wp { columns: 4; } }
+  /* four columns of 25 at every width, so the whole page and its three red marks fit one screen on a phone */
+  .wp { columns: 4; column-gap: 0.9rem; column-rule: 1px solid var(--ink); font-size: 0.7rem; }
+  @media (min-width: 700px) { .wp { column-gap: 1.6rem; font-size: 0.8rem; } }
   .wp li { break-inside: avoid; padding-block: 0.2rem; transition: opacity 0.35s var(--ease); }
   .g { display: flex; gap: 0.3em; flex: 0 0 56%; align-items: center; }
   .g b { display: block; height: 0.5em; background: currentColor; opacity: 0.8; }
   .wp-v { font-stretch: var(--w-list); font-weight: 750; font-size: 0.72rem; letter-spacing: 0.03em; }
+  @media (max-width: 699px) {
+    .wp li { padding-block: 0.12rem; }
+    .g { flex-basis: 48%; gap: 0.2em; }
+    .wp-v { font-size: 0.6rem; letter-spacing: 0.02em; }
+  }
   .wp .is-www { color: var(--red-deep); }
   .wp .is-www .g b { opacity: 1; }
   .wp .is-www .wp-v { background: var(--red); color: #fff; padding: 0 0.3em; }

@@ -335,89 +335,84 @@ export function terrainZ(x: number, y: number): number {
   const mount = smooth(50.7, 49.25, unproject(x, y)[1]);
   return 0.34 * mount * (0.7 + 0.3 * Math.sin(x * 3.1 + y * 2.3));
 }
-function relief(x: number, y: number, rng: Rng): number {
-  return terrainZ(x, y) + rng.g() * 0.035;
+
+/**
+ * The map is printed as an ordered halftone screen: an even hex lattice clipped to the country, each dot sized by the
+ * density of businesses around the published cities (a smooth field, not a claim about any single place), a solid
+ * printed border, city dots, and a small Gliwice dot in the red spot ink. Points the screen does not
+ * need are parked on lattice positions at zero ink, so morphs to and from the map stay coherent.
+ */
+/** Pitch of the map's halftone lattice (local units) for a cloud of `n` points; the shader sizes dots from it. */
+export function mapPitch(n: number): number {
+  const nScreen = Math.min(Math.round(n * 0.62), 5200);
+  return Math.sqrt((2 * polygonArea(polygonXY())) / (Math.sqrt(3) * nScreen));
 }
 
 function buildMap(n: number, c: Ctx): Chapter {
   const { rng, sink } = c;
   const poly = polygonXY();
-  const area = polygonArea(poly);
   let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
   for (const [x, y] of poly) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
 
-  const nBorder = Math.round(n * 0.11);
-  const nGliwice = Math.round(n * 0.04);
-  const nRing = Math.round(n * 0.012);
-  const nCity = Math.round(n * 0.2);
-  const nDust = Math.round(n * 0.07);
-  const nInterior = n - nBorder - nGliwice - nRing - nCity - nDust;
+  const nBorder = Math.round(n * 0.1);
+  const nGliwice = Math.min(90, Math.round(n * 0.006));
+  const cities = CITIES.map((ct) => ({ ...ct, xy: project(ct.lon, ct.lat) }));
+  const perCity = n >= 16000 ? 14 : 8;
 
-  // --- interior: jittered hex lattice
-  const h = Math.sqrt((2 * area) / (Math.sqrt(3) * nInterior));
-  const interior: Array<[number, number]> = [];
+  // --- the screen: exact hex lattice, no jitter
+  const h = mapPitch(n);
+  const screen: Array<[number, number]> = [];
   const rowH = (h * Math.sqrt(3)) / 2;
-  for (let row = 0, y = minY; y <= maxY; y += rowH, row++) {
+  for (let row = 0, y = minY + rowH / 2; y <= maxY; y += rowH, row++) {
     for (let x = minX + (row % 2 ? h / 2 : 0); x <= maxX; x += h) {
-      const px = x + rng.g() * h * 0.16, py = y + rng.g() * h * 0.16;
-      if (pointInPolygon(px, py, poly)) interior.push([px, py]);
+      if (pointInPolygon(x, y, poly)) screen.push([x, y]);
     }
   }
-  while (interior.length < nInterior) {
-    const px = rng.range(minX, maxX), py = rng.range(minY, maxY);
-    if (pointInPolygon(px, py, poly)) interior.push([px, py]);
-  }
-  for (let i = interior.length - 1; i > 0; i--) { const j = Math.floor(rng.r() * (i + 1)); const t = interior[i]!; interior[i] = interior[j]!; interior[j] = t; }
-  for (let i = 0; i < nInterior; i++) {
-    const [x, y] = interior[i]!;
-    const tex = 0.72 + 0.28 * Math.sin(x * 1.9 + 0.6) * Math.sin(y * 1.5 - 0.3);
-    sink.add(x, y, relief(x, y, rng), style(PAL.boneDim, (0.62 + 0.32 * rng.r()) * tex));
+  const density = (x: number, y: number): number => {
+    let d = 0;
+    for (const ct of cities) {
+      const sg = 0.16 + 0.24 * Math.sqrt(ct.w);
+      const dx = x - ct.xy[0], dy = y - ct.xy[1];
+      d += ct.w * Math.exp(-(dx * dx + dy * dy) / (sg * sg));
+    }
+    return Math.min(1, d);
+  };
+  for (const [x, y] of screen) {
+    sink.add(x, y, terrainZ(x, y), style(PAL.boneDim, 0.55 + 1.25 * density(x, y)));
   }
 
-  // --- border: dense bright outline
+  // --- border: a solid printed line
   const border = mkPath(poly, true);
   for (let i = 0; i < nBorder; i++) {
-    const [x, y] = pathAt(border, ((i + rng.r()) / nBorder) * border.len);
-    const jx = rng.g() * 0.006, jy = rng.g() * 0.006;
-    sink.add(x + jx, y + jy, relief(x, y, rng) + 0.02, style(PAL.bone, 1.0 + 0.45 * rng.r()));
+    const [x, y] = pathAt(border, ((i + 0.5) / nBorder) * border.len);
+    sink.add(x, y, terrainZ(x, y) + 0.02, style(PAL.bone, 1.15));
   }
 
-  // --- city clusters
-  const cities = CITIES.map((ct) => ({ ...ct, xy: project(ct.lon, ct.lat) }));
-  const cCounts = alloc(nCity, cities.map((ct) => Math.pow(ct.w, 1.15) + 0.03));
-  cities.forEach((ct, i) => {
-    const sig = 0.045 + 0.07 * Math.sqrt(ct.w);
-    for (let j = 0; j < cCounts[i]!; j++) {
-      let x = ct.xy[0], y = ct.xy[1];
-      for (let t = 0; t < 8; t++) {
-        const px = ct.xy[0] + rng.g() * sig, py = ct.xy[1] + rng.g() * sig;
-        if (pointInPolygon(px, py, poly)) { x = px; y = py; break; }
-      }
-      const rr = Math.hypot(x - ct.xy[0], y - ct.xy[1]) / (2 * sig);
-      const b = Math.max(0.75, 1.5 - 0.95 * rr) + (ct.dest ? 0.1 : 0);
-      const warm = rng.r() < 0.13;
-      sink.add(x, y, relief(x, y, rng) + 0.03, style(warm ? PAL.verm2 : PAL.bone, warm ? b * 0.85 : b));
+  // --- city dots: small solid discs
+  cities.forEach((ct) => {
+    const r = 0.018 + 0.026 * Math.sqrt(ct.w);
+    for (let j = 0; j < perCity; j++) {
+      const rr = r * Math.sqrt((j + 0.5) / perCity);
+      const a = j * 2.39996323;
+      const x = ct.xy[0] + Math.cos(a) * rr, y = ct.xy[1] + Math.sin(a) * rr;
+      sink.add(x, y, terrainZ(x, y) + 0.03, style(PAL.bone, 1.5));
     }
   });
 
-  // --- Gliwice: the hotspot
+  // --- Gliwice: a small red spot-ink dot (its marker circle is a ring in the glow layer)
   const [gx, gy] = project(GLIWICE[0], GLIWICE[1]);
-  const gz = relief(gx, gy, rng) + 0.05;
-  const nCore = Math.round(nGliwice * 0.42);
+  const gz = terrainZ(gx, gy) + 0.05;
   for (let i = 0; i < nGliwice; i++) {
-    const core = i < nCore;
-    const sig = core ? 0.016 : 0.05;
-    sink.add(gx + rng.g() * sig, gy + rng.g() * sig, gz + rng.g() * 0.02, style(core ? PAL.verm2 : PAL.verm, core ? rng.range(1.6, 1.96) : rng.range(1.3, 1.8)));
-  }
-  // thin "reach" ring around it
-  for (let i = 0; i < nRing; i++) {
-    const a = ((i + rng.r()) / nRing) * Math.PI * 2;
-    const rr = 0.3 + rng.g() * 0.004;
-    sink.add(gx + Math.cos(a) * rr, gy + Math.sin(a) * rr, gz, style(PAL.verm2, 0.75));
+    const rr = 0.034 * Math.sqrt((i + 0.5) / nGliwice);
+    const a = i * 2.39996323;
+    sink.add(gx + Math.cos(a) * rr, gy + Math.sin(a) * rr, gz, style(PAL.verm, 1.6));
   }
 
-  // --- dust
-  dust(c, nDust, 4.6, 4.2, 0.85, () => style(PAL.boneDim, rng.range(0.18, 0.42)));
+  // --- parked: zero ink on lattice positions (the other chapters need every point)
+  while (sink.left > 0) {
+    const [x, y] = screen[Math.floor(rng.r() * screen.length)]!;
+    sink.add(x, y, terrainZ(x, y), style(PAL.boneDim, 0));
+  }
 
   return sink.finish(rng);
 }
@@ -543,6 +538,17 @@ export interface Targets {
   rand: Float32Array;
 }
 
+function reorder(ch: Chapter, perm: Uint32Array): Chapter {
+  const n = perm.length;
+  const pos = new Float32Array(n * 3), style = new Float32Array(n), flag = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    const j = perm[i]!;
+    pos[i * 3] = ch.pos[j * 3]!; pos[i * 3 + 1] = ch.pos[j * 3 + 1]!; pos[i * 3 + 2] = ch.pos[j * 3 + 2]!;
+    style[i] = ch.style[j]!; flag[i] = ch.flag[j]!;
+  }
+  return { pos, style, flag };
+}
+
 /**
  * Builds all chapter targets. Generation is ~200ms of pure JS at 32k points, so it can yield to the main
  * thread between chapters (pass a `yieldToMain`) instead of blocking input in one long task.
@@ -550,18 +556,25 @@ export interface Targets {
 export async function buildTargets(n: number, seed = 20260928, yieldToMain?: () => Promise<void>): Promise<Targets> {
   const mk = (salt: number): Ctx => ({ rng: makeRng(seed + salt * 7919), sink: new Sink(n) });
   const pause = async (): Promise<void> => { if (yieldToMain) await yieldToMain(); };
-  const chapters: Chapter[] = [];
-  chapters.push(buildCloud(n, mk(1)));
+  let cloud = buildCloud(n, mk(1));
   await pause();
-  const map = buildMap(n, mk(2));
-  chapters.push(map);
+  let map = buildMap(n, mk(2));
+  await pause();
+  let page = buildPage(n, mk(4));
+  await pause();
+  let chat = buildChat(n, mk(5));
+  await pause();
+  // Every point that inks the map goes to the front of the buffers, so when the scene sheds load (it draws only the
+  // first part of the buffer) the halftone screen stays whole and only the map's parked points and random points of
+  // the other shapes go.
+  const perm = new Uint32Array(n);
+  let k = 0;
+  for (let i = 0; i < n; i++) if (map.style[i]! - Math.floor(map.style[i]!) > 0) perm[k++] = i;
+  for (let i = 0; i < n; i++) if (!(map.style[i]! - Math.floor(map.style[i]!) > 0)) perm[k++] = i;
+  [cloud, map, page, chat] = [cloud, map, page, chat].map((ch) => reorder(ch, perm));
+  const chapters: Chapter[] = [cloud, map];
   chapters.push({ pos: map.pos, style: map.style.map((s) => dimStyle(s, 0.82)), flag: map.flag });
-  await pause();
-  chapters.push(buildPage(n, mk(4)));
-  await pause();
-  const chat = buildChat(n, mk(5));
-  chapters.push(chat);
-  await pause();
+  chapters.push(page, chat);
   // chapter 5 is the closing close-up on Gliwice: the same map, framed tighter by view.ts
   chapters.push({ pos: map.pos, style: map.style, flag: map.flag });
 
