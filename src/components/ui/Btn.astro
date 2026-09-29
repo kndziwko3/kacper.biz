@@ -1,27 +1,21 @@
 ---
+/** An order slip: black (or red) printed block, no radius, no arrow. External links name their domain in the copy. */
 interface Props {
   href: string;
-  variant?: 'solid' | 'line';
-  /** external links get UTM tagging (data-outbound) and open in the same tab unless newTab */
+  variant?: 'solid' | 'line' | 'red';
+  /** external links get UTM tagging (data-outbound) */
   cta?: string;
   outbound?: boolean;
   newTab?: boolean;
-  arrow?: 'up' | 'right' | 'down';
   class?: string;
 }
-const { href, variant = 'solid', cta, outbound = false, newTab = false, arrow = 'right', class: cls = '' } = Astro.props;
-const rot = arrow === 'up' ? 'rotate(-45 8 8)' : arrow === 'down' ? 'rotate(90 8 8)' : '';
+const { href, variant = 'solid', cta, outbound = false, newTab = false, class: cls = '' } = Astro.props;
 ---
 <a
-  class:list={['btn', variant === 'line' && 'btn--line', cls]}
+  class:list={['btn', variant === 'line' && 'btn--line', variant === 'red' && 'btn--red', cls]}
   href={href}
   data-outbound={outbound ? '' : undefined}
   data-cta={cta}
   rel={outbound || newTab ? 'noopener' : undefined}
   target={newTab ? '_blank' : undefined}
->
-  <span><slot /></span>
-  <span class="btn-arr" aria-hidden="true">
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><g transform={rot}><path d="M2 8h11M9 4l4 4-4 4" /></g></svg>
-  </span>
-</a>
+><slot /></a>

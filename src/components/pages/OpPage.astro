@@ -6,7 +6,7 @@ import Outreach from '../home/Outreach.astro';
 import Registry from '../home/Registry.astro';
 import Faq from '../Faq.astro';
 import { copy } from '../../content/copy';
-import { PRODUCTS, SALES, type Lang } from '../../content/site';
+import { PRODUCTS, type Lang } from '../../content/site';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const c = copy[lang];
@@ -16,74 +16,56 @@ const path = isPl ? '/outreachpilot' : '/en/outreachpilot';
 const home = isPl ? '/' : '/en';
 const faq = [c.faq[1]!, c.faq[4]!, c.faq[5]!];
 ---
-<Base lang={lang} path={path} title={o.title} description={o.description} kind="product"
+<Base lang={lang} path={path} title={o.title} description={o.description} kind="product" guide={c.dir.guide.op}
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: o.crumb, path }]} faq={faq}
   ogImage={isPl ? '/og/outreachpilot.png' : '/og/outreachpilot-en.png'}>
-  <PageHead lang={lang} crumb={o.crumb} kicker={o.kicker} h1={o.h1} lead={o.lead} scene={2} side="left">
-    <Btn href={PRODUCTS.outreachpilot.signup} outbound cta="op-page-signup" arrow="up">{c.home.op.cta}</Btn>
-    <Btn href={PRODUCTS.outreachpilot.url} variant="line" outbound cta="op-page-site" arrow="up">outreachpilot.pl</Btn>
+  <PageHead lang={lang} crumb={o.crumb} cat="OutreachPilot.pl" h1={o.h1} lead={o.lead} scene={1} side="left" guide={c.dir.guide.op}>
+    <Btn href={PRODUCTS.outreachpilot.signup} outbound cta="op-page-signup">{c.home.op.cta}</Btn>
+    <Btn href={PRODUCTS.outreachpilot.url} variant="line" outbound cta="op-page-site">outreachpilot.pl</Btn>
   </PageHead>
 
-  <section class="section m-window" data-scene="2" data-scene-side="right" data-scene-dim="0.7" aria-labelledby="op-what">
+  <section class="op-what stock-white" data-scene-occlude data-guide={o.what.h2} aria-labelledby="op-what">
     <div class="wrap grid">
-      <div class="c-7-12 m-solid op-what">
-        <h2 class="h2" id="op-what" data-lines>{o.what.h2}</h2>
-        <p class="body" data-reveal>{o.what.p1}</p>
-        <p class="body" data-reveal>{o.what.p2}</p>
+      <div class="c-1-6">
+        <h2 class="v-head op-what-h" id="op-what">{o.what.h2}</h2>
+        <p class="v-body">{o.what.p1}</p>
+        <p class="v-body">{o.what.p2}</p>
+      </div>
+      <div class="c-8-12">
+        <h3 class="v-list op-list-h">{o.forWho.h2}</h3>
+        <ul class="op-verticals">
+          {o.forWho.items.map(([label, href]) => <li><a class="ld" href={href} data-outbound data-cta="op-vertical" rel="noopener"><b>{label}</b><i></i><span>{href.replace('https://', '')}</span></a></li>)}
+        </ul>
       </div>
     </div>
   </section>
 
   <Outreach lang={lang} heading={false} />
-  <Registry lang={lang} id="rejestr" label="OutreachPilot.pl" />
+  <Registry lang={lang} id="rejestr" />
 
-  <section class="section m-window" data-scene="1" data-scene-side="right" data-scene-dim="0.6" aria-labelledby="op-plans">
-    <div class="wrap grid op-grid m-solid">
+  <section class="op-more stock-white" data-scene-occlude aria-labelledby="op-mcp">
+    <div class="wrap grid">
       <div class="c-1-6">
-        <h2 class="h2" id="op-plans" data-lines>{o.plans.h2}</h2>
-        <table class="table plan-table">
-          <tbody>
-            {o.plans.rows.map(([n, p, d]) => <tr><th scope="row">{n}</th><td>{d}</td><td class="n">{p}</td></tr>)}
-          </tbody>
-        </table>
-        <p class="data op-note">{o.plans.note}</p>
+        <h2 class="v-head" id="op-mcp">{o.mcp.h2}</h2>
+        <p class="v-body">{o.mcp.p} <a class="tlink" href={PRODUCTS.outreachpilot.mcp} data-outbound data-cta="op-mcp-page" rel="noopener">{o.mcp.link}</a></p>
       </div>
-      <div class="c-8-12 op-side">
-        <h3 class="h3">{o.forWho.h2}</h3>
-        <ul class="op-verticals">
-          {o.forWho.items.map(([label, href]) => <li><a class="link" href={href} data-outbound data-cta="op-vertical" rel="noopener">{label}</a></li>)}
-        </ul>
-        <h3 class="h3 op-mcp-h">{o.mcp.h2}</h3>
-        <p class="body">{o.mcp.p} <a class="link link--u" href={PRODUCTS.outreachpilot.mcp} data-outbound data-cta="op-mcp-page" rel="noopener">{o.mcp.link}</a></p>
-        <h3 class="h3 op-mcp-h">{o.disambig.h2}</h3>
-        <p class="body">{o.disambig.p}</p>
+      <div class="c-8-12">
+        <h2 class="v-head">{o.disambig.h2}</h2>
+        <p class="v-body">{o.disambig.p}</p>
       </div>
     </div>
   </section>
 
   <Faq lang={lang} items={faq} />
-
-  <section class="section m-window" data-scene="5" data-scene-side="center" data-scene-dim="0.5">
-    <div class="wrap m-solid">
-      <h2 class="h2 op-cta-h" data-lines>{o.cta.h2}</h2>
-      <div class="btn-row op-cta">
-        <Btn href={PRODUCTS.outreachpilot.signup} outbound cta="op-page-bottom" arrow="up">{o.cta.btn}</Btn>
-        <Btn href={SALES.bookingUrl} variant="line" newTab cta="op-page-booking" arrow="up">{o.cta.alt}</Btn>
-      </div>
-    </div>
-  </section>
 </Base>
 <style>
-  .op-what .body { margin-top: 1.25rem; }
-  .op-grid { row-gap: 4rem; }
-  .plan-table { margin-top: 2rem; }
-  .plan-table th { font-family: var(--f-display); font-weight: 650; font-size: 1.1rem; }
-  .plan-table td:not(.n) { color: var(--mute); }
-  .plan-table .n { font-weight: 650; white-space: nowrap; }
-  .op-note { margin-top: 1rem; }
-  .op-verticals { margin-top: 1rem; border-top: 1px solid var(--line); }
-  .op-verticals li { border-bottom: 1px solid var(--line); padding: 0.7rem 0; }
-  .op-mcp-h { margin-top: 2.75rem; margin-bottom: 0.75rem; }
-  .op-cta-h { max-width: 14ch; }
-  .op-cta { margin-top: 2rem; }
+  .op-what, .op-more { padding-block: clamp(3.5rem, 9vh, 6rem); border-bottom: 2px solid var(--ink); }
+  .op-what .grid, .op-more .grid { row-gap: 2.5rem; }
+  .op-what .v-body, .op-more .v-body { margin-top: 1rem; }
+  .op-list-h { padding-bottom: 0.4rem; border-bottom: 8px solid var(--ink); }
+  .op-verticals li { border-bottom: 1px solid var(--ink); }
+  .op-verticals a { padding: 0.6rem 0; }
+  .op-verticals b { font-weight: 750; }
+  .op-verticals span { font-size: var(--t-small); color: var(--fg-2); }
+  .op-verticals a:hover b { text-decoration: underline; text-underline-offset: 3px; }
 </style>

@@ -39,7 +39,7 @@ def run(src, dst):
     font.save(dst)
     print(f'{os.path.basename(dst):44} {os.path.getsize(src)//1024:4d} KB -> {os.path.getsize(dst)//1024:3d} KB  ({len(keep)} chars)')
 
-for fam, pre in [('mona-sans', 'mona-sans'), ('martian-mono', 'martian-mono')]:
+for fam, pre in [('archivo', 'archivo')]:
     for part in ['latin', 'latin-ext']:
         src = os.path.join(ROOT, f'node_modules/@fontsource-variable/{fam}/files/{pre}-{part}-standard-normal.woff2')
         run(src, os.path.join(OUT, f'{pre}-{part}.woff2'))

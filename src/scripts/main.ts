@@ -1,12 +1,12 @@
 /**
  * Client entry. The page is complete without JS; everything here is enhancement.
- * Astro ClientRouter keeps the canvas and poster alive between pages, so the 3D world is mounted once
+ * Astro ClientRouter keeps the canvas alive between pages, so the printed 3D map is mounted once
  * and re-pointed at each new page (rescan) instead of restarting.
  */
 import { initAttribution } from './attribution';
 import { initLeadForms } from './lead-form';
-import { initSmooth, pageMotion, syncScroll, lockScroll } from './motion';
-import { initRegistry } from './registry';
+import { initSmooth, syncScroll, lockScroll } from './motion';
+import { initRegistry, rollNumber } from './registry';
 import { initInstrument } from './instrument';
 import { initShowcase } from './showcase';
 import { initChat } from './chat';
@@ -39,26 +39,52 @@ function clock(): Cleanup {
   return () => window.clearInterval(id);
 }
 
-/* ── header: solid after scrolling, inverted over the paper sheet ── */
-function headerState(): Cleanup {
-  const header = document.querySelector<HTMLElement>('.site-header');
-  const papers = Array.from(document.querySelectorAll<HTMLElement>('.paper'));
-  let raf = 0;
-  const update = () => {
-    raf = 0;
-    root.classList.toggle('is-scrolled', window.scrollY > 24);
-    const mid = (header?.offsetHeight ?? 64) / 2;
-    root.classList.toggle('on-paper', papers.some((p) => { const r = p.getBoundingClientRect(); return r.top <= mid && r.bottom >= mid; }));
+/* ── running head + thumb index: the guide word and the tab follow the section in view ── */
+const TAB_FOR: Record<string, string> = { outreachpilot: 'outreachpilot', indeks: 'outreachpilot', fastlanding: 'fastlanding', fastbot: 'fastlanding', kontakt: 'kontakt', 'bez-www': 'outreachpilot' };
+function wayfinding(): Cleanup {
+  const guide = document.querySelector<HTMLElement>('[data-guide]:not(section)');
+  const sections = Array.from(document.querySelectorAll<HTMLElement>('section[data-guide]'));
+  const tabs = Array.from(document.querySelectorAll<HTMLAnchorElement>('.tabs a'));
+  if (!guide || !sections.length) return () => undefined;
+  const set = (sec: HTMLElement) => {
+    const word = sec.dataset.guide ?? '';
+    if (guide.textContent !== word) {
+      guide.textContent = word;
+      if (!reduced) guide.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 260, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+    }
+    const key = TAB_FOR[sec.id] ?? '';
+    tabs.forEach((t) => t.classList.toggle('is-here', !!key && (t.getAttribute('href') ?? '').endsWith(key === 'kontakt' ? (root.lang === 'en' ? '/contact' : '/kontakt') : '/' + key)));
   };
-  const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-  update();
-  window.addEventListener('scroll', onScroll, { passive: true });
-  return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(raf); };
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) set(e.target as HTMLElement);
+  }, { rootMargin: '-30% 0px -65% 0px' });
+  sections.forEach((s) => io.observe(s));
+  return () => io.disconnect();
+}
+
+/* ── first print: the register column lays its leader dots down and the counts roll in, once per page view ── */
+function firstPrint(): Cleanup {
+  const reg = document.querySelector<HTMLElement>('.register[data-print]');
+  if (!reg || reduced) return () => undefined;
+  const r = reg.getBoundingClientRect();
+  if (r.top > window.innerHeight || r.bottom < 0) return () => undefined;
+  reg.classList.add('is-printing');
+  const nf = new Intl.NumberFormat(root.lang === 'en' ? 'en-US' : 'pl-PL');
+  const fmt = (n: number) => nf.format(n).replace(/\s/g, '\u00a0');
+  const cancels = Array.from(reg.querySelectorAll<HTMLElement>('[data-roll]')).map((el, i) => {
+    const to = Number(el.dataset.roll) || 0;
+    el.dataset.v = '0';
+    el.textContent = fmt(0);
+    let cancel = () => undefined as void;
+    const t = window.setTimeout(() => { cancel = rollNumber(el, to, fmt, false); }, 120 + i * 45);
+    return () => { window.clearTimeout(t); cancel(); el.textContent = fmt(to); };
+  });
+  return () => cancels.forEach((c) => c());
 }
 
 /* ── mobile menu ── */
 function menu(): Cleanup {
-  const btn = document.querySelector<HTMLButtonElement>('.menu-btn');
+  const btn = document.querySelector<HTMLButtonElement>('.rhead .rhead-menu');
   const panel = document.getElementById('menu');
   if (!btn || !panel) return () => undefined;
   const set = (open: boolean) => {
@@ -85,18 +111,6 @@ function menu(): Cleanup {
     root.style.overflow = '';
     lockScroll(false);
   };
-}
-
-/* ── fade-up for non-heading blocks ── */
-function reveals(): Cleanup {
-  const els = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
-  if (reduced || !('IntersectionObserver' in window)) { els.forEach((el) => el.classList.add('is-in')); return () => undefined; }
-  const io = new IntersectionObserver((entries) => {
-    for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
-  }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
-  els.forEach((el) => io.observe(el));
-  const safety = window.setTimeout(() => els.forEach((el) => el.classList.add('is-in')), 9000);
-  return () => { io.disconnect(); window.clearTimeout(safety); };
 }
 
 /* ── 3D world: mounted once, after load, only when it is worth it ── */
@@ -132,9 +146,8 @@ function startScene(): void {
       if (handle) {
         scene = handle;
         canvas.classList.add('is-live');
-        // the live map grows out of Gliwice over the poster before the poster goes
-        const poster = document.querySelector('.map-poster');
-        window.setTimeout(() => poster?.classList.add('is-off'), reduced ? 0 : 1500);
+        // the live map prints over the poster before the poster goes
+        window.setTimeout(() => root.classList.add('scene-live'), reduced ? 0 : 1200);
         if (lastCity) scene.setCity?.(lastCity.lat, lastCity.lon);
       }
     } catch {
@@ -166,15 +179,14 @@ function onPage(): void {
   initLeadForms();
   cleanups.push(
     clock(),
-    headerState(),
+    wayfinding(),
     menu(),
-    reveals(),
+    firstPrint(),
     initRegistry(reduced),
     initInstrument(),
-    initShowcase(),
+    initShowcase(reduced),
     initChat(reduced),
     initBooking(),
-    pageMotion(reduced),
   );
   if (scene) scene.rescan?.();
   else startScene();
@@ -191,6 +203,6 @@ const boot = () => {
 
 initSmooth(reduced);
 document.addEventListener('astro:before-swap', () => { cleanups.forEach((f) => f()); cleanups = []; });
-document.addEventListener('astro:after-swap', () => { swapped = true; root.classList.add('js'); });
+document.addEventListener('astro:after-swap', () => { swapped = true; root.classList.add('js'); if (scene) root.classList.add('scene-live'); });
 document.addEventListener('astro:page-load', boot);
 boot();

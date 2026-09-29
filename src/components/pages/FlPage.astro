@@ -16,29 +16,22 @@ const path = isPl ? '/fastlanding' : '/en/fastlanding';
 const home = isPl ? '/' : '/en';
 const faq = [c.faq[2]!, c.faq[3]!];
 ---
-<Base lang={lang} path={path} title={f.title} description={f.description} kind="product"
+<Base lang={lang} path={path} title={f.title} description={f.description} kind="product" guide={c.dir.guide.fl}
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: f.crumb, path }]} faq={faq}
   ogImage={isPl ? '/og/fastlanding.png' : '/og/fastlanding-en.png'}>
-  <PageHead lang={lang} crumb={f.crumb} kicker={f.kicker} h1={f.h1} lead={f.lead} scene={3} side="left">
-    <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-page-quote" arrow="up">{c.home.fl.cta}</Btn>
-    <Btn href={SALES.bookingUrl} variant="line" newTab cta="fl-page-booking" arrow="up">{c.home.fl.ctaAlt}</Btn>
+  <PageHead lang={lang} crumb={f.crumb} cat="FastLanding.io" h1={f.h1} lead={f.lead} scene={3} side="left" guide={c.dir.guide.fl}>
+    <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-page-quote">{c.home.fl.cta}</Btn>
+    <Btn href={SALES.bookingUrl} variant="line" outbound cta="fl-page-booking">{c.home.fl.ctaAlt}</Btn>
   </PageHead>
-  <Studio lang={lang} />
+  <Studio lang={lang} heading={false} />
   <Bot lang={lang} />
   <Faq lang={lang} items={faq} />
-  <section class="section m-window" data-scene="5" data-scene-side="center" data-scene-dim="0.5">
-    <div class="wrap m-solid">
-      <h2 class="h2 fl-cta-h" data-lines>{f.cta.h2}</h2>
-      <p class="data fl-usuk">{f.usUk} <a class="link link--u" href={PRODUCTS.fastlanding.us} data-outbound data-cta="fl-us" rel="noopener">fastlanding.io/us</a> · <a class="link link--u" href={PRODUCTS.fastlanding.uk} data-outbound data-cta="fl-uk" rel="noopener">fastlanding.io/uk</a></p>
-      <div class="btn-row fl-cta">
-        <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-page-bottom" arrow="up">{f.cta.btn}</Btn>
-        <Btn href={SALES.bookingUrl} variant="line" newTab cta="fl-page-booking-2" arrow="up">{f.cta.alt}</Btn>
-      </div>
+  <section class="fl-end stock-yellow" data-scene-occlude aria-label={f.cta.h2}>
+    <div class="wrap">
+      <p class="src">{f.usUk} <a href={PRODUCTS.fastlanding.us} data-outbound data-cta="fl-us" rel="noopener">fastlanding.io/us</a>, <a href={PRODUCTS.fastlanding.uk} data-outbound data-cta="fl-uk" rel="noopener">fastlanding.io/uk</a></p>
     </div>
   </section>
 </Base>
 <style>
-  .fl-cta-h { max-width: 16ch; }
-  .fl-usuk { margin-top: 1.25rem; }
-  .fl-cta { margin-top: 2rem; }
+  .fl-end { padding-block: 1.25rem; border-bottom: 2px solid var(--ink); }
 </style>

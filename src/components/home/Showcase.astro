@@ -1,8 +1,11 @@
 ---
-import { copy } from '../../content/copy';
+/**
+ * Client sites as display ads on a proof sheet: size is billing. Each frame holds a real capture that scrolls
+ * with the page (showcase.ts); the caption is the site's directory listing, checked on a stated date.
+ */
+import { copy, formatDate } from '../../content/copy';
 import { PROJECTS, PRODUCTS, type Lang } from '../../content/site';
 import { shot } from '../../content/work';
-import { formatDate } from '../../content/copy';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const s = copy[lang].home.fl.showcase;
@@ -13,116 +16,55 @@ const items = [
 ];
 const alt = (name: string, kind: string) => (lang === 'pl' ? `Strona ${name}, ${kind}` : `${name} website, ${kind}`);
 ---
-<div class="showcase" data-showcase style={`--n:${items.length}`}>
-  <div class="sc-head">
-    <h3 class="h3">{s.h3}</h3>
-    <p class="note">{s.note}</p>
+<div class="proofs">
+  <div class="proofs-head">
+    <h3 class="v-list proofs-h">{s.h3}</h3>
+    <p class="src">{s.note}</p>
   </div>
-
-  <!-- desktop: sticky stage, real captures scroll with the page -->
-  <div class="sc-track">
-    <div class="sc-sticky">
-      <ol class="sc-list">
-        {items.map((it, i) => (
-          <li class="sc-item" data-i={i}>
-            <a href={it.url} target="_blank" rel="noopener" data-outbound={it.own ? '' : undefined} data-cta={it.own ? 'showcase-op' : undefined}>
-              <span class="sc-name">{it.name}</span>
-              <span class="sc-meta data">{it.own ? s.own : it.kind}</span>
-              <span class="sc-meta data">{it.langs} · {s.checked} {formatDate(lang, it.checked)}</span>
-              <span class="sr-only">{ui.newTab}</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-      <div class="sc-stage" aria-hidden="true">
-        <div class="sc-browser">
-          <div class="sc-bar"><i></i><i></i><i></i><span class="data" data-sc-host>{items[0]!.host}</span></div>
-          <div class="sc-view">
-            {items.map((it, i) => {
-              const t = shot(it.key, 'tour');
-              return (
-                <picture class="sc-shot" data-i={i}>
-                  <source srcset={t.avif} type="image/avif" />
-                  <img src={t.webp} width={t.width} height={t.height} alt="" loading="lazy" decoding="async" />
-                </picture>
-              );
-            })}
-          </div>
-        </div>
-        <div class="sc-phone">
-          <div class="sc-view">
-            {items.map((it, i) => {
-              const t = shot(it.key, 'mtour');
-              return (
-                <picture class="sc-shot" data-i={i}>
-                  <source srcset={t.avif} type="image/avif" />
-                  <img src={t.webp} width={t.width} height={t.height} alt="" loading="lazy" decoding="async" />
-                </picture>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- mobile: plain cards -->
-  <ul class="sc-cards">
-    {items.map((it) => {
-      const h = shot(it.key, 'hero');
+  <ol class="proof-grid">
+    {items.map((it, i) => {
+      const t = shot(it.key, 'tour');
       return (
-        <li>
-          <a href={it.url} target="_blank" rel="noopener">
-            <picture class="sc-card-img">
-              <source srcset={h.avif} type="image/avif" />
-              <img src={h.webp} width={h.width} height={h.height} alt={alt(it.name, it.kind)} loading="lazy" decoding="async" />
-            </picture>
-            <span class="sc-name">{it.name}</span>
-            <span class="sc-meta data">{it.own ? s.own : it.kind}</span>
-            <span class="sc-meta data">{it.langs} · {s.checked} {formatDate(lang, it.checked)}</span>
-            <span class="sr-only">{ui.newTab}</span>
+        <li class={`proof proof--${i}`}>
+          <a class="proof-frame" href={it.url} target="_blank" rel="noopener" data-outbound={it.own ? '' : undefined} data-cta={it.own ? 'showcase-op' : `showcase-${it.key}`} aria-label={`${it.name}, ${it.host} ${ui.newTab}`}>
+            <span class="proof-bar" aria-hidden="true">{it.host}</span>
+            <span class="proof-view" data-tour>
+              <picture>
+                <source srcset={t.avif} type="image/avif" />
+                <img src={t.webp} width={t.width} height={t.height} alt={alt(it.name, it.kind)} loading="lazy" decoding="async" />
+              </picture>
+            </span>
           </a>
+          <div class="proof-cap">
+            <h4 class="v-head">{it.name}</h4>
+            <p class="ld v-small"><span>{it.own ? s.own : it.kind}</span><i></i><span>{it.langs}</span></p>
+            <p class="v-micro">{s.checked} {formatDate(lang, it.checked)}</p>
+          </div>
         </li>
       );
     })}
-  </ul>
+  </ol>
 </div>
 
 <style>
-  .showcase { margin-top: clamp(4rem, 12vh, 8rem); }
-  .sc-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
-  .sc-track { display: none; }
-  .sc-cards { display: grid; gap: 2.25rem; margin-top: 1.75rem; }
-  .sc-cards a { display: grid; gap: 0.45rem; }
-  .sc-card-img img { width: 100%; border-radius: 6px; border: 1px solid var(--line); margin-bottom: 0.6rem; }
-  .sc-name { font-family: var(--f-display); font-weight: 700; font-stretch: 90%; font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.6rem); letter-spacing: -0.035em; line-height: 1; }
-  .sc-meta { display: block; }
-
-  @media (min-width: 900px) {
-    .sc-cards { display: none; }
-    .sc-track { display: block; height: calc(var(--n) * 90vh + 20vh); position: relative; }
-    .sc-sticky { position: sticky; top: calc(var(--header-h) + 3vh); height: calc(100vh - var(--header-h) - 6vh); display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--col-gap); align-items: center; }
-    .sc-list { display: grid; gap: 0; align-content: center; }
-    .sc-item a { display: grid; gap: 0.3rem; padding: 1.1rem 0; border-top: 1px solid var(--line); }
-    .sc-item a > * { transition: color 0.45s var(--ease); }
-    .sc-item:last-child a { border-bottom: 1px solid var(--line); }
-    /* inactive projects recede by colour (large names 3:1, meta lines 4.5:1 on paper) */
-    :global(.js) .sc-item:not(.is-active) a:not(:hover) > * { color: #6b675f; }
-    .sc-item .sc-meta:last-of-type { display: none; }
-    .sc-item.is-active .sc-meta:last-of-type { display: block; }
-    .sc-stage { position: relative; height: 100%; display: grid; align-items: center; }
-    .sc-browser { position: relative; width: 88%; aspect-ratio: 16 / 10.4; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 30px 80px -30px rgb(18 18 16 / 0.35), 0 0 0 1px rgb(18 18 16 / 0.12); }
-    .sc-bar { position: relative; z-index: 2; height: 34px; display: flex; align-items: center; gap: 6px; padding: 0 12px; background: #f1eee8; border-bottom: 1px solid rgb(18 18 16 / 0.1); }
-    .sc-bar i { width: 9px; height: 9px; border-radius: 50%; background: rgb(18 18 16 / 0.16); }
-    .sc-bar span { margin-left: 12px; padding: 3px 12px; border-radius: 4px; background: #fff; color: var(--paper-mute); font-size: 0.68rem; }
-    .sc-view { position: absolute; inset: 34px 0 0; overflow: hidden; }
-    .sc-phone .sc-view { inset: 0; border-radius: 22px; }
-    .sc-shot { position: absolute; left: 0; top: 0; width: 100%; opacity: 0; transition: opacity 0.5s var(--ease); will-change: transform; }
-    .sc-shot img { width: 100%; }
-    .sc-shot[data-i='0'] { opacity: 1; }
-    :global(.js) .sc-shot[data-i='0'] { opacity: 0; }
-    :global(.js) .sc-shot.is-active { opacity: 1; }
-    .sc-phone { position: absolute; right: 0; bottom: 6%; width: 21%; aspect-ratio: 9 / 19; border-radius: 28px; background: #111; padding: 7px; box-shadow: 0 30px 70px -25px rgb(18 18 16 / 0.5); }
-    .sc-phone .sc-view { position: absolute; inset: 7px; background: #fff; }
+  .proofs-head { display: grid; gap: 0.5rem; padding-bottom: 0.5rem; border-bottom: 8px solid var(--ink); }
+  @media (min-width: 960px) { .proofs-head { grid-template-columns: 1fr auto; align-items: end; } }
+  .proof-grid { margin-top: 1.25rem; display: grid; gap: 1.25rem var(--col-gap); }
+  .proof { display: grid; gap: 0.7rem; align-content: start; }
+  .proof-frame { display: block; border: var(--frame) solid var(--ink); background: #fff; }
+  .proof-bar { display: block; padding: 0.35rem 0.7rem; background: var(--ink); color: var(--yellow); font-stretch: var(--w-list); font-weight: 750; letter-spacing: 0.03em; font-size: var(--t-micro); }
+  .proof-view { display: block; position: relative; overflow: hidden; height: 18rem; }
+  .proof-view img { width: 100%; will-change: transform; }
+  .proof-frame:hover .proof-bar { background: var(--red); color: #fff; }
+  .proof-frame:focus-visible { outline-offset: 4px; }
+  .proof-cap .ld { margin-top: 0.3rem; }
+  @media (min-width: 760px) {
+    .proof-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+    .proof--0 { grid-column: 1 / span 7; grid-row: span 2; }
+    .proof--0 .proof-view { height: min(62vh, 38rem); }
+    .proof--1, .proof--2 { grid-column: 8 / -1; }
+    .proof--1 .proof-view, .proof--2 .proof-view { height: min(22vh, 12rem); }
+    .proof--3 { grid-column: 1 / -1; grid-template-columns: 7fr 5fr; column-gap: var(--col-gap); align-items: end; }
+    .proof--3 .proof-view { height: min(40vh, 22rem); }
   }
 </style>

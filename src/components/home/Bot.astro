@@ -1,4 +1,8 @@
 ---
+/**
+ * FastBot at night, on reversed black stock. A (fictional, labelled) directory listing says "open Mon–Fri 8–16";
+ * the customer writes at 22:14 and the bot answers. The transcript replays once in view (chat.ts).
+ */
 import Btn from '../ui/Btn.astro';
 import { copy } from '../../content/copy';
 import { PRODUCTS, type Lang } from '../../content/site';
@@ -6,74 +10,75 @@ interface Props { lang: Lang }
 const { lang } = Astro.props;
 const b = copy[lang].home.bot;
 const c = b.chat;
+const d = copy[lang].dir;
 ---
-<section class="bot m-window" data-scene="4" data-scene-side="left" data-scene-dim="0.3" aria-labelledby="bot-h">
+<section id="fastbot" class="bot stock-black" data-guide={d.guide.bot} data-scene-occlude aria-labelledby="bot-h">
   <div class="wrap grid bot-grid">
-    <div class="c-1-5 bot-text m-solid">
+    <div class="c-1-6 bot-text">
       <p class="bot-time num" aria-hidden="true">{b.time}</p>
-      <p class="label"><b>{b.label}</b></p>
-      <h2 class="h2" id="bot-h" data-lines>{b.h2}</h2>
-      <p class="body bot-p" data-reveal>{b.p}</p>
-      <p class="note bot-price" data-reveal>{b.price}</p>
-      <div class="btn-row bot-cta"><Btn href={PRODUCTS.fastlanding.bot} outbound cta="bot" arrow="up">{b.cta}</Btn></div>
+      <p class="ad-domain">FastBot</p>
+      <h2 class="v-state bot-h" id="bot-h">{b.h2}</h2>
+      <p class="v-body bot-p">{b.p}</p>
+      <p class="bot-price"><span class="sticker">{b.price}</span></p>
+      <div class="btn-row bot-cta"><Btn href={PRODUCTS.fastlanding.bot} outbound cta="bot">{b.cta}</Btn></div>
     </div>
-    <div class="c-7-12 m-solid">
+    <div class="c-7-12 bot-side">
+      <p class="bot-listing ld" aria-hidden="true"><b>{c.company}</b><i></i><span>{d.bot.hours}</span></p>
       <figure class="chat" data-chat>
         <div class="chat-top">
-          <span class="chat-av" aria-hidden="true">K</span>
-          <span><b>{c.company}</b><span class="data">{c.status}</span></span>
+          <b>{c.company}</b><span>{c.status}</span>
         </div>
         <ol class="chat-log" aria-label={lang === 'pl' ? 'Przykładowa rozmowa' : 'Example conversation'}>
-          <li class="chat-day data">{c.day}</li>
+          <li class="chat-day">{c.day}</li>
           <li class="msg msg--me" data-msg>{c.q1}</li>
           <li class="msg msg--bot" data-msg>{c.a1}</li>
           <li class="chips" data-msg>{c.chips.map((ch) => <span class:list={['chip', ch === c.pick && 'is-picked']}>{ch}</span>)}</li>
           <li class="msg msg--me" data-msg>{c.pick}</li>
           <li class="msg msg--bot" data-msg>{c.a2}</li>
           <li class="msg msg--me" data-msg>{c.q2}</li>
-          <li class="msg-done data" data-msg><span aria-hidden="true">✓</span> {c.done}</li>
+          <li class="msg-done" data-msg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8" /></svg> {c.done}</li>
           <li class="chat-typing" aria-hidden="true" data-typing hidden><i></i><i></i><i></i></li>
         </ol>
-        <figcaption class="note chat-note"><span>{c.note}</span><button type="button" class="link link--u" data-chat-replay hidden>{c.replay}</button></figcaption>
+        <figcaption class="chat-note"><span>{c.note}</span><button type="button" class="tlink" data-chat-replay hidden>{c.replay}</button></figcaption>
       </figure>
     </div>
   </div>
 </section>
 
 <style>
-  .bot { position: relative; padding-block: clamp(6rem, 16vh, 11rem); }
-  .bot-grid { align-items: center; row-gap: 3rem; }
-  .bot-time { font-family: var(--f-display); font-weight: 800; font-stretch: 75%; font-size: clamp(5rem, 3rem + 7vw, 10rem); letter-spacing: -0.05em; line-height: 0.8; color: var(--signal); margin: 0 0 1.5rem -0.04em; }
-  .bot .h2 { margin-top: 1.25rem; max-width: 16ch; }
-  .bot-p { margin-top: 1.25rem; }
-  .bot-price { margin-top: 1rem; }
-  .bot-cta { margin-top: 1.75rem; }
-  .chat { margin: 0; max-width: 34rem; margin-left: auto; border: 1px solid var(--line-2); border-radius: 18px; background: var(--ink-2); overflow: hidden; position: relative; }
-  .chat-top { display: flex; align-items: center; gap: 0.8rem; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line); }
-  .chat-top b { display: block; font-weight: 600; font-size: 0.95rem; }
-  .chat-top .data { display: block; }
-  .chat-av { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--bone); color: var(--ink); font-family: var(--f-display); font-weight: 750; font-size: 0.8rem; }
-  .chat-log { display: grid; gap: 0.6rem; padding: 1.2rem; min-height: 25rem; align-content: start; }
-  .chat-day { justify-self: center; margin-bottom: 0.4rem; }
-  .msg { max-width: 84%; padding: 0.7rem 0.95rem; border-radius: 16px; font-size: 0.95rem; line-height: 1.45; transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); }
-  .msg--me { justify-self: end; background: var(--bone); color: var(--ink); border-bottom-right-radius: 4px; }
-  .msg--bot { justify-self: start; background: var(--ink-3); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
-  .chips { display: flex; gap: 0.4rem; flex-wrap: wrap; transition: opacity 0.5s var(--ease); }
-  .chip { font-size: 0.82rem; padding: 0.4rem 0.75rem; border-radius: 999px; border: 1px solid var(--line-2); color: var(--mute); }
-  .chip.is-picked { border-color: var(--signal); color: var(--signal); }
-  .msg-done { justify-self: center; color: var(--bone); margin-top: 0.4rem; transition: opacity 0.5s var(--ease); }
-  .msg-done span { color: var(--signal); }
-  .chat-typing { justify-self: start; display: flex; gap: 4px; padding: 0.8rem 0.95rem; border-radius: 16px; border-bottom-left-radius: 4px; background: var(--ink-3); border: 1px solid var(--line); }
+  .bot { position: relative; padding-block: clamp(4.5rem, 12vh, 8rem); }
+  .bot-grid { align-items: start; row-gap: 3rem; }
+  .bot-time { font-stretch: var(--w-display); font-weight: 900; font-size: clamp(6rem, 3rem + 11vw, 13rem); line-height: 0.78; letter-spacing: -0.01em; margin-bottom: 1.25rem; }
+  .bot-h { margin-top: 0.75rem; max-width: 18ch; }
+  .bot-p { margin-top: 1.1rem; }
+  .bot-price { margin-top: 1.1rem; }
+  .bot-price .sticker { white-space: normal; font-weight: 750; font-size: 0.92rem; line-height: 1.3; }
+  .bot-cta { margin-top: 1.5rem; }
+  @media (min-width: 960px) { .bot-side { position: sticky; top: calc(var(--head-h) + 1.5rem); } }
+
+  .bot-listing { padding: 0.45rem 0; border-top: 2px solid var(--yellow); border-bottom: 1px solid var(--yellow); font-size: 0.9rem; margin-bottom: 1rem; }
+  .bot-listing b { font-stretch: var(--w-list); font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
+  .chat { margin: 0; background: var(--white); color: var(--ink); border: var(--frame) solid var(--yellow); --stock: var(--white); --fg: var(--ink); }
+  .chat-top { display: flex; justify-content: space-between; gap: 1rem; padding: 0.6rem 1rem; border-bottom: 2px solid var(--ink); }
+  .chat-top b { font-stretch: var(--w-list); font-weight: 850; text-transform: uppercase; letter-spacing: 0.03em; }
+  .chat-top span { font-size: var(--t-micro); color: var(--fg-2); }
+  .chat-log { display: grid; gap: 0.55rem; padding: 1.1rem 1rem 1.2rem; min-height: 26rem; align-content: start; }
+  .chat-day { justify-self: center; font-size: var(--t-micro); font-weight: 700; color: var(--fg-2); margin-bottom: 0.3rem; }
+  .msg { max-width: 84%; padding: 0.65rem 0.85rem; font-size: 0.97rem; line-height: 1.4; }
+  .msg--me { justify-self: end; background: var(--yellow); border: 2px solid var(--ink); }
+  .msg--bot { justify-self: start; background: #fff; border: 2px solid var(--ink); }
+  .chips { justify-self: start; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .chip { padding: 0.35rem 0.65rem; border: 2px solid var(--ink); font-size: 0.86rem; font-weight: 600; }
+  .chip.is-picked { background: var(--ink); color: var(--yellow); }
+  .msg-done { justify-self: center; display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--t-small); font-weight: 700; margin-top: 0.4rem; }
+  .msg-done svg { width: 16px; height: 16px; color: var(--red-deep); }
+  .chat-typing { justify-self: start; display: flex; gap: 4px; padding: 0.7rem 0.85rem; border: 2px solid var(--ink); background: #fff; }
   .chat-typing[hidden] { display: none; }
-  .chat-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--mute); animation: dot 1.1s infinite; }
+  .chat-typing i { width: 7px; height: 7px; background: var(--ink); animation: dot 1s infinite; }
   .chat-typing i:nth-child(2) { animation-delay: 0.15s; }
   .chat-typing i:nth-child(3) { animation-delay: 0.3s; }
-  @keyframes dot { 30% { transform: translateY(-4px); opacity: 1; } 60% { transform: none; opacity: 0.5; } }
-  .chat-note { display: flex; justify-content: space-between; gap: 1rem; padding: 0.9rem 1.2rem; border-top: 1px solid var(--line); }
-  .chat-note button { color: var(--bone); white-space: nowrap; }
-  .chat.is-playing [data-msg]:not(.is-shown) { opacity: 0; transform: translateY(8px); }
-  @media (max-width: 899px) {
-    .chat { margin-left: 0; }
-    .bot-text { padding-top: 1rem; }
-  }
+  @keyframes dot { 0%, 60%, 100% { opacity: 0.25; } 30% { opacity: 1; } }
+  .chat-note { display: flex; justify-content: space-between; gap: 1rem; padding: 0.6rem 1rem; border-top: 1px solid var(--ink); font-size: var(--t-micro); color: var(--fg-2); }
+  :global(.js) .chat.is-playing [data-msg] { opacity: 0; transform: translateY(6px); }
+  :global(.js) .chat.is-playing [data-msg].is-shown { opacity: 1; transform: none; transition: opacity 0.3s var(--ease), transform 0.4s var(--ease); }
 </style>

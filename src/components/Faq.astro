@@ -1,32 +1,31 @@
 ---
+/** Questions, printed open on white stock (no accordions: the answers are the content, for people and for AI answers). */
 import { copy } from '../content/copy';
 import type { Lang } from '../content/site';
 interface Props { lang: Lang; heading?: boolean; items?: { q: string; a: string }[] }
 const { lang, heading = true, items } = Astro.props;
 const list = items ?? copy[lang].faq;
-const f = copy[lang].home.faq;
+const d = copy[lang].dir;
 ---
-<section class="faq-sec m-window" data-scene="5" data-scene-side="center" data-scene-dim="0.22" aria-labelledby={heading ? 'faq-h' : undefined}>
-  <div class="wrap grid m-solid">
-    {heading && (
-      <div class="c-1-5 faq-head">
-        <p class="label"><b>{f.label}</b></p>
-        <h2 class="h2" id="faq-h" data-lines>{f.h2}</h2>
-      </div>
-    )}
-    <div class:list={['faq', heading ? 'c-7-12' : 'c-1-8']}>
-      {list.map((it, i) => (
-        <details open={i === 0}>
-          <summary>{it.q}</summary>
-          <div class="a"><p>{it.a}</p></div>
-        </details>
-      ))}
+<section id="pytania" class="faq-sec stock-white" data-guide={d.guide.faq} data-scene-occlude aria-labelledby="faq-h">
+  <div class="wrap">
+    <div class="cat faq-cat">
+      <h2 class="v-cat" id="faq-h">{heading ? d.faq.cat : copy[lang].home.faq.h2}</h2>
     </div>
+    <dl class="faq-list">
+      {list.map((it) => (
+        <div class="faq-item">
+          <dt class="v-head">{it.q}</dt>
+          <dd class="v-body">{it.a}</dd>
+        </div>
+      ))}
+    </dl>
   </div>
 </section>
 <style>
-  .faq-sec { position: relative; padding-block: clamp(5rem, 13vh, 9rem); }
-  .faq-head .h2 { margin-top: 1.5rem; font-size: clamp(2rem, 1.2rem + 2.6vw, 3.4rem); max-width: 14ch; }
-  .faq-sec .grid { row-gap: 2.5rem; }
-  @media (min-width: 900px) { .faq-head { position: sticky; top: calc(var(--header-h) + 3rem); align-self: start; } }
+  .faq-sec { padding-block: clamp(4rem, 10vh, 7rem); border-bottom: 2px solid var(--ink); }
+  .faq-list { margin-top: 1.75rem; display: grid; gap: 0 var(--col-gap); }
+  @media (min-width: 900px) { .faq-list { grid-template-columns: 1fr 1fr; column-rule: 1px solid var(--ink); } }
+  .faq-item { padding-block: 1.1rem 1.4rem; border-top: 2px solid var(--ink); break-inside: avoid; }
+  .faq-item dd { margin-top: 0.6rem; }
 </style>

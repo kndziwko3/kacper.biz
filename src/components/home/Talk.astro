@@ -1,67 +1,80 @@
 ---
+/**
+ * Contact, the directory's order page: Justyna's listing with the next working days as a timetable, and the enquiry
+ * coupon (a cut line around the form). Phone and mail as listing lines.
+ */
 import ContactForm from '../ContactForm.astro';
 import { copy } from '../../content/copy';
 import { CONTACT, SALES, type Lang } from '../../content/site';
 interface Props { lang: Lang; heading?: boolean; idPrefix?: string }
 const { lang, heading = true, idPrefix = 'home' } = Astro.props;
 const t = copy[lang].home.talk;
+const d = copy[lang].dir;
 const ui = copy[lang].ui;
 ---
-<section id="kontakt" class="talk m-window" data-scene="5" data-scene-side="center" data-scene-dim="0.3" aria-labelledby={heading ? 'talk-h' : undefined} aria-label={heading ? undefined : t.label}>
+<section id="kontakt" class="talk stock-yellow" data-guide={d.guide.contact} data-scene-occlude aria-labelledby={heading ? 'talk-h' : undefined} aria-label={heading ? undefined : t.label}>
   <div class="wrap">
     {heading && (
-      <div class="m-solid">
-        <p class="label"><b>{t.label}</b></p>
-        <h2 class="h2 talk-h" id="talk-h" data-lines>{t.h2}</h2>
+      <div class="grid talk-head">
+        <div class="cat c-1-12"><h2 class="v-cat" id="talk-h">{d.contact.cat}</h2></div>
+        <p class="v-state c-1-8 talk-state">{t.h2}</p>
       </div>
     )}
-    <div class="grid talk-grid m-solid">
+    <div class="grid talk-grid">
       <div class="c-1-5 justyna">
-        <div class="jl">
-          <span class="jl-mono" aria-hidden="true">{SALES.initials}</span>
-          <div><p class="h3">{SALES.fullName}</p><p class="data">{t.justyna.role}</p></div>
-        </div>
-        <p class="body jl-p">{t.justyna.p}</p>
-        <p class="data jl-pick">{t.justyna.pick}</p>
+        <p class="jl ld"><b>{SALES.fullName}</b><i></i><span>{t.justyna.role}</span></p>
+        <p class="v-body jl-p">{t.justyna.p}</p>
+        <p class="v-list jl-pick">{t.justyna.pick}</p>
         <ul class="days" data-days data-url={SALES.bookingUrl} data-lang={lang}></ul>
-        <a class="jl-full link link--u" href={SALES.bookingUrl} target="_blank" rel="noopener" data-cta="talk-calendar">{t.justyna.full}<span class="sr-only"> {ui.newTab}</span></a>
+        <a class="btn jl-full" href={SALES.bookingUrl} target="_blank" rel="noopener" data-outbound data-cta="talk-calendar">{t.justyna.full}<span class="sr-only"> {ui.newTab}</span></a>
+        <ul class="talk-lines">
+          <li class="ld"><span>{copy[lang].dir.entry.phone} <a href={CONTACT.aiPhone.href}>{CONTACT.aiPhone.display}</a></span><i></i><span>{copy[lang].dir.entry.phoneNote}</span></li>
+          <li class="ld"><span>{t.emails.studio}</span><i></i><a href={`mailto:${CONTACT.studioEmail}`}>{CONTACT.studioEmail}</a></li>
+          <li class="ld"><span>{t.emails.product}</span><i></i><a href={`mailto:${CONTACT.productEmail}`}>{CONTACT.productEmail}</a></li>
+        </ul>
+        <p class="src talk-phone">{t.phone}</p>
       </div>
-      <div class="c-7-12 write">
-        {heading ? <h3 class="h3">{t.write.h3}</h3> : <h2 class="h3">{t.write.h3}</h2>}
-        <p class="body write-p">{t.write.p}</p>
-        <ContactForm lang={lang} idPrefix={idPrefix} />
+      <div class="c-6-12 coupon">
+        <svg class="scissors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>
+        <div class="coupon-in stock-white">
+          {heading ? <h3 class="v-head coupon-h">{t.write.h3}</h3> : <h2 class="v-head coupon-h">{t.write.h3}</h2>}
+          <p class="v-small coupon-p">{t.write.p}</p>
+          <ContactForm lang={lang} idPrefix={idPrefix} />
+        </div>
       </div>
-    </div>
-    <div class="grid talk-foot m-solid">
-      <p class="note c-1-5"><a class="link" href={CONTACT.aiPhone.href}>{t.phone}</a></p>
-      <p class="note c-7-12 talk-mails">
-        <span>{t.emails.studio}: <a class="link link--u" href={`mailto:${CONTACT.studioEmail}`}>{CONTACT.studioEmail}</a></span>
-        <span>{t.emails.product}: <a class="link link--u" href={`mailto:${CONTACT.productEmail}`}>{CONTACT.productEmail}</a></span>
-      </p>
     </div>
   </div>
 </section>
 
 <style>
-  .talk { position: relative; padding-block: clamp(6rem, 16vh, 10rem) clamp(5rem, 12vh, 8rem); }
-  .talk-h { margin-top: 1.5rem; font-size: clamp(2.6rem, 1.3rem + 5.2vw, 6.4rem); max-width: 13ch; }
-  .talk-grid { margin-top: clamp(3rem, 8vh, 5rem); row-gap: 4rem; align-items: start; }
-  .jl { display: flex; align-items: center; gap: 1rem; }
-  .jl-mono { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--line-2); display: grid; place-items: center; font-family: var(--f-display); font-weight: 700; font-stretch: 110%; letter-spacing: -0.02em; }
-  .jl-p { margin-top: 1.25rem; }
-  .jl-pick { margin-top: 1.75rem; }
-  .days { margin-top: 0.75rem; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.4rem; }
+  .talk { position: relative; padding-block: clamp(4rem, 10vh, 7rem); border-bottom: 2px solid var(--ink); }
+  .talk-state { margin-top: 1.25rem; }
+  .talk-grid { margin-top: clamp(2.5rem, 6vh, 4rem); row-gap: 3rem; align-items: start; }
+  .jl { padding-block: 0.4rem; border-top: 8px solid var(--ink); border-bottom: 1px solid var(--ink); }
+  .jl b { font-stretch: var(--w-list); font-weight: 850; text-transform: uppercase; letter-spacing: 0.03em; font-size: 1.05rem; }
+  .jl span:last-child { font-size: var(--t-small); font-weight: 600; }
+  .jl-p { margin-top: 1rem; }
+  .jl-pick { margin-top: 1.5rem; }
+  .days { margin-top: 0.5rem; display: grid; grid-template-columns: repeat(5, 1fr); border: 2px solid var(--ink); }
   .days:empty { display: none; }
-  .jl-full { display: inline-block; margin-top: 1.1rem; font-size: 0.95rem; }
-  .write-p { margin: 0.6rem 0 1.75rem; }
-  .talk-foot { margin-top: clamp(3.5rem, 9vh, 5rem); padding-top: 1.25rem; border-top: 1px solid var(--line); row-gap: 1rem; }
-  .talk-mails { display: grid; gap: 0.4rem; }
-  @media (max-width: 899px) { .talk .m-solid:first-child { padding-top: 1rem; } }
+  .jl-full { margin-top: 1rem; }
+  .talk-lines { margin-top: 2rem; border-top: 2px solid var(--ink); }
+  .talk-lines li { padding-block: 0.45rem; border-bottom: 1px solid var(--ink); font-size: 0.95rem; }
+  .talk-lines a { font-weight: 700; }
+  .talk-lines a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .talk-phone { margin-top: 0.8rem; }
+
+  /* the coupon: a dashed cut line around white stock */
+  .coupon { position: relative; border: 2px dashed var(--ink); padding: clamp(0.6rem, 1.2vw, 0.9rem); }
+  .scissors { position: absolute; top: -13px; left: 1.25rem; width: 24px; height: 24px; background: var(--yellow); padding: 0 2px; transform: rotate(-90deg); }
+  .coupon-in { padding: clamp(1.1rem, 2.4vw, 1.8rem); }
+  .coupon-p { margin: 0.4rem 0 1.4rem; }
 </style>
 <style is:global>
-  .days a { display: grid; gap: 0.1rem; justify-items: center; padding: 0.7rem 0.3rem; border: 1px solid var(--line-2); border-radius: 3px; transition: border-color 0.2s, background 0.2s, color 0.2s; }
-  .days a:hover { border-color: var(--signal); background: rgb(255 90 31 / 0.08); }
-  .days .d-w { font-family: var(--f-mono); font-size: 0.68rem; color: var(--mute); }
-  .days .d-n { font-family: var(--f-display); font-weight: 700; font-size: 1.35rem; letter-spacing: -0.03em; line-height: 1.1; }
-  .days .d-m { font-family: var(--f-mono); font-size: 0.68rem; color: var(--mute); }
+  .days li + li a { border-left: 1px solid var(--ink); }
+  .days a { display: grid; gap: 0.05rem; justify-items: center; padding: 0.55rem 0.2rem 0.6rem; background: var(--yellow); transition: background-color 0.12s, color 0.12s; }
+  .days a:hover { background: var(--ink); color: var(--yellow); }
+  .days .d-w { font-stretch: var(--w-list); font-weight: 750; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.04em; }
+  .days .d-n { font-stretch: var(--w-display); font-weight: 900; font-size: 1.7rem; line-height: 1; }
+  .days .d-m { font-size: 0.72rem; }
 </style>

@@ -190,22 +190,20 @@ const noscriptMailto = `mailto:${CONTACT.studioEmail}?subject=${encodeURICompone
     <div class="btn-row">
       <button type="submit" class="btn">
         <span data-label>{pl ? 'Wyślij zapytanie' : 'Send enquiry'}</span>
-        <span class="btn-arr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h11M9 4l4 4-4 4" /></svg></span>
       </button>
     </div>
   </form>
 
   <!-- Qualify-then-book: revealed by lead-form.ts after a successful send. -->
   <div class="lead-after" data-after hidden>
-    <h3 class="h3">{pl ? 'Wolisz porozmawiać od razu?' : 'Prefer to talk right away?'}</h3>
-    <p class="muted">
+    <h3 class="v-head">{pl ? 'Albo umów rozmowę teraz' : 'Or book a call now'}</h3>
+    <p class="v-small">
       {pl
         ? `${SALES.fullName}, Head of Sales, prowadzi rozmowy o stronach i o OutreachPilot. Wybierz termin w kalendarzu.`
         : `${SALES.fullName}, Head of Sales, runs the calls about websites and OutreachPilot. Pick a time in her calendar.`}
     </p>
     <a class="btn" data-outbound data-cta="after-form-booking" href={SALES.bookingUrl} target="_blank" rel="noopener">
-      <span>{pl ? 'Umów 30 minut z Justyną' : 'Book 30 minutes with Justyna'}<span class="sr-only">{pl ? ' (otwiera się w nowej karcie)' : ' (opens in a new tab)'}</span></span>
-      <span class="btn-arr" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h11M9 4l4 4-4 4" /></svg></span>
+      {pl ? 'Umów rozmowę z Justyną' : 'Book a call with Justyna'}<span class="sr-only">{pl ? ' (otwiera się w nowej karcie)' : ' (opens in a new tab)'}</span>
     </a>
     <p class="lead-hint">
       {pl
@@ -230,17 +228,17 @@ const noscriptMailto = `mailto:${CONTACT.studioEmail}?subject=${encodeURICompone
   .lead-wrap .field { align-content: start; }
   .lead-fieldset { display: block; min-width: 0; margin: 0; padding: 0; border: 0; }
   .lead-fieldset legend { padding: 0; margin-bottom: 0.5rem; }
-  .lead-req { color: var(--signal); }
-  .lead-hint { margin: 0; font-size: 0.8rem; line-height: 1.5; color: var(--mute); }
-  .lead-error { margin: 0; font-size: 0.85rem; line-height: 1.4; color: #ff9b85; }
+  .lead-req { color: var(--red-deep); }
+  .lead-hint { margin: 0; font-size: 0.8rem; line-height: 1.5; color: var(--fg-2); }
+  .lead-error { margin: 0; font-size: 0.85rem; line-height: 1.4; font-weight: 700; color: var(--red-deep); }
   .lead-error[hidden], .lead-after[hidden] { display: none; }
-  .lead-wrap [data-invalid] .choice span { border-color: #ff8b73; }
-  .lead-wrap .check input[aria-invalid='true'] { outline: 2px solid #ff8b73; outline-offset: 2px; }
-  .lead-check-label { display: block; min-height: 44px; padding-block: 0.1rem; color: var(--bone); cursor: pointer; }
-  .lead-notice { margin: 0.2rem 0 0; font-size: 0.78rem; line-height: 1.55; color: var(--faint); }
+  .lead-wrap [data-invalid] .choice span { border-color: var(--red-deep); }
+  .lead-wrap .check input[aria-invalid='true'] { outline: 2px solid var(--red-deep); outline-offset: 2px; }
+  .lead-check-label { display: block; min-height: 44px; padding-block: 0.1rem; color: var(--ink); cursor: pointer; }
+  .lead-notice { margin: 0.2rem 0 0; font-size: 0.78rem; line-height: 1.55; color: var(--fg-2); }
   .lead-notice a, .lead-wrap .form-status a, .lead-noscript a { text-decoration: underline; text-underline-offset: 3px; }
-  .lead-wrap .form-status a { color: var(--bone); }
-  .lead-noscript { margin: 0; padding: 1rem 1.15rem; border: 1px solid var(--line-2); border-radius: 3px; color: var(--bone); }
-  .lead-after { display: grid; gap: 0.75rem; justify-items: start; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+  .lead-wrap .form-status a { color: var(--ink); }
+  .lead-noscript { margin: 0; padding: 1rem 1.15rem; border: 2px solid var(--ink); }
+  .lead-after { display: grid; gap: 0.75rem; justify-items: start; padding-top: 1.5rem; border-top: 2px solid var(--ink); }
   .lead-after > * { margin: 0; }
 </style>

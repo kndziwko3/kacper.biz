@@ -2,24 +2,36 @@
 import Base from '../layouts/Base.astro';
 import Btn from '../components/ui/Btn.astro';
 import { copy } from '../content/copy';
+import { NAV } from '../content/site';
 const n = copy.pl.notFound;
 const e = copy.en.notFound;
+const d = copy.pl.dir;
 ---
-<Base lang="pl" path="/404" title={n.title} description={n.p} noindex>
-  <section class="nf m-window" data-scene="5" data-scene-side="left">
-    <div class="wrap m-solid">
-      <p class="label"><b>404</b></p>
-      <h1 class="h1 nf-h">{n.h1}</h1>
-      <p class="lead nf-p">{n.p}</p>
-      <p class="data nf-en" lang="en">{e.p}</p>
-      <div class="btn-row nf-cta"><Btn href="/">{n.btn}</Btn><Btn href="/en" variant="line">{e.btn}</Btn></div>
+<Base lang="pl" path="/404" title={n.title} description={n.p} noindex guide={d.guide.notFound}>
+  <section class="nf is-window m-window" data-scene="5" data-scene-side="left" data-poster data-guide={d.guide.notFound} aria-labelledby="nf-h">
+    <div class="wrap">
+      <div class="nf-in m-solid">
+        <h1 class="nf-h" id="nf-h"><span class="v-cat">404</span><span class="v-state">{n.h1}</span></h1>
+        <p class="v-lead nf-p">{n.p}</p>
+        <p class="v-small nf-en" lang="en">{e.p}</p>
+        <div class="btn-row nf-cta"><Btn href="/">{n.btn}</Btn><Btn href="/en" variant="line">{e.btn}</Btn></div>
+        <ul class="nf-index">
+          {NAV.pl.map((i) => <li><a class="ld" href={i.href}><b>{i.label}</b><i></i><span>{d.menuNotes[i.href] ?? ''}</span></a></li>)}
+        </ul>
+      </div>
     </div>
   </section>
 </Base>
 <style>
-  .nf { min-height: 100svh; display: grid; align-content: center; padding-block: 8rem 4rem; }
-  .nf-h { margin-top: 1.5rem; max-width: 12ch; }
-  .nf-p { margin-top: 1.5rem; }
-  .nf-en { margin-top: 0.75rem; }
-  .nf-cta { margin-top: 2rem; }
+  .nf { position: relative; min-height: 100svh; display: grid; align-content: center; padding-block: calc(var(--head-h) + 3rem) 4rem; }
+  .nf-in { max-width: 36rem; }
+  .nf-h { display: grid; gap: 0.6rem; border-top: 8px solid var(--ink); padding-top: 0.9rem; }
+  .nf-p { margin-top: 1.25rem; }
+  .nf-en { margin-top: 0.6rem; }
+  .nf-cta { margin-top: 1.5rem; }
+  .nf-index { margin-top: 2rem; border-top: 2px solid var(--ink); }
+  .nf-index li { border-bottom: 1px solid var(--ink); }
+  .nf-index a { padding: 0.55rem 0; }
+  .nf-index b { font-stretch: var(--w-list); font-weight: 850; text-transform: uppercase; letter-spacing: 0.03em; }
+  .nf-index span { font-size: var(--t-small); color: var(--fg-2); }
 </style>

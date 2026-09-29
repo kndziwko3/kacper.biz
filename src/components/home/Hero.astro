@@ -1,83 +1,130 @@
 ---
+/**
+ * The entry: Kacper's listing in the directory. Left, the CEIDG register column (real counts, leader dots);
+ * right, the name, the listing lines and three display ads billed by size (OutreachPilot, FastLanding, the call).
+ */
+import Btn from '../ui/Btn.astro';
 import { copy } from '../../content/copy';
-import type { Lang } from '../../content/site';
+import { CONTACT, PRODUCTS, SALES, type Lang } from '../../content/site';
+import { CEIDG, SECTORS, fmt } from '../../content/ceidg';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
-const h = copy[lang].home;
-const ui = copy[lang].ui;
+const c = copy[lang];
+const e = c.dir.entry;
+const isPl = lang === 'pl';
+const top = [...SECTORS].sort((a, b) => b.count - a.count).slice(0, 16);
 ---
-<section class="hero" data-scene="1" data-scene-side="left" aria-labelledby="hero-name">
-  <h1 class="hero-h1 m-solid" id="hero-name">
-    <span class="hero-name"><span class="hero-name-in">Kacper <span class="hero-last">Rękawek</span></span></span><span class="sr-only">, </span>
-    <span class="hero-role data">{h.role}</span>
-  </h1>
-  <div class="wrap hero-top m-solid">
-    <p class="lead hero-lead" set:html={h.lead} />
-    <ul class="hero-index">
-      {h.index.map((i) => (
-        <li>
-          <a href={i.href}>
-            <span class="hi-name">{i.name}</span>
-            <span class="hi-text">{i.text}</span>
-            <svg class="hi-arr" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4" /></svg>
-          </a>
-        </li>
-      ))}
-    </ul>
+<section id="wpis" class="entry stock-yellow" data-guide={c.dir.guide.home} data-scene-occlude aria-labelledby="entry-h">
+  <div class="wrap grid entry-grid">
+    <aside class="register c-1-3" aria-labelledby="register-h" data-print>
+      <h2 class="v-list register-h" id="register-h">{e.registerH}</h2>
+      <p class="register-total"><span class="num" data-roll={CEIDG.total}>{fmt(CEIDG.total, lang)}</span> <span>{e.registerTotal}</span></p>
+      <ol class="register-list">
+        {top.map((s, i) => (
+          <li style={`--i:${i}`}><a class="ld" href="#indeks" data-pick={s.slug}><span class="rl-name">{s.name[lang]}</span><i></i><span class="num" data-roll={s.count}>{fmt(s.count, lang)}</span></a></li>
+        ))}
+      </ol>
+      <p class="src register-src">{e.registerSrc} <a href="#indeks">{e.registerAll}</a></p>
+    </aside>
+
+    <div class="entry-main c-4-12">
+      <h1 class="entry-h1" id="entry-h">
+        <span class="entry-name v-display">Kacper Rękawek</span><span class="sr-only">, </span>
+        <span class="entry-role">{e.role}</span>
+      </h1>
+      <ul class="entry-lines">
+        <li class="ld"><span>{e.place}</span><i></i><span>kacper.biz</span></li>
+        <li class="ld"><span>{e.phone} <a href={CONTACT.aiPhone.href}>{CONTACT.aiPhone.display}</a> <small>({e.phoneNote})</small></span><i></i><a href={`mailto:${CONTACT.studioEmail}`}>{CONTACT.studioEmail}</a></li>
+      </ul>
+
+      <div class="ads">
+        <article class="ad ad--rev ad-op" aria-labelledby="ad-op-h">
+          <p class="ad-domain">OutreachPilot.pl</p>
+          <h2 class="ad-h" id="ad-op-h">{e.adOp.h}</h2>
+          <ul class="ad-bul">{e.adOp.bullets.map((b) => <li>{b}</li>)}</ul>
+          <div class="ad-foot">
+            <span class="sticker">{e.adOp.price} <small>{e.adOp.priceNote}</small></span>
+            <div class="btn-row">
+              <Btn href={PRODUCTS.outreachpilot.signup} outbound cta="entry-op">{e.adOp.cta}</Btn>
+              <a class="tlink" href="#outreachpilot">{e.adOp.more}</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="ad ad-fl" aria-labelledby="ad-fl-h">
+          <p class="ad-domain">FastLanding.io</p>
+          <h2 class="ad-h" id="ad-fl-h">{e.adFl.h}</h2>
+          <ul class="ad-bul">{e.adFl.bullets.map((b) => <li>{b}</li>)}</ul>
+          <div class="ad-foot">
+            <span class="sticker">{e.adFl.price} <small>{e.adFl.priceNote}</small></span>
+            <div class="btn-row">
+              <Btn href={PRODUCTS.fastlanding.quote} outbound cta="entry-fl">{e.adFl.cta}</Btn>
+              <a class="tlink" href="#fastlanding">{e.adFl.more}</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="ad ad--white ad-call" aria-labelledby="ad-call-h">
+          <h2 class="ad-h ad-h--s" id="ad-call-h">{e.adCall.h}</h2>
+          <p class="ad-who">{e.adCall.who}</p>
+          <p class="v-small">{e.adCall.text}</p>
+          <div class="ad-foot"><Btn href={SALES.bookingUrl} outbound cta="entry-booking">{e.adCall.cta}</Btn></div>
+        </article>
+      </div>
+    </div>
   </div>
-  <p class="hero-place data" aria-hidden="true"><span class="hero-pin"></span>{ui.place} · {ui.coords}</p>
 </section>
 
 <style>
-  .hero {
-    position: relative; min-height: 100svh; display: grid; container-type: inline-size;
-    grid-template-rows: auto 1fr auto; padding-top: calc(var(--header-h) + clamp(1.5rem, 5vh, 3.5rem));
-  }
-  .hero-top { grid-row: 1; display: grid; gap: clamp(1.75rem, 4vh, 2.75rem); align-content: start; }
-  .hero-lead { max-width: 33ch; color: var(--mute); }
-  .hero-index { max-width: 30rem; border-top: 1px solid var(--line); }
-  .hero-index li { border-bottom: 1px solid var(--line); }
-  .hero-index a { display: grid; grid-template-columns: 1fr auto; column-gap: 1rem; padding: 0.95rem 0; align-items: center; }
-  .hi-name { font-family: var(--f-display); font-weight: 650; font-size: 1.12rem; letter-spacing: -0.02em; transition: color 0.3s; }
-  .hi-text { grid-column: 1; font-size: 0.9375rem; color: var(--mute); }
-  .hi-arr { grid-row: 1 / span 2; grid-column: 2; width: 18px; height: 18px; color: var(--mute); transition: transform 0.45s var(--ease), color 0.3s; }
-  .hero-index a:hover .hi-name { color: var(--signal); }
-  .hero-index a:hover .hi-arr { transform: translateY(4px); color: var(--signal); }
+  .entry { padding-top: calc(var(--head-h) + clamp(1.5rem, 4.5vh, 3rem)); padding-bottom: clamp(2.5rem, 6vh, 4rem); border-bottom: 2px solid var(--ink); }
+  .entry-grid { row-gap: 2.5rem; align-items: start; }
 
-  .hero-h1 { grid-row: 3; display: flex; flex-direction: column; padding-inline: var(--gutter); padding-bottom: clamp(0.75rem, 2.5vh, 1.75rem); margin: 0; font-weight: 800; }
-  .hero-role { order: -1; }
-  .hero-role { display: block; margin: 0 0 clamp(0.5rem, 1.5vh, 1rem) 0.2em; color: var(--mute); font-weight: 400; letter-spacing: 0.02em; }
-  .hero-name {
-    display: block; font-family: var(--f-display); font-weight: 800; font-stretch: 125%;
-    font-size: min(calc((100cqi - 2 * var(--gutter)) / 8.75), 17rem); line-height: 0.8; letter-spacing: -0.055em;
-    white-space: nowrap; margin-left: -0.04em; padding-bottom: 0.13em; color: var(--bone);
+  /* register column */
+  .register { order: 2; border-top: 8px solid var(--ink); padding-top: 0.7rem; }
+  .register-total { margin-top: 0.4rem; display: grid; gap: 0.1rem; }
+  .register-total .num { font-stretch: var(--w-display); font-weight: 900; font-size: clamp(2.3rem, 1.6rem + 1.8vw, 3.1rem); line-height: 0.9; }
+  .register-total span:last-child { font-size: var(--t-small); color: var(--fg-2); }
+  .register-list { margin-top: 0.9rem; border-top: 1px solid var(--ink); padding-top: 0.45rem; font-size: 0.8rem; }
+  .register-list li a { min-height: 24px; align-items: center; padding: 0.1rem 0.25rem; margin-inline: -0.25rem; transition: background-color 0.12s, color 0.12s; }
+  .register-list li a:hover { background: var(--ink); color: var(--yellow); }
+  .rl-name { font-stretch: var(--w-list); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; font-size: 0.74rem; }
+  .register-src { margin-top: 0.8rem; }
+  .register-src a { font-weight: 700; }
+
+  /* listing */
+  .entry-main { order: 1; container-type: inline-size; }
+  .entry-h1 { display: grid; gap: 0.55rem; }
+  /* the name fills its column: one line on wide screens, two on phones; room below for the Ę ogonek */
+  .entry-name { display: block; font-size: min(22cqi, 6.4rem); padding-bottom: 0.1em; }
+  @media (min-width: 700px) { .entry-name { font-size: min(14.6cqi, 9.5rem); } }
+  .entry-role { font-stretch: var(--w-list); font-weight: 800; font-size: clamp(1.15rem, 1rem + 0.7vw, 1.6rem); line-height: 1.1; letter-spacing: -0.004em; }
+  .entry-lines { margin-top: 1rem; border-top: 2px solid var(--ink); padding-top: 0.5rem; display: grid; gap: 0.25rem; font-size: 0.98rem; }
+  .entry-lines a { font-weight: 700; }
+  .entry-lines a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .entry-lines small { font-size: 0.85em; color: var(--fg-2); }
+
+  /* display ads: size is billing */
+  .ads { margin-top: clamp(1.4rem, 3.5vh, 2.2rem); display: grid; gap: 0.9rem; }
+  .ad-domain { font-stretch: var(--w-list); font-weight: 800; letter-spacing: 0.02em; font-size: 0.95rem; }
+  .ad-op .ad-h { font-size: clamp(2.2rem, 1.3rem + 2.6vw, 3.5rem); }
+  .ad-h--s { font-size: clamp(1.7rem, 1.2rem + 1.2vw, 2.2rem); }
+  .ad-who { font-weight: 700; font-size: 0.95rem; }
+  .ad-call .v-small { color: var(--fg-2); }
+  @media (min-width: 700px) {
+    .ads { grid-template-columns: 5fr 4fr; }
+    .ad-call { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.5rem 1.5rem; }
+    .ad-call .ad-foot { margin: 0; }
   }
-  .hero-name-in { display: inline-block; animation: name-in 1.9s var(--ease) 0.1s backwards; }
-  @keyframes name-in { from { font-stretch: 75%; letter-spacing: -0.02em; } }
-  @supports (animation-timeline: view()) {
-    .hero-name { animation: name-out linear both; animation-timeline: view(); animation-range: exit 10% exit 110%; }
-    @keyframes name-out { to { font-stretch: 78%; opacity: 0.25; transform: translateY(-4vh); } }
+  @media (min-width: 960px) {
+    .register { order: 0; }
+    .entry-main { order: 0; }
+  }
+  @media (min-width: 1280px) {
+    .ads { grid-template-columns: 5fr 4fr 3fr; }
+    .ad-call { grid-column: auto; display: flex; }
   }
 
-  .hero-lead, .hero-index li, .hero-role, .hero-place { animation: hero-rise 1.1s var(--ease) backwards; }
-  .hero-role { animation-delay: 0.45s; }
-  .hero-lead { animation-delay: 0.2s; }
-  .hero-index li:nth-child(1) { animation-delay: 0.38s; }
-  .hero-index li:nth-child(2) { animation-delay: 0.46s; }
-  .hero-place { animation-delay: 0.6s; }
-  @keyframes hero-rise { from { transform: translateY(22px); clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 -20% 0); } }
-  .hero-place { position: absolute; right: var(--gutter); top: calc(var(--header-h) + clamp(1.5rem, 5vh, 3.5rem)); display: flex; align-items: center; gap: 0.6rem; }
-  .hero-pin { width: 7px; height: 7px; background: var(--signal); }
-
-  @media (max-width: 899px) {
-    .hero { padding-top: calc(var(--header-h) + 38svh); grid-template-rows: auto auto; }
-    .hero-h1 { grid-row: 1; padding-bottom: 1.5rem; box-shadow: none; background: linear-gradient(transparent, var(--ink) 2.5rem); padding-top: 1rem; }
-    .hero-name { font-size: calc((100cqi - 2 * var(--gutter)) / 4.62); font-stretch: 112%; white-space: normal; line-height: 0.86; }
-    .hero-last { display: block; }
-    .hero-top { grid-row: 2; padding-bottom: 3.5rem; }
-    .hero-place { top: calc(var(--header-h) + 0.75rem); left: var(--gutter); right: auto; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-name, .hero-name-in, .hero-lead, .hero-index li, .hero-role, .hero-place { animation: none; }
-  }
+  /* first print: rows lay their dots down one after another, counts roll in (main.ts adds .is-printing) */
+  :global(.js) .register.is-printing .ld > i { clip-path: inset(0 100% 0 0); animation: kb-dots 0.7s var(--ease) forwards; animation-delay: calc(var(--i, 0) * 45ms + 120ms); }
+  @keyframes kb-dots { to { clip-path: inset(0 0 0 0); } }
 </style>

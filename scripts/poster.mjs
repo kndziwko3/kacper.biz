@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * public/map-poster.svg: the static stand-in for the 3D map (no WebGL, software GL, save-data, no JS,
- * and the first second before the scene mounts). A few KB: one dot pattern clipped to the same Poland
- * polygon the scene uses (src/scene/poland.ts), a dotted border, city clusters and the Gliwice glow.
+ * public/map-poster.svg: the printed stand-in for the WebGL map (no WebGL, software GL, save-data, no JS, and
+ * the first second before the scene mounts). A few KB: a halftone pattern clipped to the same Poland polygon the
+ * scene uses (src/scene/poland.ts), a dotted border, city dots and Gliwice in red.
  * Usage: node scripts/poster.mjs
  */
 import fs from 'node:fs';
@@ -25,21 +25,20 @@ const [gx, gy] = px(...project(GLIWICE[0], GLIWICE[1]));
 
 const cities = CITIES.map((c) => {
   const [x, y] = px(...project(c.lon, c.lat));
-  const r = (6 + 16 * Math.sqrt(c.w)).toFixed(1);
-  return `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#c)"/>`;
+  return `<circle cx="${x}" cy="${y}" r="${(1.8 + 3.2 * Math.sqrt(c.w)).toFixed(1)}"/>`;
 }).join('');
 
+// printed in ink on transparent paper: a halftone pattern clipped to the country, a dotted border, city dots,
+// and Gliwice in the red spot ink with its marker ring
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
 <defs>
-<pattern id="p" width="7.4" height="6.4" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.05" fill="#8f8b83"/><circle cx="5.2" cy="4.7" r="1.05" fill="#8f8b83"/></pattern>
-<radialGradient id="c"><stop offset="0" stop-color="#ece8df" stop-opacity=".75"/><stop offset=".35" stop-color="#ece8df" stop-opacity=".22"/><stop offset="1" stop-color="#ece8df" stop-opacity="0"/></radialGradient>
-<radialGradient id="g"><stop offset="0" stop-color="#ff8a5c"/><stop offset=".12" stop-color="#ff5a1f" stop-opacity=".9"/><stop offset=".45" stop-color="#ff5a1f" stop-opacity=".22"/><stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/></radialGradient>
+<pattern id="p" width="7.4" height="6.4" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.15"/><circle cx="5.2" cy="4.7" r="1.15"/></pattern>
 </defs>
-<path d="${d}" fill="url(#p)" opacity=".55"/>
-<path d="${d}" fill="none" stroke="#ece8df" stroke-width="1.7" stroke-linecap="round" stroke-dasharray="0 4.2" opacity=".8"/>
-${cities}
-<circle cx="${gx}" cy="${gy}" r="80" fill="url(#g)"/>
-<circle cx="${gx}" cy="${gy}" r="30" fill="none" stroke="#ff8a5c" stroke-opacity=".55" stroke-width="1" stroke-dasharray="0 3.4" stroke-linecap="round"/>
+<path d="${d}" fill="url(#p)" opacity=".42"/>
+<path d="${d}" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="0 4.4"/>
+<g fill="#000">${cities}</g>
+<circle cx="${gx}" cy="${gy}" r="7" fill="#e1251b"/>
+<circle cx="${gx}" cy="${gy}" r="27" fill="none" stroke="#e1251b" stroke-width="2.4"/>
 </svg>
 `;
 fs.writeFileSync(path.join(ROOT, 'public/map-poster.svg'), svg);

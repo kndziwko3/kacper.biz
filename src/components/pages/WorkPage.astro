@@ -1,4 +1,5 @@
 ---
+/** Work, on white stock: each client site as a full-page ad proof, the capture scrolling with the page. */
 import Base from '../../layouts/Base.astro';
 import PageHead from '../ui/PageHead.astro';
 import Btn from '../ui/Btn.astro';
@@ -13,39 +14,39 @@ const isPl = lang === 'pl';
 const path = isPl ? '/realizacje' : '/en/work';
 const home = isPl ? '/' : '/en';
 const own = [
-  { key: 'outreachpilot', name: 'OutreachPilot.pl', url: PRODUCTS.outreachpilot.url, text: PRODUCTS.outreachpilot.tagline[lang], cta: 'own-op' },
-  { key: null, name: 'FastLanding.io', url: PRODUCTS.fastlanding.url, text: PRODUCTS.fastlanding.tagline[lang], cta: 'own-fl' },
+  { name: 'OutreachPilot.pl', url: PRODUCTS.outreachpilot.url, text: PRODUCTS.outreachpilot.tagline[lang], cta: 'own-op' },
+  { name: 'FastLanding.io', url: PRODUCTS.fastlanding.url, text: PRODUCTS.fastlanding.tagline[lang], cta: 'own-fl' },
 ];
+const alt = (name: string, kind: string) => (isPl ? `Strona ${name}, ${kind}` : `${name} website, ${kind}`);
 ---
-<Base lang={lang} path={path} title={w.title} description={w.description} kind="work"
+<Base lang={lang} path={path} title={w.title} description={w.description} kind="work" guide={c.dir.guide.work}
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: w.crumb, path }]} ogImage={isPl ? '/og/work.png' : '/og/work-en.png'}>
-  <PageHead lang={lang} crumb={w.crumb} kicker={w.kicker} h1={w.h1} lead={w.lead} scene={3} side="left" />
+  <PageHead lang={lang} crumb={w.crumb} cat={w.kicker} h1={w.h1} lead={w.lead} stock="white" guide={c.dir.guide.work} />
 
-  <div class="paper cases" data-scene="3" data-scene-occlude>
+  <div class="cases stock-white" data-scene-occlude>
     <div class="wrap">
-      {PROJECTS.map((p, i) => {
+      {PROJECTS.map((p) => {
         const t = shot(p.key, 'tour');
         return (
           <article class="case grid" aria-labelledby={`case-${p.key}`}>
             <header class="c-1-5 case-meta">
-              <p class="data">{String(i + 1).padStart(2, '0')} / {String(PROJECTS.length).padStart(2, '0')}</p>
-              <h2 class="h2" id={`case-${p.key}`}>{p.name}</h2>
-              <p class="body">{p.blurb[lang]}</p>
-              <dl class="case-dl">
-                <div><dt class="data">{w.type}</dt><dd>{p.kind[lang]}</dd></div>
-                <div><dt class="data">{w.langs}</dt><dd>{p.langs}</dd></div>
-                <div><dt class="data">{w.checked}</dt><dd>{formatDate(lang, p.checked)}</dd></div>
-              </dl>
-              <p class="data case-on">{w.onPage}</p>
-              <ul class="case-list">{(w.features[p.key] ?? []).map((f) => <li>{f}</li>)}</ul>
-              <div class="btn-row case-cta"><Btn href={p.url} newTab arrow="up">{p.host}</Btn></div>
+              <h2 class="v-cat case-h" id={`case-${p.key}`}>{p.name}</h2>
+              <p class="v-body case-blurb">{p.blurb[lang]}</p>
+              <ul class="case-dl">
+                <li class="ld"><span>{w.type}</span><i></i><span>{p.kind[lang]}</span></li>
+                <li class="ld"><span>{w.langs}</span><i></i><span>{p.langs}</span></li>
+                <li class="ld"><span>{w.checked}</span><i></i><span>{formatDate(lang, p.checked)}</span></li>
+              </ul>
+              <h3 class="v-list case-on">{w.onPage}</h3>
+              <ul class="ad-bul case-list">{(w.features[p.key] ?? []).map((f) => <li>{f}</li>)}</ul>
+              <div class="btn-row case-cta"><Btn href={p.url} newTab>{p.host}</Btn></div>
             </header>
             <a class="c-6-12 case-frame" href={p.url} target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">
-              <span class="case-bar"><i></i><i></i><i></i><span>{p.host}</span></span>
-              <span class="case-view">
+              <span class="case-bar">{p.host}</span>
+              <span class="case-view" data-tour>
                 <picture>
                   <source srcset={t.avif} type="image/avif" />
-                  <img src={t.webp} width={t.width} height={t.height} alt="" loading="lazy" decoding="async" />
+                  <img src={t.webp} width={t.width} height={t.height} alt={alt(p.name, p.kind[lang])} loading="lazy" decoding="async" />
                 </picture>
               </span>
             </a>
@@ -55,42 +56,40 @@ const own = [
     </div>
   </div>
 
-  <section class="section m-window" data-scene="5" data-scene-side="center" data-scene-dim="0.5" aria-labelledby="own-h">
-    <div class="wrap m-solid">
-      <h2 class="h2" id="own-h" data-lines>{w.own.h2}</h2>
-      <p class="lead own-p">{w.own.p}</p>
+  <section class="own-sec stock-yellow" data-scene-occlude aria-labelledby="own-h">
+    <div class="wrap">
+      <div class="cat"><h2 class="v-cat" id="own-h">{w.own.h2}</h2></div>
+      <p class="v-lead own-p">{w.own.p}</p>
       <ul class="own">
         {own.map((o) => (
-          <li><a href={o.url} data-outbound data-cta={o.cta} rel="noopener"><span class="own-name">{o.name}</span><span class="body">{o.text}</span></a></li>
+          <li><a href={o.url} data-outbound data-cta={o.cta} rel="noopener"><span class="own-name">{o.name}</span><span class="v-body">{o.text}</span></a></li>
         ))}
       </ul>
     </div>
   </section>
 </Base>
 <style>
-  .cases { padding-block: clamp(4rem, 10vh, 7rem) clamp(2rem, 6vh, 4rem); }
-  .case { row-gap: 2.5rem; padding-block: clamp(3rem, 9vh, 6rem); border-top: 1px solid var(--line); align-items: start; }
-  .case:first-child { border-top: 0; padding-top: 0; }
-  .case .h2 { margin-top: 1rem; }
-  .case .body { margin-top: 1.25rem; }
-  .case-dl { margin-top: 1.75rem; border-top: 1px solid var(--line-2); }
-  .case-dl div { display: grid; grid-template-columns: 8rem 1fr; gap: 1rem; padding: 0.7rem 0; border-bottom: 1px solid var(--line); }
-  .case-on { margin-top: 1.75rem; }
-  .case-list { margin-top: 0.6rem; display: grid; gap: 0.35rem; }
-  .case-list li::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--signal-ink); margin-right: 0.7rem; transform: translateY(-2px); }
-  .case-cta { margin-top: 2rem; }
-  .case-frame { display: block; position: relative; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 30px 80px -30px rgb(18 18 16 / 0.35), 0 0 0 1px rgb(18 18 16 / 0.12); }
-  .case-bar { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; background: #f1eee8; border-bottom: 1px solid rgb(18 18 16 / 0.1); }
-  .case-bar i { width: 9px; height: 9px; border-radius: 50%; background: rgb(18 18 16 / 0.16); }
-  .case-bar span { margin-left: 12px; padding: 3px 12px; border-radius: 4px; background: #fff; color: var(--paper-mute); font-family: var(--f-mono); font-size: 0.68rem; }
-  .case-view { display: block; height: min(70vh, 40rem); overflow: hidden; }
-  .case-view img { width: 100%; transition: transform 6s cubic-bezier(0.45, 0, 0.2, 1); }
-  .case-frame:hover .case-view img { transform: translateY(calc(-100% + min(70vh, 40rem))); }
-  @media (min-width: 900px) { .case-meta { position: sticky; top: calc(var(--header-h) + 2rem); } }
-  .own-p { margin-top: 1.25rem; }
-  .own { margin-top: 2.5rem; display: grid; gap: 0; border-top: 1px solid var(--line-2); }
-  .own a { display: grid; gap: 0.4rem; padding: 1.5rem 0; border-bottom: 1px solid var(--line); }
-  @media (min-width: 900px) { .own a { grid-template-columns: 5fr 7fr; align-items: baseline; } }
-  .own-name { font-family: var(--f-display); font-weight: 700; font-stretch: 90%; font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.6rem); letter-spacing: -0.035em; transition: color 0.3s; }
-  .own a:hover .own-name { color: var(--signal); }
+  .cases { padding-block: 1rem clamp(3rem, 8vh, 5rem); }
+  .case { row-gap: 2rem; padding-block: clamp(3rem, 8vh, 5rem); border-top: 2px solid var(--ink); align-items: start; }
+  .case:first-child { border-top: 0; }
+  .case-h { font-size: clamp(2.4rem, 1.6rem + 2.6vw, 4rem); }
+  .case-blurb { margin-top: 1rem; }
+  .case-dl { margin-top: 1.25rem; border-top: 2px solid var(--ink); }
+  .case-dl li { padding-block: 0.45rem; border-bottom: 1px solid var(--ink); font-size: 0.95rem; }
+  .case-dl li span:first-child { font-weight: 700; }
+  .case-on { margin-top: 1.5rem; }
+  .case-list { margin-top: 0.6rem; }
+  .case-cta { margin-top: 1.5rem; }
+  .case-frame { display: block; border: var(--frame) solid var(--ink); background: #fff; }
+  .case-bar { display: block; padding: 0.35rem 0.75rem; background: var(--ink); color: var(--yellow); font-stretch: var(--w-list); font-weight: 750; letter-spacing: 0.03em; font-size: var(--t-micro); }
+  .case-view { display: block; height: min(76vh, 44rem); overflow: hidden; }
+  .case-view img { width: 100%; will-change: transform; }
+  @media (min-width: 960px) { .case-meta { position: sticky; top: calc(var(--head-h) + 1.5rem); } }
+  .own-sec { padding-block: clamp(4rem, 10vh, 6rem); border-bottom: 2px solid var(--ink); }
+  .own-p { margin-top: 1rem; }
+  .own { margin-top: 2rem; border-top: 2px solid var(--ink); }
+  .own a { display: grid; gap: 0.4rem; padding: 1.2rem 0; border-bottom: 1px solid var(--ink); }
+  @media (min-width: 960px) { .own a { grid-template-columns: 5fr 7fr; align-items: baseline; } }
+  .own-name { font-stretch: var(--w-display); font-weight: 900; text-transform: uppercase; font-size: clamp(2rem, 1.4rem + 2vw, 3.2rem); line-height: 0.9; }
+  .own a:hover .own-name { color: var(--red); }
 </style>

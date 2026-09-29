@@ -1,4 +1,5 @@
 ---
+/** About, the white pages: a personal listing under the Gliwice close-up, facts as directory lines, profiles, namesake. */
 import Base from '../../layouts/Base.astro';
 import PageHead from '../ui/PageHead.astro';
 import Btn from '../ui/Btn.astro';
@@ -21,37 +22,32 @@ const finds = [
 ];
 const faq = [c.faq[0]!, c.faq[5]!];
 ---
-<Base lang={lang} path={path} title={a.title} description={a.description} kind="about" ogType="profile"
+<Base lang={lang} path={path} title={a.title} description={a.description} kind="about" ogType="profile" guide={c.dir.guide.about}
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: a.crumb, path }]} faq={faq}
   ogImage={isPl ? '/og/about.png' : '/og/about-en.png'}>
-  <PageHead lang={lang} crumb={a.crumb} kicker={a.kicker} h1={a.h1} lead={a.lead} scene={5} side="left">
+  <PageHead lang={lang} crumb={a.crumb} h1={a.h1} lead={a.lead} scene={5} side="left" guide={c.dir.guide.about}>
     <Btn href={contact}>{c.ui.write}</Btn>
   </PageHead>
 
-  <section class="section m-window" data-scene="5" data-scene-side="right" data-scene-dim="0.6" aria-label={a.kicker}>
-    <div class="wrap grid">
-      <div class="c-7-12 m-solid about-body">
-        {a.body.map((p) => <p class="lead" data-reveal>{p}</p>)}
-      </div>
-    </div>
-  </section>
-
-  <section class="section m-window" data-scene="1" data-scene-side="center" data-scene-dim="0.28" aria-labelledby="facts-h">
-    <div class="wrap grid about-grid m-solid">
-      <div class="c-1-6">
-        <h2 class="h2" id="facts-h" data-lines>{a.facts.h2}</h2>
-        <dl class="facts">
-          {a.facts.rows.map(([k, v]) => <div><dt class="data">{k}</dt><dd>{v}</dd></div>)}
-        </dl>
-        <p class="data facts-upd">{c.ui.updated}: <time datetime={SITE.lastModified}>{formatDate(lang)}</time></p>
+  <section class="about stock-white" data-scene-occlude aria-labelledby="facts-h">
+    <div class="wrap grid about-grid">
+      <div class="c-1-6 about-body">
+        {a.body.map((p) => <p class="v-lead">{p}</p>)}
       </div>
       <div class="c-8-12">
-        <h2 class="h3">{a.find.h2}</h2>
-        <ul class="finds">
-          {finds.map((f) => <li><a href={f.href} rel={f.rel} target="_blank"><span>{f.label}</span><span class="data">{f.note}</span></a></li>)}
+        <h2 class="v-list about-h" id="facts-h">{a.facts.h2}</h2>
+        <ul class="facts">
+          {a.facts.rows.map(([k, v]) => <li><span class="v-micro">{k}</span><span>{v}</span></li>)}
         </ul>
-        <h2 class="h3 about-ns">{a.disambig.h2}</h2>
-        <p class="body">{a.disambig.p}</p>
+        <p class="src facts-upd">{c.ui.updated}: <time datetime={SITE.lastModified}>{formatDate(lang)}</time></p>
+
+        <h2 class="v-list about-h about-h2">{a.find.h2}</h2>
+        <ul class="finds">
+          {finds.map((f) => <li><a class="ld" href={f.href} rel={f.rel} target="_blank"><b>{f.label}</b><i></i><span>{f.note}</span></a></li>)}
+        </ul>
+
+        <h2 class="v-list about-h about-h2">{a.disambig.h2}</h2>
+        <p class="v-body about-ns">{a.disambig.p}</p>
       </div>
     </div>
   </section>
@@ -59,15 +55,19 @@ const faq = [c.faq[0]!, c.faq[5]!];
   <Faq lang={lang} items={faq} />
 </Base>
 <style>
-  .about-body { display: grid; gap: 1.5rem; }
-  .about-body .lead { max-width: 36ch; color: var(--bone); }
-  .about-grid { row-gap: 4rem; }
-  .facts { margin-top: 2rem; border-top: 1px solid var(--line-2); }
-  .facts div { display: grid; gap: 0.25rem 1.5rem; padding: 0.9rem 0; border-bottom: 1px solid var(--line); }
-  @media (min-width: 700px) { .facts div { grid-template-columns: 11rem 1fr; } }
-  .facts-upd { margin-top: 1rem; }
-  .finds { margin-top: 1rem; border-top: 1px solid var(--line); }
-  .finds a { display: grid; gap: 0.2rem; padding: 0.9rem 0; border-bottom: 1px solid var(--line); transition: color 0.3s; }
-  .finds a:hover span:first-child { color: var(--signal); }
-  .about-ns { margin-top: 3rem; margin-bottom: 0.75rem; }
+  .about { padding-block: clamp(3.5rem, 9vh, 6rem); border-bottom: 2px solid var(--ink); }
+  .about-grid { row-gap: 3rem; }
+  .about-body { display: grid; gap: 1.25rem; }
+  .about-body .v-lead { max-width: 38ch; }
+  .about-h { padding-bottom: 0.4rem; border-bottom: 8px solid var(--ink); }
+  .about-h2 { margin-top: 2.5rem; }
+  .facts li { display: grid; gap: 0.15rem 1.25rem; padding: 0.6rem 0; border-bottom: 1px solid var(--ink); }
+  @media (min-width: 700px) { .facts li { grid-template-columns: 9.5rem 1fr; align-items: baseline; } }
+  .facts li > span:first-child { font-weight: 750; text-transform: uppercase; letter-spacing: 0.03em; color: var(--fg-2); }
+  .facts-upd { margin-top: 0.8rem; }
+  .finds li { border-bottom: 1px solid var(--ink); }
+  .finds a { padding: 0.6rem 0; }
+  .finds span { font-size: var(--t-small); color: var(--fg-2); }
+  .finds a:hover b { text-decoration: underline; text-underline-offset: 3px; }
+  .about-ns { margin-top: 0.8rem; }
 </style>

@@ -1,20 +1,21 @@
 /**
  * kacper.biz scroll-driven 3D world.
  *
- * One morphing THREE.Points cloud (Poland map -> live traffic -> landing page -> chat -> close-up on Gliwice),
+ * One morphing THREE.Points cloud printed in ink on the page's yellow stock (Poland map -> email routes ->
+ * landing page -> chat -> close-up on Gliwice),
  * driven by which [data-scene] section is on screen (see tracker.ts). Native scroll only.
  * The canvas survives page navigations (ClientRouter + transition:persist): `rescan()` re-reads the new
  * page and the world morphs to its first chapter instead of restarting.
  *
- * Draw calls: main points, bloom layer (same geometry, bigger + dimmer), glow halos, traffic packets, ripples (5).
+ * Draw calls: main points, marker rings, traffic packets, ripples (4).
  * No post-processing.
  */
 import {
   AddEquation, BufferAttribute, BufferGeometry, CustomBlending, Group, OneFactor, OneMinusSrcAlphaFactor,
-  OneMinusSrcColorFactor, PerspectiveCamera, Points, Scene, ShaderMaterial, Vector3, WebGLRenderer,
+  PerspectiveCamera, Points, Scene, ShaderMaterial, Vector3, WebGLRenderer,
 } from 'three';
 import { project } from './poland';
-import { BLOOM_FRAG, GLOW_FRAG, GLOW_VERT, MAIN_VERT, RIPPLE_VERT, SPRITE_FRAG, TRAFFIC_VERT } from './shaders';
+import { GLOW_FRAG, GLOW_VERT, MAIN_VERT, RIPPLE_VERT, SPRITE_FRAG, TRAFFIC_VERT } from './shaders';
 import { CHAPTER_COUNT, PALETTE, buildTargets, terrainZ } from './shapes';
 import { SectionTracker, type Sample } from './tracker';
 import { TRAIL_SPAN, buildTraffic } from './traffic';
@@ -116,11 +117,11 @@ function makeMaterial(vertexShader: string, fragmentShader: string, uniforms: Re
     transparent: true,
     depthTest: false,
     depthWrite: false,
-    // "screen" blend on premultiplied light: soft saturation, valid premultiplied alpha
+    // premultiplied ink laid "over" what is already printed
     blending: CustomBlending,
     blendEquation: AddEquation,
     blendSrc: OneFactor,
-    blendDst: OneMinusSrcColorFactor,
+    blendDst: OneMinusSrcAlphaFactor,
     blendSrcAlpha: OneFactor,
     blendDstAlpha: OneMinusSrcAlphaFactor,
   });
@@ -250,7 +251,6 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       uBloomK: { value: [0.07, 0.09, 0.09, 0.14, 0.14, 0.11] },
     };
     const mainMat = makeMaterial(MAIN_VERT, SPRITE_FRAG, { ...mainUniforms, uBloom: { value: 0 } });
-    const bloomMat = makeMaterial(MAIN_VERT, BLOOM_FRAG, { ...mainUniforms, uBloom: { value: 1 } });
     const glowMat = makeMaterial(GLOW_VERT, GLOW_FRAG, {
       uTime: shared.uTime, uW, uDim: uFade, uPxW: shared.uPxW, uGScale: shared.uGScale, uMaxPt: shared.uMaxPt, uPal: shared.uPal,
     });
@@ -262,7 +262,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       uTime: shared.uTime, uPx: shared.uPx, uPxW: shared.uPxW, uGScale: shared.uGScale, uRef: shared.uRef,
       uMaxPt: shared.uMaxPt, uPal: shared.uPal, uTraffic,
     });
-    disposables.push(mainMat, bloomMat, glowMat, packetMat, rippleMat);
+    disposables.push(mainMat, glowMat, packetMat, rippleMat);
 
     // ------------------------------------------------------------------ scene graph
     const scene = new Scene();
@@ -278,8 +278,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       world.add(p);
       return p;
     };
-    mk(geo, bloomMat, 0);
-    mk(geo, mainMat, 1);
+    mk(geo, mainMat, 1); // ink needs no bloom layer
     mk(traffic.glow, glowMat, 2);
     const packetPts = mk(traffic.packets, packetMat, 3);
     const ripplePts = mk(traffic.ripples, rippleMat, 4);
@@ -370,7 +369,7 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
 
       // more points = more light: keep perceived brightness roughly constant across tiers / downshifts
       const densK = clamp(Math.pow(8000 / drawCount, 0.35), 0.6, 1);
-      uDim.value = (frame.mobile ? 0.72 : 0.62 + 0.38 * spread) * 0.96 * densK * dim * fade;
+      uDim.value = (frame.mobile ? 0.92 : 0.86 + 0.14 * spread) * densK * dim * fade;
       uFade.value = dim * fade;
       uIntro.value = intro;
       shared.uTime.value = t;
@@ -432,7 +431,8 @@ async function create(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<Sc
       const kp = 1 - Math.exp(-dt * 4);
       px += (tpx - px) * kp;
       py += (tpy - py) * kp;
-      intro = Math.min(1, intro + dt / 2.8);
+      // the map prints the first time a window onto it is actually on screen
+      if (!sample.occluded) intro = Math.min(1, intro + dt / 2.8);
       apply(time);
     };
 

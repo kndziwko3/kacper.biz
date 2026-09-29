@@ -43,8 +43,8 @@ export function initBooking(): () => void {
       a.target = '_blank';
       a.rel = 'noopener';
       a.dataset.cta = 'talk-day';
-      a.setAttribute('aria-label', full.format(d));
-      a.innerHTML = `<span class="d-w">${wd.format(d)}</span><span class="d-n">${dd.format(d)}</span><span class="d-m">${mm.format(d)}</span>`;
+      // the visible short date is part of the name; the full date follows for screen readers
+      a.innerHTML = `<span class="d-w">${wd.format(d)}</span><span class="d-n">${dd.format(d)}</span><span class="d-m">${mm.format(d)}</span><span class="sr-only">, ${full.format(d)}</span>`;
       li.append(a);
       return li;
     }));

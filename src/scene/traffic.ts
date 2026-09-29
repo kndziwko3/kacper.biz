@@ -136,17 +136,16 @@ export function buildTraffic(routeCount: number, ringPoints: number, seed = 4242
   const glow = new Rows();
   const [hx, hy] = project(GLIWICE[0], GLIWICE[1]);
   const hz = terrainZ(hx, hy) + 0.05;
-  glow.push(hx, hy, hz, 1.6, 0.34, 2, 0, 1, 2);
-  glow.push(hx, hy, hz, 0.5, 0.48, 3, 1.3, 1, 2);
+  glow.push(hx, hy, hz, 1.6, 0.5, 2, 0, 1, 2);
+  glow.push(hx, hy, hz, 0.5, 0.95, 3, 1.3, 1, 2);
   // closing close-up on Gliwice (chapter 5): tighter, calmer halo
   glow.push(hx, hy, hz, 0.9, 0.26, 2, 0.6, 5, 5);
   glow.push(hx, hy, hz, 0.28, 0.42, 3, 2.1, 5, 5);
   for (const c of CITIES) {
     const [x, y] = project(c.lon, c.lat);
     const z = terrainZ(x, y) + 0.03;
-    glow.push(x, y, z, 0.22 + 0.42 * Math.sqrt(c.w), 0.03 + 0.05 * c.w, 1, x * 3.1 + y, 1, 2);
     // the neighbours stay faintly lit in the close-up
-    if (Math.hypot(x - hx, y - hy) < 1.6) glow.push(x, y, z, 0.2 + 0.3 * Math.sqrt(c.w), 0.05 + 0.05 * c.w, 1, x * 3.1 + y, 5, 5);
+    if (Math.hypot(x - hx, y - hy) < 1.6) glow.push(x, y, z, 0.2 + 0.3 * Math.sqrt(c.w), 0.25 + 0.2 * c.w, 1, x * 3.1 + y, 5, 5);
   }
   const glowGeo = new BufferGeometry();
   const gd = new Float32Array(glow.data);

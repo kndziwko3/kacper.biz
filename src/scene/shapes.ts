@@ -15,15 +15,15 @@ export const PAL = { boneDim: 0, bone: 1, verm: 2, verm2: 3, peri: 4, peri2: 5, 
 
 /** sRGB palette, index-aligned with PAL. Shared with the shaders through a uniform array. */
 export const PALETTE: ReadonlyArray<readonly [number, number, number]> = [
-  [0.561, 0.545, 0.514], // bone dim      #8f8b83
-  [0.925, 0.91, 0.875], // bone           #ece8df
-  [1.0, 0.353, 0.122], // signal          #ff5a1f
-  [1.0, 0.541, 0.361], // signal-2        #ff8a5c
-  [0.851, 0.827, 0.78], // warm bone      #d9d3c7 (slot kept for index stability)
-  [0.949, 0.933, 0.902], // warm bone hi  #f2eee6
-  [1.0, 0.965, 0.918], // reply: warm white #fff6ea
-  [1, 1, 1], // sweep (computed in shader)
-];
+  [0.07, 0.06, 0.04], // ink, light halftone      (slot 0)
+  [0, 0, 0], // ink, solid                          (slot 1)
+  [0.882, 0.145, 0.106], // red spot #e1251b        (slot 2)
+  [0.78, 0.11, 0.07], // red spot, deep             (slot 3)
+  [0, 0, 0], // ink (page wireframe)                (slot 4)
+  [0, 0, 0], // ink (page wireframe, strong)        (slot 5)
+  [0.882, 0.145, 0.106], // replies: red spot       (slot 6)
+  [0, 0, 0], // sweep (computed in shader)          (slot 7)
+]
 
 export function style(cid: number, brightness: number): number {
   return cid + Math.min(0.98, Math.max(0, brightness * 0.5));

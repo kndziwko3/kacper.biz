@@ -1,42 +1,101 @@
 ---
-import { NAV, ROUTE_PAIRS, CONTACT, type Lang } from '../content/site';
+/**
+ * Running head + thumb index. The site is a printed directory: the running head carries the book title, the guide
+ * word of the section in view (main.ts keeps it current) and the edition clock; the thumb-index tabs down the
+ * fore-edge are the primary navigation on wide screens. Phones get the same index as a full-page "Spis".
+ */
+import { NAV, ROUTE_PAIRS, CONTACT, SALES, type Lang } from '../content/site';
 import { copy } from '../content/copy';
-interface Props { lang: Lang; path: string }
-const { lang, path } = Astro.props;
+interface Props { lang: Lang; path: string; guide?: string }
+const { lang, path, guide } = Astro.props;
 const ui = copy[lang].ui;
+const d = copy[lang].dir;
 const items = NAV[lang];
 const pair = ROUTE_PAIRS.find((r) => r.pl === path || r.en === path);
 const otherLang: Lang = lang === 'pl' ? 'en' : 'pl';
 const otherHref = pair ? pair[otherLang] : otherLang === 'pl' ? '/' : '/en';
 const homeHref = lang === 'pl' ? '/' : '/en';
-const contactHref = lang === 'pl' ? '/kontakt' : '/en/contact';
 const isCurrent = (href: string) => path === href || path.startsWith(href + '/');
 ---
-<header class="site-header" transition:animate="none">
-  <div class="wrap">
-    <a class="wordmark" href={homeHref}><i aria-hidden="true"></i>Kacper Rękawek</a>
-    <nav class="nav" aria-label={lang === 'pl' ? 'Główna' : 'Main'}>
-      {items.map((i) => <a href={i.href} aria-current={isCurrent(i.href) ? 'page' : undefined}>{i.label}</a>)}
-    </nav>
-    <div class="header-end">
-      <span class="clock" aria-hidden="true"><span>{ui.place}</span> <time data-clock>--:--</time></span>
-      <a class="lang" href={otherHref} hreflang={otherLang === 'pl' ? 'pl-PL' : 'en'} lang={otherLang} aria-label={ui.langLabel} data-astro-reload>{ui.langSwitch}</a>
-      <a class="header-cta link link--u" href={contactHref}>{ui.write}</a>
-      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label={ui.menu}><span></span></button>
+<header class="rhead" transition:animate="none">
+  <div class="rhead-in">
+    <a class="rhead-title" href={homeHref} aria-label={`${d.title}, ${ui.home}`}>{d.title}</a>
+    <span class="rhead-guide" aria-hidden="true"><span data-guide>{guide ?? d.guide.home}</span></span>
+    <div class="rhead-end">
+      <span class="rhead-clock" aria-hidden="true">{ui.place} <time data-clock>--:--</time></span>
+      <a class="rhead-lang" href={otherHref} hreflang={otherLang === 'pl' ? 'pl-PL' : 'en'} lang={otherLang} aria-label={ui.langLabel} data-astro-reload>{ui.langSwitch}</a>
+      <a class="btn rhead-cta" href={SALES.bookingUrl} data-outbound data-cta="head-booking" rel="noopener">{d.book}</a>
+      <button class="rhead-menu" type="button" aria-expanded="false" aria-controls="menu">{d.index}</button>
     </div>
   </div>
 </header>
-<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label={ui.menu}>
+
+<nav class="tabs" aria-label={d.tabsLabel} transition:animate="none">
+  <ol>
+    {items.map((i, n) => (
+      <li style={`--i:${n}`}><a href={i.href} data-tab={i.href} aria-current={isCurrent(i.href) ? 'page' : undefined}><span>{i.label}</span></a></li>
+    ))}
+  </ol>
+</nav>
+
+<div class="menu stock-yellow" id="menu" role="dialog" aria-modal="true" aria-label={d.indexTitle}>
   <div class="menu-top">
-    <a class="wordmark" href={homeHref}><i aria-hidden="true"></i>Kacper Rękawek</a>
-    <button class="menu-close lang" type="button" data-menu-close>{ui.close}</button>
+    <a class="rhead-title" href={homeHref}>{d.title}</a>
+    <button class="rhead-menu" type="button" data-menu-close>{ui.close}</button>
   </div>
-  <nav aria-label={lang === 'pl' ? 'Menu mobilne' : 'Mobile menu'}>
-    {items.map((i) => <a href={i.href} aria-current={isCurrent(i.href) ? 'page' : undefined}>{i.label}</a>)}
+  <p class="menu-h v-cat" aria-hidden="true">{d.indexTitle}</p>
+  <nav aria-label={d.indexTitle}>
+    <ol class="ld-list">
+      <li><a class="ld" href={homeHref}><b>{ui.home}</b><i></i><span>{d.guide.home}</span></a></li>
+      {items.map((i) => <li><a class="ld" href={i.href} aria-current={isCurrent(i.href) ? 'page' : undefined}><b>{i.label}</b><i></i><span>{d.menuNotes[i.href] ?? ''}</span></a></li>)}
+    </ol>
   </nav>
   <div class="menu-foot">
-    <a href={`mailto:${CONTACT.studioEmail}`}>{CONTACT.studioEmail}</a>
-    <a href={otherHref} lang={otherLang} data-astro-reload>{otherLang === 'pl' ? 'Polski' : 'English'}</a>
-    <span class="data">{ui.place} · {ui.coords}</span>
+    <a class="btn" href={SALES.bookingUrl} data-outbound data-cta="menu-booking" rel="noopener">{d.book}</a>
+    <a class="tlink" href={`mailto:${CONTACT.studioEmail}`}>{CONTACT.studioEmail}</a>
+    <a class="tlink" href={otherHref} lang={otherLang} data-astro-reload>{otherLang === 'pl' ? 'Polski' : 'English'}</a>
   </div>
 </div>
+
+<style>
+  .rhead { position: fixed; z-index: 50; top: 0; left: 0; right: 0; height: var(--head-h); background: var(--yellow); color: var(--ink); border-bottom: 2px solid var(--ink); }
+  .rhead-in { height: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter) calc(var(--gutter) + var(--tabs-w)); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; }
+  .rhead-title { font-stretch: var(--w-list); font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; font-size: 1rem; white-space: nowrap; }
+  .rhead-guide { justify-self: center; font-stretch: var(--w-list); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: var(--t-micro); display: none; overflow: hidden; height: 1.3em; }
+  .rhead-guide span { display: block; }
+  .rhead-end { display: flex; align-items: center; gap: 1rem; justify-self: end; }
+  .rhead-clock { font-size: var(--t-micro); font-stretch: 90%; display: none; white-space: nowrap; }
+  .rhead-lang { font-weight: 800; font-size: var(--t-small); padding: 0.6rem 0.2rem; }
+  .rhead-lang:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .rhead-cta { min-height: 36px; padding: 0.4rem 0.8rem; font-size: 0.82rem; display: none; }
+  .rhead-menu { min-height: 40px; padding: 0.35rem 0.8rem; border: 2px solid var(--ink); font-stretch: var(--w-list); font-weight: 800; text-transform: uppercase; font-size: 0.82rem; letter-spacing: 0.03em; }
+  @media (min-width: 760px) { .rhead-guide { display: block; } .rhead-cta { display: inline-flex; } }
+  @media (min-width: 1100px) { .rhead-clock { display: inline; } .rhead-menu { display: none; } }
+
+  /* thumb index: black tabs cut into the fore-edge, one per department, stepped down the page */
+  .tabs { display: none; }
+  @media (min-width: 1100px) {
+    .tabs { display: block; position: fixed; z-index: 45; right: 0; top: calc(var(--head-h) + 1.5rem); }
+    .tabs ol { display: grid; gap: 4px; }
+    .tabs a {
+      display: flex; align-items: center; justify-content: center; width: var(--tabs-w); min-height: 7.4rem; padding: 0.9rem 0;
+      background: var(--ink); color: var(--yellow); transform: translateX(8px);
+      transition: transform 0.28s var(--ease), background-color 0.2s;
+    }
+    .tabs a span { writing-mode: vertical-rl; transform: rotate(180deg); font-stretch: var(--w-list); font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.8rem; white-space: nowrap; }
+    .tabs a:hover, .tabs a:focus-visible, .tabs a.is-here { transform: none; }
+    .tabs a[aria-current='page'] { transform: none; background: var(--red); color: #fff; }
+    .tabs a:focus-visible { outline-offset: -5px; outline-color: var(--yellow); }
+  }
+
+  .menu { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; padding: 0 var(--gutter) 1.5rem; visibility: hidden; opacity: 0; transition: opacity 0.25s var(--ease), visibility 0s linear 0.25s; overflow-y: auto; }
+  .menu.is-open { visibility: visible; opacity: 1; transition: opacity 0.25s var(--ease); }
+  .menu-top { display: flex; justify-content: space-between; align-items: center; height: var(--head-h); border-bottom: 2px solid var(--ink); }
+  .menu-h { margin-top: 1.5rem; font-size: clamp(3rem, 16vw, 5rem); }
+  .menu nav { margin-top: 1rem; border-top: 8px solid var(--ink); }
+  .menu nav a { padding-block: 0.85rem; border-bottom: 1px solid var(--ink); }
+  .menu nav b { font-stretch: var(--w-display); font-weight: 900; text-transform: uppercase; font-size: clamp(1.7rem, 8vw, 2.4rem); line-height: 1; }
+  .menu nav span { font-size: var(--t-small); color: var(--fg-2); }
+  .menu nav a[aria-current='page'] b { color: var(--red); }
+  .menu-foot { margin-top: auto; padding-top: 2rem; display: grid; gap: 0.9rem; justify-items: start; }
+</style>

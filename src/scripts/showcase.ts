@@ -1,48 +1,31 @@
-/** Portfolio stage: page scroll picks the project and scrolls its real full-page capture inside the frames. */
-const clamp = (x: number, a: number, b: number) => Math.min(b, Math.max(a, x));
-
-export function initShowcase(): () => void {
-  const root = document.querySelector<HTMLElement>('[data-showcase]');
-  const track = root?.querySelector<HTMLElement>('.sc-track');
-  if (!root || !track) return () => undefined;
-  const items = Array.from(root.querySelectorAll<HTMLElement>('.sc-item'));
-  const browser = Array.from(root.querySelectorAll<HTMLElement>('.sc-browser .sc-shot'));
-  const phone = Array.from(root.querySelectorAll<HTMLElement>('.sc-phone .sc-shot'));
-  const host = root.querySelector<HTMLElement>('[data-sc-host]');
-  const hosts = items.map((it) => { try { return new URL(it.querySelector('a')!.href).hostname.replace(/^www\./, ''); } catch { return ''; } });
-  const mq = window.matchMedia('(min-width: 900px)');
-  const n = items.length;
-  let active = -1;
+/** Proof frames: each capture slides up inside its frame while the frame crosses the viewport (scroll-linked). */
+export function initShowcase(reduced = false): () => void {
+  const frames = Array.from(document.querySelectorAll<HTMLElement>('[data-tour]'));
+  if (!frames.length || reduced) return () => undefined;
+  const live = new Set<HTMLElement>();
   let raf = 0;
-
-  const frame = () => {
+  const paint = () => {
     raf = 0;
-    if (!mq.matches) return;
-    const r = track.getBoundingClientRect();
-    const p = clamp(-r.top / Math.max(1, r.height - window.innerHeight), 0, 1);
-    const f = p * n;
-    const i = Math.min(n - 1, Math.floor(f));
-    const local = clamp(f - i, 0, 1);
-    if (i !== active) {
-      active = i;
-      items.forEach((el, k) => el.classList.toggle('is-active', k === i));
-      [browser, phone].forEach((set) => set.forEach((el, k) => el.classList.toggle('is-active', k === i)));
-      if (host) host.textContent = hosts[i] ?? '';
-    }
-    const t = clamp((local - 0.1) / 0.8, 0, 1);
-    const e = t * t * (3 - 2 * t);
-    for (const shot of [browser[i], phone[i]]) {
-      if (!shot?.parentElement) continue;
-      const max = Math.max(0, shot.offsetHeight - shot.parentElement.clientHeight);
-      shot.style.transform = `translate3d(0, ${(-max * e).toFixed(1)}px, 0)`;
-    }
+    const vh = window.innerHeight;
+    live.forEach((f) => {
+      const img = f.querySelector('img');
+      if (!img) return;
+      const r = f.getBoundingClientRect();
+      const p = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
+      const travel = Math.max(0, img.getBoundingClientRect().height - r.height);
+      img.style.transform = `translate3d(0, ${(-travel * p).toFixed(1)}px, 0)`;
+    });
   };
-  const onScroll = () => { if (!raf) raf = requestAnimationFrame(frame); };
+  const onScroll = () => { if (!raf) raf = requestAnimationFrame(paint); };
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) { if (e.isIntersecting) live.add(e.target as HTMLElement); else live.delete(e.target as HTMLElement); }
+    onScroll();
+  });
+  frames.forEach((f) => io.observe(f));
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll, { passive: true });
-  root.querySelectorAll('img').forEach((img) => img.addEventListener('load', onScroll, { once: true }));
-  frame();
   return () => {
+    io.disconnect();
     cancelAnimationFrame(raf);
     window.removeEventListener('scroll', onScroll);
     window.removeEventListener('resize', onScroll);

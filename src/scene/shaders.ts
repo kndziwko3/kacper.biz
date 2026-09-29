@@ -5,9 +5,9 @@
  *   3. TRAFFIC - packets, trails and arc traces (all motion is computed from uTime in the vertex shader)
  *   4. RIPPLE  - expanding rings of dots at destinations
  *
- * All output is premultiplied light. The material uses "screen" blending (ONE, ONE_MINUS_SRC_COLOR), so
- * overlapping points saturate softly instead of clipping, and the framebuffer alpha is always a valid
- * premultiplied alpha (>= every colour channel) for compositing over the page background.
+ * Everything is printed: ink on paper. Output is premultiplied ink (rgb * a, a) composited with ordinary
+ * "over" blending onto a transparent canvas, so black ink darkens the yellow stock under it and the red spot
+ * ink sits on top. No glow, no bloom.
  */
 
 const COMMON = /* glsl */ `
@@ -37,27 +37,10 @@ export const SPRITE_FRAG = /* glsl */ `
 varying vec3 vCol;
 varying float vA;
 void main() {
-  vec2 q = gl_PointCoord - 0.5;
-  float d = length(q) * 2.0;
-  if (d >= 1.0) discard;
-  float body = pow(1.0 - d * d, 1.4);
-  float core = smoothstep(0.42, 0.0, d);
-  float I = (0.72 * body + 0.4 * core) * vA;
-  vec3 c = min(vCol * I, vec3(0.97));
-  gl_FragColor = vec4(c, max(c.r, max(c.g, c.b)));
-}
-`;
-
-/** Wide gaussian used by the cheap "bloom" layer (same points, drawn bigger and dimmer). */
-export const BLOOM_FRAG = /* glsl */ `
-varying vec3 vCol;
-varying float vA;
-void main() {
   float d = length(gl_PointCoord - 0.5) * 2.0;
-  if (d >= 1.0) discard;
-  float I = exp(-d * d * 3.2) * (1.0 - smoothstep(0.68, 1.0, d)) * vA;
-  vec3 c = min(vCol * I, vec3(0.97));
-  gl_FragColor = vec4(c, max(c.r, max(c.g, c.b)));
+  float a = (1.0 - smoothstep(0.7, 1.0, d)) * vA;
+  if (a < 0.004) discard;
+  gl_FragColor = vec4(vCol * a, a);
 }
 `;
 
@@ -223,10 +206,10 @@ void main() {
   float ph = 0.5 + 0.5 * sin(uTime * 5.2 - dotIdx * 1.15);
   br *= mix(1.0, 0.3 + 1.1 * ph, isDot);
 
-  float sz = mix(uSize[ia], uSize[ib], e) * (0.72 + 0.56 * aRand.z);
+  float sz = mix(uSize[ia], uSize[ib], e) * (0.86 + 0.28 * aRand.z);
   sz *= (1.0 + 0.35 * max(br - 1.0, 0.0)) * mix(1.0, 0.85 + 0.45 * ph, isDot);
 
-  float twinkle = 0.88 + 0.12 * sin(uTime * (0.7 + aRand.x * 1.6) + aRand.y * 6.2831);
+  float twinkle = 0.95 + 0.05 * sin(uTime * (0.7 + aRand.x * 1.6) + aRand.y * 6.2831);
   float depthFade = clamp(1.0 + (uRef - depth) * 0.08, 0.45, 1.3);
 
   float bk = mix(uBloomK[ia], uBloomK[ib], e);
@@ -235,8 +218,10 @@ void main() {
   float sub = uBloom > 0.5 ? 1.0 : clamp(px / 2.0, 0.0, 1.0);
   gl_PointSize = clamp(px, 2.0, uMaxPt);
 
-  vCol = tint * br;
-  vA = twinkle * depthFade * uDim * ie * sub * mix(1.0, bk, uBloom);
+  // ink density from brightness: dust nearly vanishes, the interior prints as a light halftone, borders and
+  // cities print solid, Gliwice in the red spot ink
+  vCol = tint;
+  vA = clamp((br - 0.42) / 0.9, 0.0, 1.0) * twinkle * depthFade * uDim * ie * sub * mix(1.0, bk, uBloom);
 }
 `;
 
@@ -253,12 +238,14 @@ attribute vec4 aInfo; // x: diameter (local units), y: intensity, z: palette id,
 attribute vec2 aRange; // chapters [from, to] in which the halo is visible
 varying vec3 vCol;
 varying float vA;
+varying float vPx;
 void main() {
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   gl_Position = projectionMatrix * mv;
   float depth = -mv.z;
   float pulse = 1.0 + 0.22 * sin(uTime * 1.5 + aInfo.w);
   gl_PointSize = clamp(aInfo.x * uGScale * uPxW / depth * (0.94 + 0.08 * pulse), 2.0, uMaxPt);
+  vPx = gl_PointSize;
   vCol = uPal[int(aInfo.z + 0.5)];
   float vis = 0.0;
   for (int i = 0; i < 6; i++) {
@@ -271,12 +258,14 @@ void main() {
 export const GLOW_FRAG = /* glsl */ `
 varying vec3 vCol;
 varying float vA;
+varying float vPx;
 void main() {
+  // a printed ring (the marker circle a directory map draws around a place), a steady ~2 px line at any size
   float d = length(gl_PointCoord - 0.5) * 2.0;
-  if (d >= 1.0) discard;
-  float I = exp(-d * d * 3.6) * (1.0 - smoothstep(0.72, 1.0, d)) * vA;
-  vec3 c = min(vCol * I, vec3(0.97));
-  gl_FragColor = vec4(c, max(c.r, max(c.g, c.b)));
+  float w = 2.2 / max(vPx, 1.0);
+  float a = (1.0 - smoothstep(w, w + 1.6 / max(vPx, 1.0), abs(d - 0.86))) * vA;
+  if (a < 0.004) discard;
+  gl_FragColor = vec4(vCol * a, a);
 }
 `;
 
@@ -318,7 +307,7 @@ void main() {
     float vis = step(0.0, vs) * step(vs, 1.0);
     alpha = pow(1.0 - fj, 1.6) * smoothstep(0.0, 0.05, vs) * (1.0 - smoothstep(0.9, 1.0, vs)) * vis;
     size = mix(1.0, 0.4, fj) * (fj < 0.001 ? 1.3 : 1.0);
-    col = reply ? uPal[6] : mix(vec3(1.0, 0.86, 0.78), uPal[2], smoothstep(0.0, 0.32, fj));
+    col = reply ? uPal[6] : uPal[1];
     if (!reply && fj < 0.001) alpha *= 1.15;
   } else {
     s = fj;
@@ -326,7 +315,7 @@ void main() {
     float lit = age > 0.0 ? exp(-age * 1.35) : 0.0;
     alpha = (0.05 + 0.7 * lit) * step(-0.15, v);
     size = 0.5;
-    col = reply ? uPal[6] : uPal[3];
+    col = reply ? uPal[6] : uPal[0];
   }
   size *= aK.w;
   alpha *= uTraffic;

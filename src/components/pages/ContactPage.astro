@@ -12,8 +12,8 @@ const isPl = lang === 'pl';
 const path = isPl ? '/kontakt' : '/en/contact';
 const home = isPl ? '/' : '/en';
 ---
-<Base lang={lang} path={path} title={k.title} description={k.description} kind="contact"
+<Base lang={lang} path={path} title={k.title} description={k.description} kind="contact" guide={c.dir.guide.contact}
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: k.crumb, path }]} ogImage={isPl ? '/og/contact.png' : '/og/contact-en.png'}>
-  <PageHead lang={lang} crumb={k.crumb} kicker={k.kicker} h1={k.h1} lead={k.lead} scene={5} side="left" />
+  <PageHead lang={lang} crumb={k.crumb} cat={c.dir.contact.cat} h1={k.h1} lead={k.lead} scene={5} side="left" guide={c.dir.guide.contact} />
   <Talk lang={lang} heading={false} idPrefix="contact" />
 </Base>

@@ -1,4 +1,8 @@
 ---
+/**
+ * FastLanding.io, on white stock: the boxed ad grew into a website. Proof sheet of client sites, the rate card,
+ * what goes into the contract, the five steps, and the order line.
+ */
 import Btn from '../ui/Btn.astro';
 import Showcase from './Showcase.astro';
 import Prices from './Prices.astro';
@@ -6,46 +10,61 @@ import Clauses from './Clauses.astro';
 import Process from './Process.astro';
 import { copy } from '../../content/copy';
 import { PRODUCTS, SALES, type Lang } from '../../content/site';
-interface Props { lang: Lang }
-const { lang } = Astro.props;
-const f = copy[lang].home.fl;
+interface Props { lang: Lang; heading?: boolean }
+const { lang, heading = true } = Astro.props;
+const c = copy[lang];
+const f = c.home.fl;
+const d = c.dir.fl;
 ---
-<section id="fastlanding" class="paper studio" data-scene="3" data-scene-occlude aria-labelledby="fl-h">
-  <div class="wrap studio-in">
-    <p class="label"><b>{f.label}</b></p>
-    <div class="grid studio-head">
-      <h2 class="h2 c-1-8" id="fl-h" data-lines>{f.h2}</h2>
-      <p class="lead c-1-6 studio-lead" data-reveal>{f.p}</p>
-    </div>
+<section id="fastlanding" class="studio stock-white" data-guide={c.dir.guide.fl} data-scene-occlude aria-labelledby={heading ? 'fl-h' : undefined} aria-label={heading ? undefined : d.cat}>
+  <div class="wrap">
+    {heading && (
+      <div class="grid studio-head">
+        <div class="cat c-1-12"><h2 class="v-cat" id="fl-h">{d.cat}</h2></div>
+        <p class="v-state c-1-8 studio-state">{d.lead}</p>
+        <p class="v-lead c-9-12 studio-p">{f.p}</p>
+      </div>
+    )}
 
+    {!heading && <h2 class="sr-only">{d.cat}</h2>}
     <Showcase lang={lang} />
 
     <div class="grid studio-terms">
       <div class="c-1-6"><Prices lang={lang} /></div>
-      <div class="c-8-12"><Clauses lang={lang} /></div>
+      <div class="c-7-12"><Clauses lang={lang} /></div>
     </div>
 
-    <Process lang={lang} />
+    <div class="studio-process"><Process lang={lang} /></div>
 
-    <div class="grid studio-ai">
-      <h3 class="h3 c-1-5">{f.ai.h3}</h3>
-      <p class="body c-6-12">{f.ai.p}</p>
-    </div>
-
-    <div class="btn-row studio-cta">
-      <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-quote" arrow="up">{f.cta}</Btn>
-      <Btn href={SALES.bookingUrl} variant="line" newTab cta="fl-booking" arrow="up">{f.ctaAlt}</Btn>
+    <div class="grid studio-close">
+      <div class="c-1-6">
+        <h3 class="v-head">{f.ai.h3}</h3>
+        <p class="v-body studio-ai">{f.ai.p}</p>
+      </div>
+      <article class="ad stock-yellow c-7-12 studio-ad" aria-labelledby="fl-ad-h">
+        <p class="ad-domain">FastLanding.io</p>
+        <h3 class="ad-h" id="fl-ad-h">{c.fl.cta.h2}</h3>
+        <div class="ad-foot">
+          <span class="sticker">{c.dir.entry.adFl.price} <small>{c.dir.entry.adFl.priceNote}</small></span>
+          <div class="btn-row">
+            <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-quote">{f.cta}</Btn>
+            <Btn href={SALES.bookingUrl} variant="line" outbound cta="fl-booking">{f.ctaAlt}</Btn>
+          </div>
+        </div>
+      </article>
     </div>
   </div>
 </section>
 
 <style>
-  .studio { margin-top: clamp(2rem, 8vh, 5rem); }
-  .studio-in { padding-block: clamp(4.5rem, 12vh, 8rem) clamp(5rem, 13vh, 9rem); }
-  .studio .h2 { margin-top: 1.5rem; max-width: 15ch; font-size: clamp(2.4rem, 1.2rem + 4.6vw, 5.4rem); }
-  .studio-lead { margin-top: 1.5rem; color: var(--paper-mute); }
-  .studio-terms { margin-top: clamp(4rem, 12vh, 7rem); row-gap: 3.5rem; }
-  .studio :global(.process) { margin-top: clamp(4rem, 12vh, 7rem); }
-  .studio-ai { margin-top: clamp(4rem, 10vh, 6rem); padding-top: 1.5rem; border-top: 1px solid var(--line-2); row-gap: 1rem; }
-  .studio-cta { margin-top: clamp(3rem, 8vh, 4.5rem); }
+  .studio { padding-block: clamp(4rem, 10vh, 7rem); border-bottom: 2px solid var(--ink); }
+  .studio-head { margin-bottom: clamp(2.5rem, 6vh, 4rem); }
+  .studio-state { margin-top: 1.25rem; }
+  .studio-p { margin-top: 1.25rem; color: var(--fg-2); }
+  @media (min-width: 960px) { .studio-p { align-self: end; } }
+  .studio-terms { margin-top: clamp(3.5rem, 9vh, 6rem); row-gap: 3rem; }
+  .studio-process { margin-top: clamp(3.5rem, 9vh, 6rem); }
+  .studio-close { margin-top: clamp(3.5rem, 9vh, 6rem); row-gap: 2rem; align-items: start; }
+  .studio-ai { margin-top: 0.75rem; }
+  .studio-ad { --rule: var(--ink); }
 </style>

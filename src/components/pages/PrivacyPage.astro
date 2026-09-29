@@ -11,11 +11,11 @@ const isPl = lang === 'pl';
 const path = isPl ? '/polityka-prywatnosci' : '/en/privacy';
 const home = isPl ? '/' : '/en';
 ---
-<Base lang={lang} path={path} title={p.title} description={p.description} kind="legal"
+<Base lang={lang} path={path} title={p.title} description={p.description} kind="legal" guide={c.dir.guide.privacy}
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: p.crumb, path }]}>
-  <PageHead lang={lang} crumb={p.crumb} kicker={`${c.ui.updated}: ${formatDate(lang, SITE.lastModified)}`} h1={p.h1} scene={1} side="left" dim={0.4} />
-  <section class="section m-window" data-scene="1" data-scene-side="right" data-scene-dim="0.3">
-    <div class="wrap m-solid">
+  <PageHead lang={lang} crumb={p.crumb} h1={p.h1} lead={`${c.ui.updated}: ${formatDate(lang, SITE.lastModified)}`} stock="white" guide={c.dir.guide.privacy} />
+  <section class="priv stock-white" data-scene-occlude>
+    <div class="wrap">
       <div class="prose">
         {p.sections.map((s) => (<>
           <h2>{s.h}</h2>
@@ -25,3 +25,6 @@ const home = isPl ? '/' : '/en';
     </div>
   </section>
 </Base>
+<style>
+  .priv { padding-block: 1rem clamp(4rem, 10vh, 6rem); border-bottom: 2px solid var(--ink); }
+</style>

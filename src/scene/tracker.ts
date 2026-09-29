@@ -75,8 +75,17 @@ export class SectionTracker {
       // hold while the viewport centre is well inside the section; morph across the boundary
       const m = Math.min(r.height * 0.3, vh * 0.32);
       list.push({ y0: top + m, y1: bottom - m, v, s, focus: el.dataset.sceneFocus === '1' ? 1 : 0, dim: Number.isFinite(dim) ? dim : 1 });
-      if (el.hasAttribute('data-scene-occlude')) occ.push({ y0: top, y1: bottom });
     });
+    // opaque stock (any element marked data-scene-occlude, with or without a chapter of its own)
+    document.querySelectorAll<HTMLElement>('[data-scene-occlude]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.height > 0) occ.push({ y0: r.top + sy, y1: r.bottom + sy });
+    });
+    occ.sort((p, q) => p.y0 - q.y0);
+    // adjacent sheets count as one: a viewport straddling two opaque sections is still covered
+    for (let i = occ.length - 1; i > 0; i--) {
+      if (occ[i]!.y0 <= occ[i - 1]!.y1 + 2) { occ[i - 1]!.y1 = Math.max(occ[i - 1]!.y1, occ[i]!.y1); occ.splice(i, 1); }
+    }
     list.sort((p, q) => p.y0 - q.y0);
     this.plateaus = list;
     this.occluders = occ;

@@ -7,12 +7,9 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import type { Lang } from '../content/site';
 import { copy } from '../content/copy';
-import monaLatin from '../assets/fonts/mona-sans-latin.woff2?url';
-import monaExt from '../assets/fonts/mona-sans-latin-ext.woff2?url';
+import fontLatin from '../assets/fonts/archivo-latin.woff2?url';
+import fontExt from '../assets/fonts/archivo-latin-ext.woff2?url';
 
-// The static dot-map poster is owned by the scene module; render it when present.
-const posterModules = import.meta.glob<{ default: (props: Record<string, unknown>) => unknown }>('../components/MapPoster.astro', { eager: true });
-const MapPoster = Object.values(posterModules)[0]?.default;
 
 interface Props {
   lang: Lang;
@@ -26,20 +23,22 @@ interface Props {
   breadcrumbs?: { name: string; path: string }[];
   faq?: { q: string; a: string }[];
   extra?: Record<string, unknown>[];
+  /** running-head guide word for the top of this page */
+  guide?: string;
 }
-const { lang, path, ...seo } = Astro.props;
+const { lang, path, guide, ...seo } = Astro.props;
 const ui = copy[lang].ui;
 const umamiSrc = import.meta.env.PUBLIC_UMAMI_SRC;
 const umamiId = import.meta.env.PUBLIC_UMAMI_ID;
 
 const pageAnim: TransitionDirectionalAnimations = {
   forwards: {
-    old: { name: 'kb-out', duration: '0.32s', easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fillMode: 'forwards' },
-    new: { name: 'kb-in', duration: '0.8s', delay: '0.1s', easing: 'cubic-bezier(0.19, 1, 0.22, 1)', fillMode: 'backwards' },
+    old: { name: 'kb-out', duration: '0.55s', easing: 'linear', fillMode: 'forwards' },
+    new: { name: 'kb-in', duration: '0.55s', easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fillMode: 'backwards' },
   },
   backwards: {
-    old: { name: 'kb-out', duration: '0.32s', easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fillMode: 'forwards' },
-    new: { name: 'kb-in', duration: '0.8s', delay: '0.1s', easing: 'cubic-bezier(0.19, 1, 0.22, 1)', fillMode: 'backwards' },
+    old: { name: 'kb-out', duration: '0.55s', easing: 'linear', fillMode: 'forwards' },
+    new: { name: 'kb-in-back', duration: '0.55s', easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fillMode: 'backwards' },
   },
 };
 ---
@@ -48,9 +47,9 @@ const pageAnim: TransitionDirectionalAnimations = {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="color-scheme" content="dark light" />
-    <link rel="preload" href={monaLatin} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={monaExt} as="font" type="font/woff2" crossorigin />
+    <meta name="color-scheme" content="light" />
+    <link rel="preload" href={fontLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={fontExt} as="font" type="font/woff2" crossorigin />
     <Seo lang={lang} path={path} {...seo} />
     <script is:inline>document.documentElement.classList.add('js');</script>
     <ClientRouter fallback="swap" />
@@ -58,9 +57,8 @@ const pageAnim: TransitionDirectionalAnimations = {
   </head>
   <body>
     <a class="skip" href="#main">{ui.skip}</a>
-    {MapPoster && <MapPoster transition:persist="kb-poster" />}
     <canvas id="scene" aria-hidden="true" transition:persist="kb-scene"></canvas>
-    <Header lang={lang} path={path} />
+    <Header lang={lang} path={path} guide={guide} />
     <main id="main" transition:animate={pageAnim}>
       <slot />
     </main>

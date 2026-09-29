@@ -1,25 +1,49 @@
 ---
+/**
+ * Department opener for subpages: breadcrumb, the department name set as the category head, the statement as the
+ * H1 and the page's actions. With a scene chapter it opens a window onto the printed map on the right.
+ */
 import { copy } from '../../content/copy';
 import type { Lang } from '../../content/site';
-interface Props { lang: Lang; crumb: string; kicker: string; h1: string; lead?: string; scene?: number; side?: 'left' | 'right' | 'center'; dim?: number }
-const { lang, crumb, kicker, h1, lead, scene = 1, side = 'left', dim } = Astro.props;
+interface Props {
+  lang: Lang; crumb: string; h1: string; cat?: string; lead?: string;
+  scene?: number; side?: 'left' | 'right' | 'center'; dim?: number; guide?: string;
+  stock?: 'yellow' | 'white';
+}
+const { lang, crumb, h1, cat, lead, scene, side = 'left', dim, guide, stock = 'yellow' } = Astro.props;
 const home = lang === 'pl' ? '/' : '/en';
+const poster = scene === 1 || scene === 2 || scene === 5;
 ---
-<section class="page-head m-window" data-scene={scene} data-scene-side={side} data-scene-dim={dim} aria-labelledby="page-h1">
-  <div class="wrap grid">
-    <div class="c-1-7 m-solid ph-in">
+<section
+  class:list={['page-head', scene === undefined ? `stock-${stock}` : 'is-window m-window']}
+  data-scene={scene} data-scene-side={scene !== undefined ? side : undefined} data-scene-dim={dim}
+  data-scene-occlude={scene === undefined ? '' : undefined} data-poster={poster ? '' : undefined}
+  data-guide={guide ?? crumb} aria-labelledby="page-h1"
+>
+  <div class="wrap">
+    <div class="ph-in m-solid">
       <nav class="crumbs" aria-label={lang === 'pl' ? 'Ścieżka nawigacji' : 'Breadcrumb'}><a href={home}>{copy[lang].ui.home}</a><span aria-hidden="true">/</span><span aria-current="page">{crumb}</span></nav>
-      <p class="label ph-kicker"><b>{kicker}</b></p>
-      <h1 class="h1" id="page-h1">{h1}</h1>
-      {lead && <p class="lead">{lead}</p>}
+      <h1 class="ph-h1" id="page-h1">
+        {cat && <span class="v-cat ph-cat">{cat}</span>}
+        <span class:list={[cat ? 'v-state ph-state' : 'v-cat']}>{h1}</span>
+      </h1>
+      {lead && <p class="v-lead ph-lead">{lead}</p>}
       <div class="btn-row ph-actions"><slot /></div>
     </div>
   </div>
 </section>
 <style>
-  .page-head { min-height: min(92svh, 58rem); display: grid; align-content: end; }
-  .ph-kicker { margin-top: 2rem; max-width: 30rem; }
+  .page-head { position: relative; padding-top: calc(var(--head-h) + clamp(2rem, 7vh, 4.5rem)); padding-bottom: clamp(3rem, 8vh, 5rem); border-bottom: 2px solid var(--ink); }
+  .page-head.is-window { min-height: min(94svh, 56rem); display: grid; align-content: end; }
+  .ph-in { max-width: 44rem; }
+  .page-head:not(.is-window) .ph-in { max-width: none; }
+  .crumbs { display: flex; gap: 0.5rem; font-stretch: var(--w-list); font-weight: 750; text-transform: uppercase; letter-spacing: 0.04em; font-size: var(--t-micro); margin-bottom: 0.9rem; }
+  .crumbs a { text-decoration: underline; text-underline-offset: 3px; }
+  .ph-h1 { display: grid; gap: 0.9rem; border-top: 8px solid var(--ink); padding-top: 0.9rem; font-weight: 900; }
+  .ph-state { max-width: 22ch; }
+  .page-head:not(.is-window) .ph-h1 > .v-cat:only-child { max-width: 16ch; }
+  .ph-lead { margin-top: 1.25rem; color: var(--fg-2); }
+  .ph-actions { margin-top: 1.75rem; }
   .ph-actions:empty { display: none; }
-  .ph-actions { margin-top: 2rem; }
-  @media (max-width: 899px) { .page-head { min-height: 0; } .ph-in { padding-top: 1rem; } }
+  @media (max-width: 959px) { .page-head.is-window { min-height: 0; } }
 </style>
