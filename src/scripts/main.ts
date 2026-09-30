@@ -1,108 +1,46 @@
 /**
  * Client entry. The page is complete without JS; everything here is enhancement.
- * Astro ClientRouter keeps the canvas alive between pages, so the printed 3D map is mounted once
- * and re-pointed at each new page (rescan) instead of restarting.
+ * The film (src/film) mounts once on a real GPU, after the page has loaded and settled, and fades in over the stills.
+ * Astro ClientRouter keeps its canvas between pages, so later pages only re-point it (rescan).
  */
 import { initAttribution } from './attribution';
 import { initLeadForms } from './lead-form';
 import { initSmooth, syncScroll, lockScroll } from './motion';
-import { initRegistry, rollNumber } from './registry';
-import { initInstrument } from './instrument';
+import { initRegistry } from './registry';
 import { initShowcase } from './showcase';
 import { initChat } from './chat';
 import { initBooking } from './booking';
+import type { Film, Tier } from '../film/film';
 
-interface SceneHandle {
-  destroy(): void;
-  rescan?(): void;
-  setCity?(lat: number, lon: number, w?: number): void;
-  clearCity?(): void;
-}
 type Cleanup = () => void;
 
 const root = document.documentElement;
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-let scene: SceneHandle | null = null;
-let starting = false;
-let lastCity: { lat: number; lon: number; w?: number } | null = null;
+let film: Film | null = null;
+let filmState: 'idle' | 'starting' | 'live' | 'off' = 'idle';
 let cleanups: Cleanup[] = [];
 
-/* ── live clock (Gliwice) ── */
-function clock(): Cleanup {
-  const fmt = new Intl.DateTimeFormat(root.lang === 'en' ? 'en-GB' : 'pl-PL', { timeZone: 'Europe/Warsaw', hour: '2-digit', minute: '2-digit' });
-  const tick = () => {
-    const t = fmt.format(new Date());
-    document.querySelectorAll<HTMLElement>('[data-clock]').forEach((el) => { el.textContent = t; });
-  };
-  tick();
-  const id = window.setInterval(tick, 15_000);
-  return () => window.clearInterval(id);
-}
-
-/* ── running head + thumb index: the guide word and the tab follow the section in view ── */
-const TAB_FOR: Record<string, string> = { outreachpilot: 'outreachpilot', indeks: 'outreachpilot', fastlanding: 'fastlanding', fastbot: 'fastlanding', kontakt: 'kontakt', 'bez-www': 'outreachpilot' };
+/* ── wayfinding: the header's centre pill names the chapter or sheet in view ── */
 function wayfinding(): Cleanup {
-  const guide = document.querySelector<HTMLElement>('[data-guide]:not(section)');
-  const sections = Array.from(document.querySelectorAll<HTMLElement>('section[data-guide]'));
-  const tabs = Array.from(document.querySelectorAll<HTMLAnchorElement>('.tabs a'));
-  if (!guide || !sections.length) return () => undefined;
-  const set = (sec: HTMLElement) => {
-    const word = sec.dataset.guide ?? '';
-    if (guide.textContent !== word) {
-      guide.textContent = word;
-      if (!reduced) guide.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 260, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
-    }
-    const key = TAB_FOR[sec.id] ?? '';
-    tabs.forEach((t) => t.classList.toggle('is-here', !!key && (t.getAttribute('href') ?? '').endsWith(key === 'kontakt' ? (root.lang === 'en' ? '/contact' : '/kontakt') : '/' + key)));
+  const word = document.querySelector<HTMLElement>('[data-guide-word]');
+  const marks = Array.from(document.querySelectorAll<HTMLElement>('main [data-guide]'));
+  if (!word || !marks.length) return () => undefined;
+  const set = (el: HTMLElement) => {
+    const w = el.dataset.guide ?? '';
+    if (!w || word.textContent === w) return;
+    word.textContent = w;
+    if (!reduced) word.animate([{ opacity: 0, transform: 'translateY(60%)' }, { opacity: 1, transform: 'none' }], { duration: 380, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
   };
   const io = new IntersectionObserver((entries) => {
-    for (const e of entries) if (e.isIntersecting) { set(e.target as HTMLElement); pair(); }
-  }, { rootMargin: '-30% 0px -65% 0px' });
-  sections.forEach((s) => io.observe(s));
-  // the second guide word: the department at the foot of the screen, when it differs from the first
-  const last = document.querySelector<HTMLElement>('[data-guide-last]');
-  const box = last?.closest<HTMLElement>('.rhead-guide');
-  let foot: HTMLElement | null = null;
-  const pair = () => {
-    if (!last || !box) return;
-    const word = foot && foot.dataset.guide !== guide.textContent ? foot.dataset.guide ?? '' : '';
-    box.classList.toggle('has-last', !!word);
-    if (word && last.textContent !== word) {
-      last.textContent = word;
-      if (!reduced) last.animate([{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 260, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
-    }
-  };
-  const io2 = new IntersectionObserver((entries) => {
-    for (const e of entries) if (e.isIntersecting) foot = e.target as HTMLElement;
-    pair();
-  }, { rootMargin: '-96% 0px 0px 0px' });
-  sections.forEach((s) => io2.observe(s));
-  return () => { io.disconnect(); io2.disconnect(); };
+    for (const e of entries) if (e.isIntersecting) set(e.target as HTMLElement);
+  }, { rootMargin: '-45% 0px -54% 0px' });
+  marks.forEach((m) => io.observe(m));
+  return () => io.disconnect();
 }
 
-/* ── first print: the register column lays its leader dots down and the counts roll in, once per page view ── */
-function firstPrint(): Cleanup {
-  const reg = document.querySelector<HTMLElement>('.register[data-print]');
-  if (!reg || reduced) return () => undefined;
-  const r = reg.getBoundingClientRect();
-  if (r.top > window.innerHeight || r.bottom < 0) return () => undefined;
-  reg.classList.add('is-printing');
-  const nf = new Intl.NumberFormat(root.lang === 'en' ? 'en-US' : 'pl-PL');
-  const fmt = (n: number) => nf.format(n).replace(/\s/g, '\u00a0');
-  const cancels = Array.from(reg.querySelectorAll<HTMLElement>('[data-roll]')).map((el, i) => {
-    const to = Number(el.dataset.roll) || 0;
-    el.dataset.v = '0';
-    el.textContent = fmt(0);
-    let cancel = () => undefined as void;
-    const t = window.setTimeout(() => { cancel = rollNumber(el, to, fmt, false); }, 120 + i * 45);
-    return () => { window.clearTimeout(t); cancel(); el.textContent = fmt(to); };
-  });
-  return () => cancels.forEach((c) => c());
-}
-
-/* ── mobile menu ── */
+/* ── menu: a full-screen dialog over everything ── */
 function menu(): Cleanup {
-  const btn = document.querySelector<HTMLButtonElement>('.rhead .rhead-menu');
+  const btn = document.querySelector<HTMLButtonElement>('.hd-menu');
   const panel = document.getElementById('menu');
   if (!btn || !panel) return () => undefined;
   const set = (open: boolean) => {
@@ -118,7 +56,16 @@ function menu(): Cleanup {
     if (t.closest('[data-menu-close]')) { set(false); btn.focus(); }
     else if (t.closest('a')) set(false);
   };
-  const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && panel.classList.contains('is-open')) { set(false); btn.focus(); } };
+  const onKey = (e: KeyboardEvent) => {
+    if (!panel.classList.contains('is-open')) return;
+    if (e.key === 'Escape') { set(false); btn.focus(); return; }
+    if (e.key !== 'Tab') return;
+    // keep focus inside the dialog
+    const f = Array.from(panel.querySelectorAll<HTMLElement>('a[href], button'));
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+  };
   btn.addEventListener('click', onBtn);
   panel.addEventListener('click', onPanel);
   document.addEventListener('keydown', onKey);
@@ -126,13 +73,15 @@ function menu(): Cleanup {
     btn.removeEventListener('click', onBtn);
     panel.removeEventListener('click', onPanel);
     document.removeEventListener('keydown', onKey);
+    panel.classList.remove('is-open');
+    btn.setAttribute('aria-expanded', 'false');
     root.style.overflow = '';
     lockScroll(false);
   };
 }
 
-/* ── 3D world: mounted once, after load, only when it is worth it ── */
-/** A throwaway context: WebGL2 on a real GPU? Software rasterisers keep the static poster instead. */
+/* ── the film ── */
+/** A throwaway context: WebGL2 on a real GPU? Software rasterisers keep the stills instead. */
 function hardwareGL(): boolean {
   try {
     const gl = document.createElement('canvas').getContext('webgl2');
@@ -140,55 +89,67 @@ function hardwareGL(): boolean {
     const ext = gl.getExtension('WEBGL_debug_renderer_info');
     const renderer = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
     gl.getExtension('WEBGL_lose_context')?.loseContext();
-    return !/swiftshader|llvmpipe|softpipe|software/i.test(renderer);
+    return !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer);
   } catch {
     return false;
   }
 }
 
-let posterOnly = false;
-/** No live scene on this device: pages can show what stands in for it (html.scene-off). */
-const sceneOff = (): void => { posterOnly = true; root.classList.add('scene-off'); };
-function startScene(): void {
-  if (scene || starting || posterOnly) return;
-  const canvas = document.getElementById('scene') as HTMLCanvasElement | null;
-  if (!canvas) return;
-  const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } };
-  if (nav.connection?.saveData || /(^|-)2g$/.test(nav.connection?.effectiveType ?? '')) { sceneOff(); return; }
-  // ?gl=high|mid|low forces a tier and the live scene even on software GL (QA only)
-  const tier = /[?&]gl=(high|mid|low)\b/.exec(location.search)?.[1] as 'high' | 'mid' | 'low' | undefined;
-  starting = true;
-  const go = async () => {
-    try {
-      if (!tier && !hardwareGL()) { sceneOff(); return; }
-      const { mountScene } = await import('../scene/index');
-      const handle = (await mountScene(canvas, { reducedMotion: reduced, tier })) as SceneHandle | null;
-      if (handle) {
-        scene = handle;
-        canvas.classList.add('is-live');
-        // the live map prints over the poster before the poster goes
-        window.setTimeout(() => root.classList.add('scene-live'), reduced ? 0 : 1200);
-        if (lastCity) scene.setCity?.(lastCity.lat, lastCity.lon, lastCity.w);
-      } else sceneOff();
-    } catch {
-      /* the poster and the HTML are the fallback */
-      sceneOff();
-    } finally {
-      starting = false;
-    }
-  };
-  const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
-  const kick = () => (idle ? idle(go, { timeout: 2000 }) : window.setTimeout(go, 600));
-  if (document.readyState === 'complete') kick();
-  else window.addEventListener('load', kick, { once: true });
+function pickTier(): Tier {
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  const coarse = window.matchMedia('(pointer: coarse)').matches;
+  const cores = nav.hardwareConcurrency ?? 4;
+  const mem = nav.deviceMemory ?? 8;
+  if (coarse) return cores >= 8 && mem >= 6 ? 'mid' : 'low';
+  return cores >= 8 && mem >= 8 ? 'high' : 'mid';
 }
 
-document.addEventListener('kb:city', (e) => {
-  const d = (e as CustomEvent<{ lat: number; lon: number; w?: number } | null>).detail;
-  lastCity = d;
-  if (d) scene?.setCity?.(d.lat, d.lon, d.w);
-  else scene?.clearCity?.();
-});
+const filmOff = (): void => { filmState = 'off'; root.classList.add('film-off'); };
+
+async function mountFilm(): Promise<void> {
+  if (filmState !== 'idle') return;
+  const canvas = document.getElementById('film') as HTMLCanvasElement | null;
+  if (!canvas) return;
+  // ?gl=high|mid|low forces a tier and the live film even on software GL (QA only)
+  const forced = /[?&]gl=(high|mid|low)\b/.exec(location.search)?.[1] as Tier | undefined;
+  const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } };
+  if (!forced && (nav.connection?.saveData || /(^|-)2g$/.test(nav.connection?.effectiveType ?? ''))) { filmOff(); return; }
+  if (!forced && !hardwareGL()) { filmOff(); return; }
+  filmState = 'starting';
+  try {
+    const { createFilm } = await import('../film/film');
+    film = await createFilm(canvas, { tier: forced ?? pickTier(), reduced, forceQuality: !!forced });
+    filmState = 'live';
+    requestAnimationFrame(() => root.classList.add('film-live'));
+  } catch {
+    film = null;
+    filmOff();
+  }
+}
+
+/**
+ * The stills are the first paint (and the LCP). The film loads when the visitor starts to scroll or after a few
+ * quiet seconds, whichever comes first, and never before the load event.
+ */
+function scheduleFilm(): void {
+  if (filmState !== 'idle') return;
+  let fired = false;
+  const go = () => {
+    if (fired) return;
+    fired = true;
+    window.clearTimeout(timer);
+    window.removeEventListener('scroll', onScroll);
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+    if (idle) idle(() => void mountFilm(), { timeout: 1200 }); else window.setTimeout(() => void mountFilm(), 200);
+  };
+  const onScroll = () => go();
+  let timer = 0;
+  const arm = () => {
+    timer = window.setTimeout(go, 3500);
+    window.addEventListener('scroll', onScroll, { passive: true, once: true });
+  };
+  if (document.readyState === 'complete') arm(); else window.addEventListener('load', arm, { once: true });
+}
 
 /* ── page lifecycle ── */
 function onPage(): void {
@@ -199,18 +160,15 @@ function onPage(): void {
   initAttribution();
   initLeadForms();
   cleanups.push(
-    clock(),
     wayfinding(),
     menu(),
-    firstPrint(),
     initRegistry(reduced),
-    initInstrument(),
     initShowcase(reduced),
     initChat(reduced),
     initBooking(),
   );
-  if (scene) scene.rescan?.();
-  else startScene();
+  if (film) film.rescan();
+  else scheduleFilm();
 }
 
 let booted = false;
@@ -224,6 +182,11 @@ const boot = () => {
 
 initSmooth(reduced);
 document.addEventListener('astro:before-swap', () => { cleanups.forEach((f) => f()); cleanups = []; });
-document.addEventListener('astro:after-swap', () => { swapped = true; root.classList.add('js'); if (scene) root.classList.add('scene-live'); if (posterOnly) root.classList.add('scene-off'); });
+document.addEventListener('astro:after-swap', () => {
+  swapped = true;
+  root.classList.add('js');
+  if (filmState === 'live') root.classList.add('film-live');
+  if (filmState === 'off') root.classList.add('film-off');
+});
 document.addEventListener('astro:page-load', boot);
 boot();

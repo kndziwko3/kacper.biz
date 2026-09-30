@@ -1,0 +1,8 @@
+---
+/** An evidence sheet: cream stock that slides over the film (the film sleeps while one covers the screen). */
+interface Props { id?: string; labelledby?: string; guide?: string; dark?: boolean; class?: string }
+const { id, labelledby, guide, dark = false, class: cls } = Astro.props;
+---
+<section class:list={['sheet', dark && 'sheet--dark', cls]} id={id} data-sheet data-guide={guide} aria-labelledby={labelledby}>
+  <div class="wrap"><slot /></div>
+</section>

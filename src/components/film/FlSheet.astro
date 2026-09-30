@@ -1,0 +1,107 @@
+---
+/**
+ * The FastLanding evidence sheet: sites you can open, the price list, what goes into the contract and the five steps.
+ * Used on the home page after the page chapter and on /fastlanding.
+ */
+import Sheet from '../ui/Sheet.astro';
+import Btn from '../ui/Btn.astro';
+import Work from './Work.astro';
+import { copy } from '../../content/copy';
+import { FASTLANDING_OFFERS, FASTLANDING_RECURRING, PRODUCTS, SALES, type Lang } from '../../content/site';
+import { typo } from '../../lib/typo';
+interface Props { lang: Lang; id?: string; work?: boolean }
+const { lang, id = 'fastlanding', work = true } = Astro.props;
+const c = copy[lang];
+const fl = c.home.fl;
+const f = c.film;
+const price = (o: { price: string; priceEn: string }) => typo(lang === 'pl' ? o.price : o.priceEn, lang);
+---
+<Sheet id={id} labelledby={`${id}-h`} guide="FastLanding.io">
+  {work ? (
+    <>
+      <div class="grid sec-head">
+        <p class="t-label c-1-8">FastLanding.io</p>
+        <h2 class="t-display c-1-8" id={`${id}-h`}>{f.fl.workH2}</h2>
+        <p class="t-lead dim c-1-7">{fl.showcase.note}</p>
+      </div>
+      <Work lang={lang} />
+    </>
+  ) : <h2 class="sr-only" id={`${id}-h`}>{f.fl.pricesH3}</h2>}
+
+  <div class:list={['grid', 'fl-terms', !work && 'fl-terms--top']}>
+    <div class="fl-prices">
+      <h3 class="t-h2">{f.fl.pricesH3}</h3>
+      <p class="t-label dim fl-sub">{f.rateOnce}</p>
+      <ul class="rows">
+        {FASTLANDING_OFFERS.map((o) => (
+          <li><span class="k">{o.name[lang]}</span><span class="v" set:html={price(o)} /><span class="note" set:html={typo(o.time[lang], lang)} /></li>
+        ))}
+      </ul>
+      <p class="t-label dim fl-sub">{fl.prices.recurring}</p>
+      <ul class="rows">
+        {FASTLANDING_RECURRING.map((o) => (<li><span class="k">{o.name[lang]}</span><span class="v" set:html={price(o)} /></li>))}
+      </ul>
+      <p class="t-src fl-note">{fl.prices.note}</p>
+    </div>
+    <div class="fl-contract">
+      <h3 class="t-h2">{fl.clauses.h3}</h3>
+      <ol class="fl-clauses">
+        {fl.clauses.items.map((t, i) => (<li><span class="t-label dim num">{String(i + 1).padStart(2, '0')}</span><span class="t-body">{t}</span></li>))}
+      </ol>
+    </div>
+  </div>
+
+  <div class="fl-process">
+    <h3 class="t-h2">{f.fl.processH3}</h3>
+    <ol class="fl-steps">
+      {fl.process.steps.map(([t, d], i) => (
+        <li><span class="fl-n num" aria-hidden="true">{i + 1}</span><b class="t-h3">{t}</b><span class="t-small dim">{d}</span></li>
+      ))}
+    </ol>
+  </div>
+
+  <div class="grid fl-go">
+    <div class="fl-go-in">
+      <h3 class="t-h2">{c.fl.cta.h2}</h3>
+      <div class="btn-row">
+        <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-quote">{fl.cta}</Btn>
+        <Btn href={SALES.bookingUrl} variant="ghost" outbound cta="fl-booking">{fl.ctaAlt}</Btn>
+      </div>
+    </div>
+    <div class="fl-ai">
+      <h3 class="t-h3">{fl.ai.h3}</h3>
+      <p class="t-small dim">{fl.ai.p}</p>
+    </div>
+  </div>
+  <slot />
+</Sheet>
+
+<style>
+  .fl-terms { margin-top: clamp(5rem, 13vh, 9rem); row-gap: 4rem; align-items: start; }
+  .fl-terms--top { margin-top: 0; }
+  .fl-prices, .fl-contract { display: grid; gap: 1rem; align-content: start; }
+  .fl-sub { margin-top: 1.25rem; }
+  .fl-prices .rows .v { white-space: nowrap; }
+  .fl-note { margin-top: 0.5rem; }
+  .fl-clauses { border-top: 1px solid var(--line-p); margin-top: 0.5rem; }
+  .fl-clauses li { display: grid; grid-template-columns: 2.5rem 1fr; gap: 1rem; padding-block: 1.1rem; border-bottom: 1px solid var(--line-p); }
+  .fl-clauses .t-label { padding-top: 0.3rem; }
+
+  .fl-process { margin-top: clamp(5rem, 13vh, 9rem); display: grid; gap: 2rem; }
+  .fl-steps { display: grid; border-top: 1px solid var(--line-p); }
+  .fl-steps li { display: grid; grid-template-columns: 3rem 1fr; column-gap: 1rem; row-gap: 0.4rem; padding-block: 1.4rem; border-bottom: 1px solid var(--line-p); }
+  .fl-steps li > :not(.fl-n) { grid-column: 2; }
+  .fl-n { grid-row: span 2; font: 500 2.4rem/0.9 var(--f-sans); letter-spacing: -0.04em; color: var(--copper-ink); }
+  @media (min-width: 960px) {
+    .fl-prices { grid-column: 1 / 7; }
+    .fl-contract { grid-column: 8 / 13; }
+    .fl-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--col-gap); border-bottom: 1px solid var(--line-p); }
+    .fl-steps li { grid-template-columns: 1fr; border-bottom: 0; padding-block: 1.5rem 2rem; }
+    .fl-steps li > :not(.fl-n) { grid-column: 1; }
+    .fl-n { grid-row: auto; font-size: 3.4rem; margin-bottom: 1.5rem; }
+  }
+  .fl-go { margin-top: clamp(5rem, 13vh, 9rem); padding-top: clamp(2.5rem, 6vh, 4rem); border-top: 1px solid var(--line-p); row-gap: 2.5rem; align-items: end; }
+  .fl-go-in { display: grid; gap: 1.75rem; justify-items: start; }
+  .fl-ai { display: grid; gap: 0.75rem; }
+  @media (min-width: 960px) { .fl-go-in { grid-column: 1 / 8; } .fl-ai { grid-column: 9 / 13; } }
+</style>

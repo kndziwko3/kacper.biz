@@ -1,68 +1,61 @@
 ---
-/** The back cover: reversed black stock with the directory's imprint (publisher, edition, sources). */
-import { NAV, PRODUCTS, PERSON, CONTACT, SALES, SITE, type Lang } from '../content/site';
-import { copy, formatDate } from '../content/copy';
-import Btn from './ui/Btn.astro';
-interface Props { lang: Lang }
+/** The last frame: the studio again, the name set large, the facts and every way to reach Kacper. */
+import { NAV, CONTACT, PERSON, PRODUCTS, SALES, SITE, type Lang } from '../content/site';
+import { copy } from '../content/copy';
+interface Props { lang: Lang; path: string }
 const { lang } = Astro.props;
-const ui = copy[lang].ui;
-const f = ui.footer;
-const c = copy[lang].dir.colophon;
+const c = copy[lang];
+const ft = c.ui.footer;
 const privacy = lang === 'pl' ? '/polityka-prywatnosci' : '/en/privacy';
+const updated = new Date(SITE.lastModified).toLocaleDateString(lang === 'pl' ? 'pl-PL' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 ---
-<footer class="colophon stock-black" transition:animate="none">
+<footer class="ft" transition:animate="none">
   <div class="wrap">
-    <div class="col-top">
-      <p class="col-lead v-state" set:html={f.lead} />
-      <div class="btn-row"><Btn href={SALES.bookingUrl} outbound cta="footer-booking">{copy[lang].dir.book}</Btn></div>
+    <div class="ft-top">
+      <p class="ft-name" aria-hidden="true">Kacper Rękawek</p>
+      <div class="ft-lead">
+        <p class="t-lead">{ft.lead}</p>
+        <div class="btn-row"><a class="btn" href={SALES.bookingUrl} data-outbound data-cta="footer-booking" rel="noopener">{c.film.book}</a></div>
+      </div>
     </div>
-    <div class="col-grid">
+    <div class="ft-cols">
       <div>
-        <h2 class="v-list">{f.products}</h2>
+        <h2 class="t-label ft-h">{ft.products}</h2>
         <ul>
-          <li><a href={PRODUCTS.outreachpilot.url} data-outbound data-cta="footer-op" rel="noopener">OutreachPilot.pl</a></li>
-          <li><a href={PRODUCTS.fastlanding.url} data-outbound data-cta="footer-fl" rel="noopener">FastLanding.io</a></li>
-          <li><a href={PRODUCTS.outreachpilot.firms} data-outbound data-cta="footer-ceidg" rel="noopener">{c.firms}</a></li>
+          <li><a class="tlink" href={PRODUCTS.outreachpilot.url} data-outbound data-cta="footer-op" rel="noopener">OutreachPilot.pl</a></li>
+          <li><a class="tlink" href={PRODUCTS.fastlanding.url} data-outbound data-cta="footer-fl" rel="noopener">FastLanding.io</a></li>
         </ul>
       </div>
       <div>
-        <h2 class="v-list">{f.site}</h2>
-        <ul>{NAV[lang].map((i) => <li><a href={i.href}>{i.label}</a></li>)}</ul>
+        <h2 class="t-label ft-h">{ft.site}</h2>
+        <ul>{NAV[lang].map((i) => <li><a class="tlink" href={i.href}>{i.label}</a></li>)}</ul>
       </div>
       <div>
-        <h2 class="v-list">{f.contact}</h2>
+        <h2 class="t-label ft-h">{ft.contact}</h2>
         <ul>
-          <li><a href={`mailto:${CONTACT.studioEmail}`}>{CONTACT.studioEmail}</a></li>
-          <li><a href={`mailto:${CONTACT.productEmail}`}>{CONTACT.productEmail}</a></li>
-          <li><a href={CONTACT.aiPhone.href}>{CONTACT.aiPhone.display}</a></li>
-          <li><a href={PERSON.linkedin} rel="me noopener" target="_blank">{f.linkedin}</a></li>
+          <li><a class="tlink" href={`mailto:${CONTACT.studioEmail}`}>{CONTACT.studioEmail}</a></li>
+          <li><a class="tlink" href={`mailto:${CONTACT.productEmail}`}>{CONTACT.productEmail}</a></li>
+          <li><a class="tlink num" href={CONTACT.aiPhone.href}>{CONTACT.aiPhone.display}</a></li>
+          <li><a class="tlink" href={PERSON.linkedin} rel="me noopener" data-outbound>{ft.linkedin}</a></li>
         </ul>
       </div>
-      <div class="col-imprint">
-        <h2 class="v-list">{c.imprint}</h2>
-        <p>{f.company}</p>
-        <p>{c.edition} <time datetime={SITE.lastModified}>{formatDate(lang)}</time></p>
-        <p>{c.sources}</p>
-        <p><a href={privacy}>{f.privacy}</a></p>
-      </div>
     </div>
-    <p class="col-fine">{f.disambig} {PERSON.disambiguation[lang]}</p>
+    <div class="ft-legal t-src">
+      <p>{ft.company}</p>
+      <p>{ft.disambig}</p>
+      <p><a class="tlink" href={privacy}>{ft.privacy}</a> · {c.ui.updated}: {updated}</p>
+    </div>
   </div>
 </footer>
 
 <style>
-  .colophon { padding-block: clamp(3.5rem, 9vh, 6rem) 2rem; }
-  .col-top { display: grid; gap: 1.75rem; align-items: end; padding-bottom: clamp(2.5rem, 6vh, 4rem); border-bottom: 8px solid var(--yellow); }
-  @media (min-width: 960px) { .col-top { grid-template-columns: 1fr auto; } }
-  .col-lead { max-width: 20ch; }
-  .col-grid { display: grid; gap: 2rem; padding-top: 1.5rem; }
-  @media (min-width: 700px) { .col-grid { grid-template-columns: 1fr 1fr; } }
-  @media (min-width: 1100px) { .col-grid { grid-template-columns: 1fr 1fr 1fr 1.6fr; } }
-  .col-grid h2 { padding-bottom: 0.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--yellow); }
-  .col-grid li + li { margin-top: 0.45rem; }
-  .col-grid a { text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; transition: text-decoration-color 0.15s; }
-  .col-grid a:hover { text-decoration-color: currentColor; }
-  .col-imprint p { font-size: var(--t-small); line-height: 1.5; }
-  .col-imprint p + p { margin-top: 0.5rem; }
-  .col-fine { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--yellow); font-size: var(--t-micro); line-height: 1.5; max-width: 110ch; }
+  .ft { position: relative; z-index: 2; background: var(--studio); color: var(--text); padding-block: clamp(4rem, 12vh, 8rem) 2.5rem; border-top: 1px solid var(--line-d); }
+  .ft-top { display: grid; gap: 2rem; align-items: end; padding-bottom: clamp(3rem, 8vh, 5rem); border-bottom: 1px solid var(--line-d); }
+  .ft-name { font: 500 clamp(3rem, 0.8rem + 9vw, 10rem)/0.86 var(--f-sans); letter-spacing: -0.04em; }
+  .ft-lead { display: grid; gap: 1.25rem; max-width: 34rem; }
+  @media (min-width: 960px) { .ft-top { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); } }
+  .ft-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 2rem var(--col-gap); padding-block: 2.5rem; }
+  .ft-h { color: var(--text-2); margin-bottom: 0.9rem; }
+  .ft-cols ul { display: grid; gap: 0.55rem; }
+  .ft-legal { display: grid; gap: 0.4rem; padding-top: 1.5rem; border-top: 1px solid var(--line-d); max-width: none; }
 </style>

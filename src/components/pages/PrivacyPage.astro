@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import PageHead from '../ui/PageHead.astro';
+import Sheet from '../ui/Sheet.astro';
 import { copy, formatDate } from '../../content/copy';
 import { SITE, type Lang } from '../../content/site';
 interface Props { lang: Lang }
@@ -11,20 +12,15 @@ const isPl = lang === 'pl';
 const path = isPl ? '/polityka-prywatnosci' : '/en/privacy';
 const home = isPl ? '/' : '/en';
 ---
-<Base lang={lang} path={path} title={p.title} description={p.description} kind="legal" guide={c.dir.guide.privacy}
-  breadcrumbs={[{ name: c.ui.home, path: home }, { name: p.crumb, path }]}>
-  <PageHead lang={lang} crumb={p.crumb} h1={p.h1} lead={`${c.ui.updated}: ${formatDate(lang, SITE.lastModified)}`} stock="white" guide={c.dir.guide.privacy} />
-  <section class="priv stock-white" data-scene-occlude>
-    <div class="wrap">
-      <div class="prose">
-        {p.sections.map((s) => (<>
-          <h2>{s.h}</h2>
-          {s.p.map((t) => <p>{t}</p>)}
-        </>))}
-      </div>
-    </div>
-  </section>
+<Base lang={lang} path={path} title={p.title} description={p.description} kind="legal"
+  breadcrumbs={[{ name: c.ui.home, path: home }, { name: p.crumb, path }]} still="p0">
+  <PageHead lang={lang} crumb={p.crumb} h1={p.h1} lead={`${c.ui.updated}: ${formatDate(lang, SITE.lastModified)}`} pose={0} short guide={c.film.guide.privacy} />
+  <Sheet guide={c.film.guide.privacy}>
+    <div class="grid"><div class="prose c-4-12">
+      {p.sections.map((s) => (<>
+        <h2>{s.h}</h2>
+        {s.p.map((t) => <p>{t}</p>)}
+      </>))}
+    </div></div>
+  </Sheet>
 </Base>
-<style>
-  .priv { padding-block: 1rem clamp(4rem, 10vh, 6rem); border-bottom: 2px solid var(--ink); }
-</style>

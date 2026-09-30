@@ -17,7 +17,7 @@ export const SITE = {
   ogLocale: { pl: 'pl_PL', en: 'en_US' } as Record<Lang, string>,
   /** Dated facts + dateModified signals. Bump when any fact below changes. */
   lastModified: '2026-09-29',
-  themeColor: '#f7d117',
+  themeColor: '#0e0c0a',
   /** Gliwice, used for the live clock and the map label. */
   geo: { lat: 50.2945, lon: 18.6714, tz: 'Europe/Warsaw' },
 } as const;

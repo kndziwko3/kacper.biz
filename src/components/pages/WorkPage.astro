@@ -1,7 +1,8 @@
 ---
-/** Work, on white stock: each client site as a full-page ad proof, the capture scrolling with the page. */
+/** Work: each client site as a case on the sheet, the full-page capture travelling inside its frame. */
 import Base from '../../layouts/Base.astro';
 import PageHead from '../ui/PageHead.astro';
+import Sheet from '../ui/Sheet.astro';
 import Btn from '../ui/Btn.astro';
 import { copy, formatDate } from '../../content/copy';
 import { PRODUCTS, PROJECTS, type Lang } from '../../content/site';
@@ -19,77 +20,73 @@ const own = [
 ];
 const alt = (name: string, kind: string) => (isPl ? `Strona ${name}, ${kind}` : `${name} website, ${kind}`);
 ---
-<Base lang={lang} path={path} title={w.title} description={w.description} kind="work" guide={c.dir.guide.work}
-  breadcrumbs={[{ name: c.ui.home, path: home }, { name: w.crumb, path }]} ogImage={isPl ? '/og/work.png' : '/og/work-en.png'}>
-  <PageHead lang={lang} crumb={w.crumb} cat={w.kicker} h1={w.h1} lead={w.lead} stock="white" guide={c.dir.guide.work} />
+<Base lang={lang} path={path} title={w.title} description={w.description} kind="work"
+  breadcrumbs={[{ name: c.ui.home, path: home }, { name: w.crumb, path }]} ogImage={isPl ? '/og/work.png' : '/og/work-en.png'} still="p1">
+  <PageHead lang={lang} crumb={w.crumb} label={w.kicker} h1={w.h1} lead={w.lead} pose={1} short guide={c.film.guide.work} />
 
-  <div class="cases stock-white" data-scene-occlude>
-    <div class="wrap">
-      {PROJECTS.map((p) => {
-        const t = shot(p.key, 'tour');
-        return (
-          <article class="case grid" aria-labelledby={`case-${p.key}`}>
-            <header class="c-1-5 case-meta">
-              <h2 class="v-cat case-h" id={`case-${p.key}`}>{p.name}</h2>
-              <p class="v-body case-blurb">{p.blurb[lang]}</p>
-              <ul class="case-dl">
-                <li class="ld"><span>{w.type}</span><i></i><span>{p.kind[lang]}</span></li>
-                <li class="ld"><span>{w.langs}</span><i></i><span>{p.langs}</span></li>
-                <li class="ld"><span>{w.checked}</span><i></i><span>{formatDate(lang, p.checked)}</span></li>
-              </ul>
-              <h3 class="v-list case-on">{w.onPage}</h3>
-              <ul class="ad-bul case-list">{(w.features[p.key] ?? []).map((f) => <li>{f}</li>)}</ul>
-              <div class="btn-row case-cta"><Btn href={p.url} newTab>{p.host}</Btn></div>
-            </header>
-            <a class="c-6-12 case-frame" href={p.url} target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">
-              <span class="case-bar">{p.host}</span>
-              <span class="case-view" data-tour>
-                <picture>
-                  <source srcset={t.avif} type="image/avif" />
-                  <img src={t.webp} width={t.width} height={t.height} alt={alt(p.name, p.kind[lang])} loading="lazy" decoding="async" />
-                </picture>
-              </span>
-            </a>
-          </article>
-        );
-      })}
-    </div>
-  </div>
+  <Sheet id="strony" guide={c.film.guide.work}>
+    <h2 class="sr-only">{w.h1}</h2>
+    {PROJECTS.map((p, i) => {
+      const t = shot(p.key, 'tour');
+      return (
+        <article class="grid case" aria-labelledby={`case-${p.key}`}>
+          <header class="case-meta">
+            <p class="t-label dim num">{String(i + 1).padStart(2, '0')} / {String(PROJECTS.length).padStart(2, '0')}</p>
+            <h3 class="t-h2" id={`case-${p.key}`}>{p.name}</h3>
+            <p class="t-body dim">{p.blurb[lang]}</p>
+            <dl class="rows">
+              <div><dt class="k">{w.type}</dt><dd class="v">{p.kind[lang]}</dd></div>
+              <div><dt class="k">{w.langs}</dt><dd class="v">{p.langs}</dd></div>
+              <div><dt class="k">{w.checked}</dt><dd class="v">{formatDate(lang, p.checked)}</dd></div>
+            </dl>
+            <p class="t-label dim case-on">{w.onPage}</p>
+            <ul class="case-list">{(w.features[p.key] ?? []).map((f) => <li class="t-small">{f}</li>)}</ul>
+            <div class="btn-row"><Btn href={p.url} newTab variant="ghost">{p.host}</Btn></div>
+          </header>
+          <a class="case-frame" href={p.url} target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">
+            <span class="case-view" data-tour>
+              <picture>
+                <source srcset={t.avif} type="image/avif" />
+                <img src={t.webp} width={t.width} height={t.height} alt={alt(p.name, p.kind[lang])} loading="lazy" decoding="async" />
+              </picture>
+            </span>
+          </a>
+        </article>
+      );
+    })}
+  </Sheet>
 
-  <section class="own-sec stock-yellow" data-scene-occlude aria-labelledby="own-h">
-    <div class="wrap">
-      <div class="cat"><h2 class="v-cat" id="own-h">{w.own.h2}</h2></div>
-      <p class="v-lead own-p">{w.own.p}</p>
-      <ul class="own">
-        {own.map((o) => (
-          <li><a href={o.url} data-outbound data-cta={o.cta} rel="noopener"><span class="own-name">{o.name}</span><span class="v-body">{o.text}</span></a></li>
-        ))}
+  <Sheet id="produkty" labelledby="own-h" guide={w.own.h2} dark>
+    <div class="grid pg-two">
+      <div class="pg-main">
+        <h2 class="t-h2" id="own-h">{w.own.h2}</h2>
+        <p class="t-lead dim">{w.own.p}</p>
+      </div>
+      <ul class="rows pg-side own">
+        {own.map((o) => (<li><a class="k own-name" href={o.url} data-outbound data-cta={o.cta} rel="noopener">{o.name}</a><span class="note">{o.text}</span></li>))}
       </ul>
     </div>
-  </section>
+  </Sheet>
 </Base>
 <style>
-  .cases { padding-block: 1rem clamp(3rem, 8vh, 5rem); }
-  .case { row-gap: 2rem; padding-block: clamp(3rem, 8vh, 5rem); border-top: 2px solid var(--ink); align-items: start; }
-  .case:first-child { border-top: 0; }
-  .case-h { font-size: clamp(2.4rem, 1.6rem + 2.6vw, 4rem); }
-  .case-blurb { margin-top: 1rem; }
-  .case-dl { margin-top: 1.25rem; border-top: 2px solid var(--ink); }
-  .case-dl li { padding-block: 0.45rem; border-bottom: 1px solid var(--ink); font-size: 0.95rem; }
-  .case-dl li span:first-child { font-weight: 700; }
-  .case-on { margin-top: 1.5rem; }
-  .case-list { margin-top: 0.6rem; }
-  .case-cta { margin-top: 1.5rem; }
-  .case-frame { display: block; border: var(--frame) solid var(--ink); background: #fff; }
-  .case-bar { display: block; padding: 0.35rem 0.75rem; background: var(--ink); color: var(--yellow); font-stretch: var(--w-list); font-weight: 750; letter-spacing: 0.03em; font-size: var(--t-micro); }
-  .case-view { display: block; height: min(76vh, 44rem); overflow: hidden; }
-  .case-view img { width: 100%; will-change: transform; }
-  @media (min-width: 960px) { .case-meta { position: sticky; top: calc(var(--head-h) + 1.5rem); } }
-  .own-sec { padding-block: clamp(4rem, 10vh, 6rem); border-bottom: 2px solid var(--ink); }
-  .own-p { margin-top: 1rem; }
-  .own { margin-top: 2rem; border-top: 2px solid var(--ink); }
-  .own a { display: grid; gap: 0.4rem; padding: 1.2rem 0; border-bottom: 1px solid var(--ink); }
-  @media (min-width: 960px) { .own a { grid-template-columns: 5fr 7fr; align-items: baseline; } }
-  .own-name { font-stretch: var(--w-display); font-weight: 900; text-transform: uppercase; font-size: clamp(2rem, 1.4rem + 2vw, 3.2rem); line-height: 0.9; }
-  .own a:hover .own-name { color: var(--red); }
+  .case { row-gap: 2.5rem; align-items: start; }
+  .case + .case { margin-top: clamp(5rem, 14vh, 9rem); padding-top: clamp(3rem, 8vh, 5rem); border-top: 1px solid var(--line-p); }
+  .case-meta { display: grid; gap: 1.1rem; align-content: start; }
+  .case-meta .rows { margin-top: 0.5rem; }
+  .case-meta .rows .v { text-align: right; }
+  .case-on { margin-top: 0.75rem; }
+  .case-list { display: grid; gap: 0.35rem; }
+  .case-list li { padding-left: 1.1rem; position: relative; }
+  .case-list li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 0.4rem; height: 1px; background: currentColor; }
+  .case-frame { display: block; border-radius: 1rem; overflow: hidden; background: var(--paper-2); box-shadow: 0 0 0 1px var(--line-p), 0 40px 80px -50px rgba(21, 18, 15, 0.5); }
+  .case-view { display: block; position: relative; overflow: hidden; height: min(70svh, 44rem); }
+  .case-view img { width: 100%; height: auto; will-change: transform; }
+  @media (min-width: 960px) {
+    .case-meta { grid-column: 1 / 5; position: sticky; top: calc(var(--head-h) + 1.5rem); }
+    .case-frame { grid-column: 6 / 13; }
+    .case-view { height: min(82svh, 52rem); }
+  }
+  .own-name { font: 500 var(--t-h2)/1 var(--f-sans); letter-spacing: -0.03em; transition: color 0.2s; }
+  .own-name:hover { color: var(--copper-hi); }
+  .own li { grid-template-columns: 1fr; }
 </style>

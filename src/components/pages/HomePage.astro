@@ -1,29 +1,92 @@
 ---
+/**
+ * The home page is one film: five chapters (the monolith, the rotunda, the drawer, the exploded page, the monolith
+ * again) with the evidence sheets laid over it between them. See src/film/film.ts for the poses.
+ */
 import Base from '../../layouts/Base.astro';
-import Hero from '../home/Hero.astro';
-import Thesis from '../home/Thesis.astro';
-import Registry from '../home/Registry.astro';
-import Outreach from '../home/Outreach.astro';
-import Studio from '../home/Studio.astro';
-import Bot from '../home/Bot.astro';
+import Chapter from '../ui/Chapter.astro';
+import Btn from '../ui/Btn.astro';
+import OpSheet from '../film/OpSheet.astro';
+import FlSheet from '../film/FlSheet.astro';
+import BotSheet from '../film/BotSheet.astro';
+import ContactSheet from '../film/ContactSheet.astro';
 import Faq from '../Faq.astro';
-import Talk from '../home/Talk.astro';
 import { copy } from '../../content/copy';
-import type { Lang } from '../../content/site';
+import { SALES, type Lang } from '../../content/site';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const c = copy[lang];
 const h = c.home;
+const f = c.film;
 const isPl = lang === 'pl';
+const ch = f.chapters;
 ---
-<Base lang={lang} path={isPl ? '/' : '/en'} title={h.title} description={h.description} kind="home" faq={c.faq} ogImage={isPl ? '/og/home.png' : '/og/home-en.png'}>
-  <Hero lang={lang} />
-  <Thesis lang={lang} />
-  <Registry lang={lang} />
-  <Outreach lang={lang} />
-  <Studio lang={lang} />
-  <Bot lang={lang} />
+<Base lang={lang} path={isPl ? '/' : '/en'} title={h.title} description={h.description} kind="home" faq={c.faq} ogImage={isPl ? '/og/home.png' : '/og/home-en.png'} still="p0">
+  <Chapter pose={0} still="p0" first eager len={190} lenM={150} guide={ch[0]} labelledby="hero-h" id="start">
+    <div class="hero">
+      <p class="t-label hero-role"><span>{f.hero.role}</span><span class="dim">{f.hero.place}</span></p>
+      <h1 class="t-name hero-name" id="hero-h"><span>Kacper</span> <span>Rękawek</span></h1>
+      <p class="t-lead hero-lead">{f.hero.lead}</p>
+      <div class="btn-row">
+        <Btn href={SALES.bookingUrl} outbound cta="hero-booking">{f.book}</Btn>
+        <a class="btn btn--ghost" href="#trzy">{f.scroll}<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2v11M3.5 8.5 8 13l4.5-4.5" /></svg></a>
+      </div>
+    </div>
+  </Chapter>
+
+  <Chapter pose={1} still="p1" len={250} lenM={200} guide={ch[1]} labelledby="three-h" id="trzy">
+    <p class="t-label reveal">{ch[1]}</p>
+    <h2 class="t-display reveal" id="three-h">{f.three.h2}</h2>
+    <p class="t-lead dim measure">{f.three.p}</p>
+    <p class="t-src">{h.thesis.source}</p>
+  </Chapter>
+
+  <Chapter pose={2} still="p2" side="right" len={300} lenM={240} guide={ch[2]} labelledby="op-ch-h">
+    <p class="t-label reveal">{ch[2]}</p>
+    <h2 class="t-h2 reveal" id="op-ch-h">{f.op.h2}</h2>
+    <ol class="beats">
+      {f.op.beats.map(([t, d], i) => (<li class="beat"><span class="t-label beat-n num">{String(i + 1).padStart(2, '0')}</span><b class="t-h3">{t}</b><span class="t-small dim">{d}</span></li>))}
+    </ol>
+  </Chapter>
+
+  <OpSheet lang={lang} />
+
+  <Chapter pose={3} still="p3" len={300} lenM={240} guide={ch[3]} labelledby="fl-ch-h">
+    <p class="t-label reveal">{ch[3]}</p>
+    <h2 class="t-h2 reveal" id="fl-ch-h">{f.fl.h2}</h2>
+    <ol class="beats">
+      {f.fl.beats.map(([t, d], i) => (<li class="beat"><span class="t-label beat-n num">{String(i + 1).padStart(2, '0')}</span><b class="t-h3">{t}</b><span class="t-small dim">{d}</span></li>))}
+    </ol>
+  </Chapter>
+
+  <FlSheet lang={lang} />
+  <BotSheet lang={lang} />
+
+  <Chapter pose={4} still="p4" side="right" last len={220} lenM={180} guide={ch[4]} labelledby="close-h">
+    <p class="t-label reveal">{ch[4]}</p>
+    <h2 class="t-display reveal" id="close-h">{f.close.h2}</h2>
+    <p class="t-lead dim measure">{f.close.p}</p>
+    <div class="btn-row"><Btn href={SALES.bookingUrl} outbound cta="close-booking">{f.close.cta}</Btn></div>
+  </Chapter>
+
+  <ContactSheet lang={lang} />
   <Faq lang={lang} />
-  <Talk lang={lang} />
 </Base>
+
+<style>
+  .hero { display: grid; gap: 1.75rem; }
+  .hero-role { display: flex; flex-wrap: wrap; gap: 0.35rem 1.25rem; }
+  .hero-name { display: grid; margin-left: -0.05em; }
+  .hero-name span { display: block; }
+  .hero-lead { max-width: 38ch; }
+  /* the name is the widest thing on the page: it runs past the copy column, under the object's shoulder */
+  @media (min-width: 960px) {
+    :global(.ch--first .copy) { grid-column: 1 / 11; }
+    .hero-lead { max-width: 34ch; }
+  }
+  .beats { display: grid; border-top: 1px solid var(--line-d); margin-top: 0.5rem; }
+  .beat { display: grid; grid-template-columns: 2.75rem 1fr; column-gap: 1rem; row-gap: 0.35rem; padding-block: 1.1rem; border-bottom: 1px solid var(--line-d); }
+  .beat > :not(.beat-n) { grid-column: 2; }
+  .beat-n { grid-row: span 2; padding-top: 0.35rem; color: var(--copper-hi); }
+</style>

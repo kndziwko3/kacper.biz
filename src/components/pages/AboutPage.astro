@@ -1,7 +1,8 @@
 ---
-/** About, the white pages: a personal listing under the Gliwice close-up, facts as directory lines, profiles, namesake. */
+/** About: who I am, the facts as rows, where else to find me and the namesake note. */
 import Base from '../../layouts/Base.astro';
 import PageHead from '../ui/PageHead.astro';
+import Sheet from '../ui/Sheet.astro';
 import Btn from '../ui/Btn.astro';
 import Faq from '../Faq.astro';
 import { copy, formatDate } from '../../content/copy';
@@ -18,56 +19,45 @@ const finds = [
   { label: 'LinkedIn', href: PERSON.linkedin, rel: 'me noopener', note: 'linkedin.com' },
   { label: isPl ? 'OutreachPilot.pl, o redakcji i autorze' : 'OutreachPilot.pl, editorial and author page', href: PRODUCTS.outreachpilot.about, rel: 'noopener', note: 'outreachpilot.pl/o-redakcji' },
   { label: isPl ? 'FastLanding.io, o nas' : 'FastLanding.io, about', href: PRODUCTS.fastlanding.about, rel: 'noopener', note: 'fastlanding.io/o-nas' },
-  ...PERSON.extraSameAs.map((u) => ({ label: new URL(u).hostname, href: u, rel: 'me noopener', note: u })),
 ];
 const faq = [c.faq[0]!, c.faq[5]!];
 ---
-<Base lang={lang} path={path} title={a.title} description={a.description} kind="about" ogType="profile" guide={c.dir.guide.about}
+<Base lang={lang} path={path} title={a.title} description={a.description} kind="about" ogType="profile"
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: a.crumb, path }]} faq={faq}
-  ogImage={isPl ? '/og/about.png' : '/og/about-en.png'}>
-  <PageHead lang={lang} crumb={a.crumb} h1={a.h1} lead={a.lead} scene={5} side="left" guide={c.dir.guide.about}>
+  ogImage={isPl ? '/og/about.png' : '/og/about-en.png'} still="p4">
+  <PageHead lang={lang} crumb={a.crumb} label={a.kicker} h1={a.h1} lead={a.lead} pose={4} guide={c.film.guide.about}>
     <Btn href={contact}>{c.ui.write}</Btn>
   </PageHead>
 
-  <section class="about stock-white" data-scene-occlude aria-labelledby="facts-h">
-    <div class="wrap grid about-grid">
-      <div class="c-1-6 about-body">
-        {a.body.map((p) => <p class="v-lead">{p}</p>)}
+  <Sheet id="fakty" labelledby="facts-h" guide={a.facts.h2}>
+    <div class="grid pg-two">
+      <div class="pg-main about-body">
+        {a.body.map((p, i) => <p class:list={[i === 0 ? 't-h3' : 't-lead dim']}>{p}</p>)}
       </div>
-      <div class="c-8-12">
-        <h2 class="v-list about-h" id="facts-h">{a.facts.h2}</h2>
-        <ul class="facts">
-          {a.facts.rows.map(([k, v]) => <li><span class="v-micro">{k}</span><span>{v}</span></li>)}
-        </ul>
-        <p class="src facts-upd">{c.ui.updated}: <time datetime={SITE.lastModified}>{formatDate(lang)}</time></p>
+      <div class="pg-side">
+        <h2 class="t-label dim" id="facts-h">{a.facts.h2}</h2>
+        <dl class="rows about-facts">
+          {a.facts.rows.map(([k, v]) => <div><dt class="t-label dim">{k}</dt><dd>{v}</dd></div>)}
+        </dl>
+        <p class="t-src">{c.ui.updated}: <time datetime={SITE.lastModified}>{formatDate(lang)}</time></p>
 
-        <h2 class="v-list about-h about-h2">{a.find.h2}</h2>
-        <ul class="finds">
-          {finds.map((f) => <li><a class="ld" href={f.href} rel={f.rel} target="_blank"><b>{f.label}</b><i></i><span>{f.note}</span></a></li>)}
+        <h2 class="t-label dim about-h">{a.find.h2}</h2>
+        <ul class="rows">
+          {finds.map((f) => <li><a class="k tlink" href={f.href} rel={f.rel} target="_blank">{f.label}</a><span class="v t-label dim">{f.note}</span></li>)}
         </ul>
 
-        <h2 class="v-list about-h about-h2">{a.disambig.h2}</h2>
-        <p class="v-body about-ns">{a.disambig.p}</p>
+        <h2 class="t-label dim about-h">{a.disambig.h2}</h2>
+        <p class="t-small dim">{a.disambig.p}</p>
       </div>
     </div>
-  </section>
+  </Sheet>
 
   <Faq lang={lang} items={faq} />
 </Base>
 <style>
-  .about { padding-block: clamp(3.5rem, 9vh, 6rem); border-bottom: 2px solid var(--ink); }
-  .about-grid { row-gap: 3rem; }
-  .about-body { display: grid; gap: 1.25rem; }
-  .about-body .v-lead { max-width: 38ch; }
-  .about-h { padding-bottom: 0.4rem; border-bottom: 8px solid var(--ink); }
-  .about-h2 { margin-top: 2.5rem; }
-  .facts li { display: grid; gap: 0.15rem 1.25rem; padding: 0.6rem 0; border-bottom: 1px solid var(--ink); }
-  @media (min-width: 700px) { .facts li { grid-template-columns: 9.5rem 1fr; align-items: baseline; } }
-  .facts li > span:first-child { font-weight: 750; text-transform: uppercase; letter-spacing: 0.03em; color: var(--fg-2); }
-  .facts-upd { margin-top: 0.8rem; }
-  .finds li { border-bottom: 1px solid var(--ink); }
-  .finds a { padding: 0.6rem 0; }
-  .finds span { font-size: var(--t-small); color: var(--fg-2); }
-  .finds a:hover b { text-decoration: underline; text-underline-offset: 3px; }
-  .about-ns { margin-top: 0.8rem; }
+  .about-body { gap: 1.75rem; }
+  .about-facts > div { grid-template-columns: 1fr; gap: 0.3rem; }
+  .about-facts dd { text-align: left; }
+  .about-h { margin-top: 2rem; }
+  @media (min-width: 700px) { .about-facts > div { grid-template-columns: 9.5rem 1fr; align-items: baseline; } }
 </style>

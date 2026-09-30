@@ -1,0 +1,21 @@
+---
+/**
+ * Dev-only film lab (no route in the production build): renders one film state for the stills and QA.
+ * /lab/still?a=<pose>&b=<pose>&t=<0..1>&l=<local>&tier=high  ·  see scripts/stills.mjs
+ */
+export function getStaticPaths() {
+  return import.meta.env.DEV ? [{ params: { view: 'still' } }] : [];
+}
+---
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<style>html,body{margin:0;background:#0e0c0a;overflow:hidden}canvas{position:fixed;inset:0;width:100vw;height:100vh;display:block}</style></head>
+<body><canvas id="c"></canvas>
+<script>
+import { createFilm, type Tier } from '../../film/film';
+const q = new URLSearchParams(location.search);
+const a = Number(q.get('a') ?? 0);
+const st = { a, b: Number(q.get('b') ?? a), t: Number(q.get('t') ?? 0), local: Number(q.get('l') ?? 0.5) };
+createFilm(document.getElementById('c') as HTMLCanvasElement, { tier: (q.get('tier') as Tier) ?? 'high', reduced: false, still: st })
+  .then(() => { (window as unknown as { __ready: boolean }).__ready = true; })
+  .catch((e) => { document.title = 'ERR ' + e; (window as unknown as { __ready: boolean }).__ready = true; });
+</script></body></html>

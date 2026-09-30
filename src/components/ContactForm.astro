@@ -178,7 +178,7 @@ const noscriptMailto = `mailto:${CONTACT.studioEmail}?subject=${encodeURICompone
     </div>
 
     <!-- Bot traps: honeypot (must stay empty) and render time (stamped by JS; static build cannot know it). -->
-    <div class="hp" aria-hidden="true">
+    <div class="lead-hp" aria-hidden="true">
       <label for={id('hp')}>{pl ? 'Zostaw to pole puste' : 'Leave this field empty'}</label>
       <input type="text" id={id('hp')} name="hp" tabindex="-1" autocomplete="off" data-lpignore="true" data-1p-ignore />
     </div>
@@ -196,8 +196,8 @@ const noscriptMailto = `mailto:${CONTACT.studioEmail}?subject=${encodeURICompone
 
   <!-- Qualify-then-book: revealed by lead-form.ts after a successful send. -->
   <div class="lead-after" data-after hidden>
-    <h3 class="v-head">{pl ? 'Albo umów rozmowę teraz' : 'Or book a call now'}</h3>
-    <p class="v-small">
+    <h3 class="t-h3">{pl ? 'Albo umów rozmowę teraz' : 'Or book a call now'}</h3>
+    <p class="t-small dim">
       {pl
         ? `${SALES.fullName}, Head of Sales, prowadzi rozmowy o stronach i o OutreachPilot. Wybierz termin w kalendarzu.`
         : `${SALES.fullName}, Head of Sales, runs the calls about websites and OutreachPilot. Pick a time in her calendar.`}
@@ -222,23 +222,35 @@ const noscriptMailto = `mailto:${CONTACT.studioEmail}?subject=${encodeURICompone
 </script>
 
 <style is:global>
+  .form { display: grid; gap: 1.25rem; }
+  .field-row { display: grid; gap: 1.25rem; align-items: start; }
+  @media (min-width: 640px) { .field-row { grid-template-columns: 1fr 1fr; } }
   .lead-wrap { display: grid; gap: 1.5rem; }
-  .lead-wrap .choice { position: relative; } /* anchors the visually hidden radio to its pill */
-  .lead-wrap .field-row { align-items: start; } /* an error under one field must not stretch its neighbour */
   .lead-wrap .field { align-content: start; }
   .lead-fieldset { display: block; min-width: 0; margin: 0; padding: 0; border: 0; }
-  .lead-fieldset legend { padding: 0; margin-bottom: 0.5rem; }
-  .lead-req { color: var(--red-deep); }
-  .lead-hint { margin: 0; font-size: 0.8rem; line-height: 1.5; color: var(--fg-2); }
-  .lead-error { margin: 0; font-size: 0.85rem; line-height: 1.4; font-weight: 700; color: var(--red-deep); }
+  .lead-fieldset legend { padding: 0; margin-bottom: 0.65rem; }
+  .choices { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .choice { position: relative; }
+  .choice input { position: absolute; opacity: 0; pointer-events: none; }
+  .choice span { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0.5rem 1rem; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(21, 18, 15, 0.28); background: #f6f2ea; cursor: pointer; font-size: 0.95rem; transition: background-color 0.15s, color 0.15s, box-shadow 0.15s; }
+  .choice span:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+  .choice input:checked + span { background: var(--ink); color: var(--paper); box-shadow: none; }
+  .choice input:focus-visible + span { outline: 2px solid var(--copper-ink); outline-offset: 3px; }
+  .check { display: grid; grid-template-columns: 1.3rem 1fr; gap: 0.7rem; font-size: var(--t-small); color: var(--ink-2); align-items: start; }
+  .check input { width: 1.2rem; height: 1.2rem; margin-top: 0.15rem; accent-color: var(--ink); }
+  .lead-req { color: var(--copper-ink); }
+  .lead-hint { font: 400 0.8125rem/1.5 var(--f-mono); color: var(--ink-2); }
+  .lead-error { font-size: var(--t-small); line-height: 1.4; font-weight: 500; color: #9c2f15; }
   .lead-error[hidden], .lead-after[hidden] { display: none; }
-  .lead-wrap [data-invalid] .choice span { border-color: var(--red-deep); }
-  .lead-wrap .check input[aria-invalid='true'] { outline: 2px solid var(--red-deep); outline-offset: 2px; }
+  .lead-wrap [data-invalid] .choice span { box-shadow: inset 0 0 0 1px #a3341c; }
+  .lead-wrap .check input[aria-invalid='true'] { outline: 2px solid #a3341c; outline-offset: 2px; }
   .lead-check-label { display: block; min-height: 44px; padding-block: 0.1rem; color: var(--ink); cursor: pointer; }
-  .lead-notice { margin: 0.2rem 0 0; font-size: 0.78rem; line-height: 1.55; color: var(--fg-2); }
-  .lead-notice a, .lead-wrap .form-status a, .lead-noscript a { text-decoration: underline; text-underline-offset: 3px; }
-  .lead-wrap .form-status a { color: var(--ink); }
-  .lead-noscript { margin: 0; padding: 1rem 1.15rem; border: 2px solid var(--ink); }
-  .lead-after { display: grid; gap: 0.75rem; justify-items: start; padding-top: 1.5rem; border-top: 2px solid var(--ink); }
-  .lead-after > * { margin: 0; }
+  .lead-notice { font-size: 0.8125rem; line-height: 1.55; color: var(--ink-2); }
+  .lead-notice a, .lead-wrap .form-status a, .lead-noscript a, .check a { text-decoration: underline; text-underline-offset: 0.2em; }
+  .lead-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .form-status { min-height: 1.5rem; font-size: var(--t-small); font-weight: 500; }
+  .form-status[data-state='err'] { color: #9c2f15; }
+  .form .btn { justify-self: start; }
+  .lead-noscript { padding: 1rem 1.15rem; border: 1px solid var(--line-p); border-radius: 0.6rem; }
+  .lead-after { display: grid; gap: 0.75rem; justify-items: start; padding-top: 1.5rem; border-top: 1px solid var(--line-p); }
 </style>

@@ -1,0 +1,117 @@
+---
+/**
+ * The index of sectors, set as an instrument on the sheet: pick a sector and a city on the left, the dark readout on
+ * the right re-counts (published CEIDG numbers, rolled by registry.ts) and re-declines the city in the email line.
+ * Without JS it is a plain radio form and the readout shows the defaults.
+ */
+import Btn from '../ui/Btn.astro';
+import { copy } from '../../content/copy';
+import { SECTORS, CITIES, CEIDG, fmt, sectorUrl } from '../../content/ceidg';
+import { typo } from '../../lib/typo';
+import type { Lang } from '../../content/site';
+interface Props { lang: Lang; id?: string }
+const { lang, id = 'indeks' } = Astro.props;
+const d = copy[lang].home.demo;
+const f = copy[lang].film;
+const ui = copy[lang].ui;
+const defSector = SECTORS.find((s) => s.slug === 'elektrycy')!;
+const defCity = CITIES.find((c) => c.slug === 'krakow')!;
+const mailParts = d.mail.split('{in}');
+const cityKey = d.cityCount.includes('{in}') ? 'in' : 'name';
+const cityParts = typo(d.cityCount, lang).split(`{${cityKey}}`);
+const cityForm = (c: { in: string; name: string }) => (cityKey === 'in' ? c.in : c.name);
+const payload = {
+  lang,
+  sectors: SECTORS.map((s) => ({ slug: s.slug, count: s.count, name: s.name[lang], url: sectorUrl(s) })),
+  cities: CITIES.map((c) => ({ slug: c.slug, count: c.count, name: c.name, in: c.in, lat: c.lat, lon: c.lon })),
+};
+const sorted = [...SECTORS].sort((a, b) => a.name[lang].localeCompare(b.name[lang], lang));
+---
+<div class="lk grid" id={id} data-guide={f.guide.lookup}>
+  <form class="lk-form" data-registry aria-label={f.guide.lookup} onsubmit="return false">
+    <fieldset class="lk-set">
+      <legend class="t-label lk-cap">{f.lookup.list}</legend>
+      <ol class="lk-list">
+        {sorted.map((s) => (
+          <li>
+            <label class="lk-row">
+              <input type="radio" name="sector" value={s.slug} checked={s.slug === defSector.slug} />
+              <span class="lk-in"><span class="lk-name">{s.name[lang]}</span><span class="lk-n num">{fmt(s.count, lang)}</span></span>
+            </label>
+          </li>
+        ))}
+      </ol>
+    </fieldset>
+    <fieldset class="lk-set">
+      <legend class="t-label lk-cap">{d.city}</legend>
+      <div class="lk-cities">
+        {CITIES.map((c) => (
+          <label class="lk-city"><input type="radio" name="city" value={c.slug} checked={c.slug === defCity.slug} /><span>{c.name}</span></label>
+        ))}
+      </div>
+    </fieldset>
+  </form>
+
+  <div class="lk-out">
+    <div class="lk-card" aria-live="polite" aria-atomic="true">
+      <p class="lk-head t-label"><span data-out="sectorName">{defSector.name[lang]}</span><span data-out="cityName">{defCity.name}</span></p>
+      <div class="lk-counts">
+        <p class="lk-count"><span class="lk-big num" data-out="sector">{fmt(defSector.count, lang)}</span><span class="t-small lk-unit" set:html={typo(d.sectorCount, lang)} /></p>
+        <p class="lk-count"><span class="lk-big lk-big--2 num" data-out="city">{fmt(defCity.count, lang)}</span><span class="t-small lk-unit">{cityParts[0]}<span data-out="cityLoc">{cityForm(defCity)}</span>{cityParts[1]}</span></p>
+      </div>
+      <figure class="lk-mail">
+        <figcaption class="t-label">{d.mailLabel}</figcaption>
+        <p class="lk-line" lang="pl">{mailParts[0]}<mark data-out="cityIn">{defCity.in}</mark>{mailParts[1]}</p>
+        <p class="t-small lk-note">{d.mailNote}</p>
+      </figure>
+      <div class="btn-row"><Btn href={sectorUrl(defSector)} outbound cta="registry-sector">{d.cta}</Btn></div>
+    </div>
+    <p class="t-src lk-src">{ui.source}: <a class="tlink" href={CEIDG.source} data-outbound data-cta="registry-source" rel="noopener">{d.source}</a></p>
+  </div>
+  <script type="application/json" data-registry-data set:html={JSON.stringify(payload)} />
+</div>
+
+<style>
+  .lk { row-gap: 2.5rem; align-items: start; }
+  .lk-form { display: grid; gap: 2rem; }
+  .lk-set { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .lk-cap { color: var(--ink-2); margin-bottom: 0.9rem; padding: 0; }
+  .lk-list { display: grid; grid-template-columns: 1fr; column-gap: 1.75rem; border-top: 1px solid var(--line-p); }
+  @media (min-width: 560px) { .lk-list { grid-template-columns: 1fr 1fr; } }
+  .lk-row { display: block; cursor: pointer; position: relative; }
+  .lk-row input, .lk-city input { position: absolute; opacity: 0; pointer-events: none; }
+  .lk-in { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: 0.62rem 0.75rem; margin-inline: -0.75rem; border-bottom: 1px solid var(--line-p); border-radius: 0.5rem; transition: background-color 0.15s, color 0.15s; }
+  .lk-name { font-size: 0.97rem; }
+  .lk-n { font: 400 0.8125rem/1 var(--f-mono); color: var(--ink-2); transition: color 0.15s; }
+  .lk-row:hover .lk-in { background: var(--paper-2); }
+  .lk-row input:checked + .lk-in { background: var(--ink); color: var(--paper); border-bottom-color: transparent; }
+  .lk-row input:checked + .lk-in .lk-n { color: var(--copper-hi); }
+  .lk-row input:focus-visible + .lk-in { outline: 2px solid var(--copper-ink); outline-offset: 2px; }
+
+  .lk-cities { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .lk-city span { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0.5rem 1.05rem; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-p); cursor: pointer; font-size: 0.95rem; transition: background-color 0.15s, color 0.15s, box-shadow 0.15s; }
+  .lk-city span:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+  .lk-city input:checked + span { background: var(--ink); color: var(--paper); box-shadow: none; }
+  .lk-city input:focus-visible + span { outline: 2px solid var(--copper-ink); outline-offset: 3px; }
+
+  /* the readout: a dark instrument face on the sheet */
+  .lk-card { background: var(--graphite); color: #ede6da; border-radius: 1.25rem; padding: clamp(1.4rem, 2.6vw, 2.25rem); display: grid; gap: 1.75rem; --text-2: #a8a092; --line-d: rgba(237, 230, 218, 0.14); }
+  .lk-card :focus-visible { outline-color: var(--copper-hi); }
+  .lk-head { display: flex; justify-content: space-between; gap: 1rem; color: #a8a092; padding-bottom: 1rem; border-bottom: 1px solid rgba(237, 230, 218, 0.14); }
+  .lk-counts { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .lk-count { display: grid; gap: 0.6rem; align-content: start; }
+  .lk-big { font: 500 clamp(2.6rem, 1.6rem + 2.6vw, 4.4rem)/0.9 var(--f-sans); letter-spacing: -0.04em; color: var(--copper-hi); }
+  .lk-big--2 { color: #ede6da; }
+  .lk-unit { color: #a8a092; max-width: 24ch; }
+  .lk-mail { display: grid; gap: 0.7rem; padding-top: 1.5rem; border-top: 1px solid rgba(237, 230, 218, 0.14); }
+  .lk-mail figcaption { color: #a8a092; }
+  .lk-line { font-size: var(--t-lead); line-height: 1.4; letter-spacing: -0.01em; }
+  .lk-line mark { background: none; color: inherit; text-decoration: underline; text-decoration-color: var(--copper); text-decoration-thickness: 2px; text-underline-offset: 0.2em; }
+  .lk-note { color: #a8a092; }
+  .lk-src { margin-top: 1rem; }
+  @media (min-width: 960px) {
+    .lk-form { grid-column: 1 / 7; }
+    .lk-out { grid-column: 8 / 13; position: sticky; top: calc(var(--head-h) + 1.5rem); }
+  }
+  @media (max-width: 480px) { .lk-counts { grid-template-columns: 1fr; } }
+</style>

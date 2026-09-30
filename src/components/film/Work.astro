@@ -1,0 +1,61 @@
+---
+/**
+ * Client sites on the sheet: each frame holds a full-page capture that travels up inside it while the frame crosses
+ * the viewport (showcase.ts, [data-tour]). The caption says what the site is and when it was checked.
+ */
+import { copy, formatDate } from '../../content/copy';
+import { PROJECTS, PRODUCTS, type Lang } from '../../content/site';
+import { shot } from '../../content/work';
+interface Props { lang: Lang; own?: boolean }
+const { lang, own = true } = Astro.props;
+const s = copy[lang].home.fl.showcase;
+const ui = copy[lang].ui;
+const items = [
+  ...PROJECTS.map((p) => ({ key: p.key, name: p.name, url: p.url, host: p.host, kind: p.kind[lang], langs: p.langs, checked: p.checked, own: false })),
+  ...(own ? [{ key: 'outreachpilot', name: 'OutreachPilot.pl', url: PRODUCTS.outreachpilot.url, host: 'outreachpilot.pl', kind: s.ownKind, langs: 'PL', checked: '2026-09-27', own: true }] : []),
+];
+const alt = (name: string, kind: string) => (lang === 'pl' ? `Strona ${name}, ${kind}` : `${name} website, ${kind}`);
+---
+<ol class="wk">
+  {items.map((it, i) => {
+    const t = shot(it.key, 'tour');
+    return (
+      <li class={`wk-i wk-i--${i}`}>
+        <a class="wk-frame" href={it.url} target="_blank" rel="noopener" data-outbound={it.own ? '' : undefined} data-cta={it.own ? 'showcase-op' : `showcase-${it.key}`} aria-label={`${it.name}, ${it.host} ${ui.newTab}`}>
+          <span class="wk-view" data-tour>
+            <picture>
+              <source srcset={t.avif} type="image/avif" />
+              <img src={t.webp} width={t.width} height={t.height} alt={alt(it.name, it.kind)} loading="lazy" decoding="async" />
+            </picture>
+          </span>
+        </a>
+        <div class="wk-cap">
+          <h3 class="t-h3">{it.name}</h3>
+          <p class="t-small dim">{it.own ? s.own : it.kind}</p>
+          <p class="t-label dim wk-meta"><span>{it.host}</span><span>{it.langs}</span><span>{s.checked} {formatDate(lang, it.checked)}</span></p>
+        </div>
+      </li>
+    );
+  })}
+</ol>
+
+<style>
+  .wk { display: grid; gap: 3rem var(--col-gap); }
+  .wk-i { display: grid; gap: 1.1rem; align-content: start; }
+  .wk-frame { display: block; border-radius: 1rem; overflow: hidden; background: var(--paper-2); box-shadow: 0 0 0 1px var(--line-p), 0 30px 60px -40px rgba(21, 18, 15, 0.45); transition: box-shadow 0.3s var(--ease), transform 0.5s var(--ease); }
+  .wk-frame:hover { box-shadow: 0 0 0 1px var(--ink), 0 40px 70px -40px rgba(21, 18, 15, 0.55); }
+  .wk-frame:focus-visible { outline-offset: 5px; }
+  .wk-view { display: block; position: relative; overflow: hidden; height: 20rem; }
+  .wk-view img { width: 100%; height: auto; will-change: transform; }
+  .wk-cap { display: grid; gap: 0.35rem; }
+  .wk-meta { display: flex; flex-wrap: wrap; gap: 0.35rem 1.25rem; margin-top: 0.35rem; }
+  @media (min-width: 760px) {
+    .wk { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+    .wk-i--0 { grid-column: 1 / span 7; grid-row: span 2; }
+    .wk-i--0 .wk-view { height: min(72vh, 44rem); }
+    .wk-i--1, .wk-i--2 { grid-column: 9 / -1; }
+    .wk-i--1 .wk-view, .wk-i--2 .wk-view { height: min(26vh, 15rem); }
+    .wk-i--3 { grid-column: 3 / -1; grid-template-columns: 7fr 3fr; column-gap: var(--col-gap); align-items: end; }
+    .wk-i--3 .wk-view { height: min(48vh, 28rem); }
+  }
+</style>

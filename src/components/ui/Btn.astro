@@ -1,8 +1,8 @@
 ---
-/** An order slip: a black printed block (or a line slip for the second action), no radius, no arrow. External links name their domain in the copy. */
+/** A pill: copper for the one primary action on a screen, a hairline ghost for the second. */
 interface Props {
   href: string;
-  variant?: 'solid' | 'line';
+  variant?: 'solid' | 'ghost';
   /** external links get UTM tagging (data-outbound) */
   cta?: string;
   outbound?: boolean;
@@ -12,7 +12,7 @@ interface Props {
 const { href, variant = 'solid', cta, outbound = false, newTab = false, class: cls = '' } = Astro.props;
 ---
 <a
-  class:list={['btn', variant === 'line' && 'btn--line', cls]}
+  class:list={['btn', variant === 'ghost' && 'btn--ghost', cls]}
   href={href}
   data-outbound={outbound ? '' : undefined}
   data-cta={cta}

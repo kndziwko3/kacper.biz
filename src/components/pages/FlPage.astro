@@ -2,8 +2,8 @@
 import Base from '../../layouts/Base.astro';
 import PageHead from '../ui/PageHead.astro';
 import Btn from '../ui/Btn.astro';
-import Studio from '../home/Studio.astro';
-import Bot from '../home/Bot.astro';
+import FlSheet from '../film/FlSheet.astro';
+import BotSheet from '../film/BotSheet.astro';
 import Faq from '../Faq.astro';
 import { copy } from '../../content/copy';
 import { PRODUCTS, SALES, type Lang } from '../../content/site';
@@ -15,30 +15,20 @@ const isPl = lang === 'pl';
 const path = isPl ? '/fastlanding' : '/en/fastlanding';
 const home = isPl ? '/' : '/en';
 const faq = [c.faq[2]!, c.faq[3]!];
-const ad = c.dir.entry.adFl;
 ---
-<Base lang={lang} path={path} title={f.title} description={f.description} kind="product" guide={c.dir.guide.fl}
+<Base lang={lang} path={path} title={f.title} description={f.description} kind="product"
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: f.crumb, path }]} faq={faq}
-  ogImage={isPl ? '/og/fastlanding.png' : '/og/fastlanding-en.png'}>
-  <PageHead lang={lang} crumb={f.crumb} cat="FastLanding.io" h1={f.h1} lead={f.lead} scene={3} side="left" guide={c.dir.guide.fl}>
+  ogImage={isPl ? '/og/fastlanding.png' : '/og/fastlanding-en.png'} still="p3">
+  <PageHead lang={lang} crumb={f.crumb} label={f.kicker} h1={f.h1} lead={f.lead} pose={3} guide="FastLanding.io">
     <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-page-quote">{c.home.fl.cta}</Btn>
-    <Btn href={SALES.bookingUrl} variant="line" outbound cta="fl-page-booking">{c.home.fl.ctaAlt}</Btn>
-    <article slot="aside" class="ad ad--white fl-head-ad" aria-labelledby="fl-head-ad-h">
-      <h2 class="ad-h" id="fl-head-ad-h">{ad.h}</h2>
-      <ul class="ad-bul">{ad.bullets.map((b) => <li>{b}</li>)}</ul>
-      <div class="ad-foot"><span class="sticker">{ad.price} <small>{ad.priceNote}</small></span></div>
-      <p class="ad-sig ld"><b>FastLanding.io</b><i></i><span>{c.dir.sig.fl}</span></p>
-    </article>
+    <Btn href={SALES.bookingUrl} variant="ghost" outbound cta="fl-page-booking">{c.home.fl.ctaAlt}</Btn>
   </PageHead>
-  <Studio lang={lang} heading={false} />
-  <Bot lang={lang} />
+  <FlSheet lang={lang}>
+    <p class="t-src fl-usuk">{f.usUk} <a class="tlink" href={PRODUCTS.fastlanding.us} data-outbound data-cta="fl-us" rel="noopener">fastlanding.io/us</a>, <a class="tlink" href={PRODUCTS.fastlanding.uk} data-outbound data-cta="fl-uk" rel="noopener">fastlanding.io/uk</a></p>
+  </FlSheet>
+  <BotSheet lang={lang} />
   <Faq lang={lang} items={faq} />
-  <section class="fl-end stock-yellow" data-scene-occlude aria-label={f.cta.h2}>
-    <div class="wrap">
-      <p class="src">{f.usUk} <a href={PRODUCTS.fastlanding.us} data-outbound data-cta="fl-us" rel="noopener">fastlanding.io/us</a>, <a href={PRODUCTS.fastlanding.uk} data-outbound data-cta="fl-uk" rel="noopener">fastlanding.io/uk</a></p>
-    </div>
-  </section>
 </Base>
 <style>
-  .fl-end { padding-block: 1.25rem; border-bottom: 2px solid var(--ink); }
+  .fl-usuk { margin-top: 3rem; }
 </style>

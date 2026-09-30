@@ -8,44 +8,45 @@ related_targets: ["src/components/pages/HomePage.astro","src/layouts/Base.astro"
 # Surface brief: kacper.biz (all routes, PL + EN)
 
 Scope: the whole site; home first. Visitor mode: Persuade. Audience: Polish small-business owners, freelancers and
-agencies checking who stands behind OutreachPilot and FastLanding, mostly on a phone in daylight. Job: understand both
-products in seconds, trust the person, then book 30 minutes with Justyna, send a short enquiry or open a product.
-Proof on hand: CEIDG counts, the 3-in-100 report, the campaign benchmark, three client sites, FastBot demo.
+agencies checking who stands behind OutreachPilot and FastLanding, mostly on a phone. Job: meet a credible, premium
+founder in seconds, understand both products, then book 30 minutes with Justyna, send an enquiry or open a product.
+Proof on hand: CEIDG counts, the 3-in-100 report, the campaign benchmark, three client sites, the FastBot demo.
 Constraints: PRODUCT.md (SEO/GEO layer, Lighthouse mobile 95+ without GPU, no cookies, complete without JS/WebGL).
 
-Grounded directions considered (ranked by resonance before the roll): 1 CEIDG registry extract / official form,
-2 PKP yellow departure timetable, 3 company stamp + invoice, 4 Poczta Polska registered letter, 5 PKT / Panorama Firm
-yellow-pages business directory, 6 Polish School of Posters, 7 Silesian brick-and-headframe industry.
-Rut refused: dark page with a glowing 3D globe/map, big name and one neon accent (the incumbent); its opposite, a
-white editorial page with serif display and a portrait.
+Direction round (seed 1d695112): assigned the Radmor tuner (index 6), pick Radiostacja Gliwice, canon offered; the
+owner chose the canon with Oryzo as the craft bar. Owner feedback on earlier versions: loud and cheap colours, not
+premium, 3D too weak, not enough scroll film. Full freedom on copy. No sound.
 
 ## Direction contract
 
-THESIS: kacper.biz is a printed business directory, the book OutreachPilot reads companies from. Kacper has an entry;
-his products are the display ads; the directory's own furniture (index, leader dots, running heads, thumb tabs, rate
-card, order coupon) is the interface. Refused: the founder hero with a giant name over a 3D glow.
+THESIS: kacper.biz is a dark product studio: one sculpted object, lit like a product shot, carries the founder's
+story while the scroll turns, fans and rebuilds it chapter by chapter; around it the page stays quiet, with very large
+type and cream evidence sheets. Refused: a floating blob, particle cloud or glowing globe that could belong to any site.
 
-OWN-WORLD: directory-yellow stock #F7D117, white-pages stock #F6F5F1, reversed black ads #000, one red spot ink
-#E1251B for prices, the Gliwice marker and the active state. Black ink only, secondary text tinted from black on the
-stock, never gray. One family, Archivo, in four voices by width: 62 black caps for display, 72 heavy for statements,
-75 bold caps for listings, 100 regular for reading; tabular lining numerals everywhere. Leader dots, 1px column rules,
-3px ad frames, square bullets, zero radius, no shadows. The map is printed: ink dots on paper, red ring on Gliwice.
+OWN-WORLD: warm studio black #0E0C0A and graphite #191613 for the film, cream paper #EDE7DC for evidence sheets, text
+#EDE6DA on dark and ink #15120F on paper, one accent: copper, as the metal of three slices and the primary action; no
+second hue. The object is a monolith of 100 machined aluminium slices with chamfered edges, three of them copper, on a
+dark floor under softbox strip lights; AgX tone, fine grain, vignette, no bloom halos, no glass. Geist for everything
+(display at weight 500, tracking -0.045em, monumental size), Geist Mono for labels and numerals. Square sheets; pills
+only for header actions.
 
-STORY: the visitor finds Kacper's entry, reads two ads (OutreachPilot, FastLanding) with prices and actions, sees that
-only 3 in 100 listings carry a website, looks up their own sector and city in the index (live CEIDG counts, the city
-pinged on the printed map, the email line declined), then reads the rate card and books through the order coupon.
+STORY: the visitor meets Kacper's name beside the monolith; the scroll fans it open, 97 steel and 3 copper (only 3 in
+100 micro-firms list a website in CEIDG); OutreachPilot lines the slices up like registry cards while a light scans
+them (find, write in Polish, send from your own mailbox), then a cream sheet slides over with the live sector and city
+index, the benchmark and the plans; FastLanding rebuilds the slices into an exploded landing page (7 days, fixed
+price), then a sheet with prices, process and real client sites; the monolith re-forms for the close with Justyna's
+calendar and the enquiry form.
 
-FIRST VIEWPORT: running head across the top (title, guide words, clock, EN, "Umów rozmowę"); thumb-index tabs stepped
-down the right edge. Left quarter: the CEIDG register column, 3 181 616 and the sectors with leader dots. Right three
-quarters: H1 "Kacper Rękawek" in display caps, the entry line (founder of both, Gliwice, AI phone line), then a row of
-display ads billed by size: OutreachPilot reversed black (largest), FastLanding framed yellow with the red 1 499 zł
-sticker, a small ad for the 30-minute call. Primary action inside each ad; "Umów rozmowę" also in the running head.
+FIRST VIEWPORT: full-bleed studio. Desktop: the monolith stands in the right seven columns in a three-quarter view,
+copper edges catching the key light, a soft floor reflection; "Kacper Rękawek" in two lines at about 11vw on the
+left, a one-line offer under it. Header: "kacper.biz" left; right: EN, the copper "Umów rozmowę" pill (primary), Menu.
+A chapter rail on the bottom edge names the chapters and lights the current one. Phone: object in the top half, the
+name at about 18vw below it, the pill in the header.
 
-FORM: position 5 of 7 (PKT / Panorama Firm directory), seed key de34c30e, assigned by the roll. Signature interaction:
-the sector-and-city lookup re-typesets a directory page live (rolling counters, redrawn leader dots, city ping on the
-printed WebGL map, re-declined email line). Motion grammar: ink, not light; print lands, tabs slide, nothing glows.
-Raises kept from declined challengers: risograph (total spot-ink discipline; a hair of misregistration on press of an
-ad), VU-meter bridge (numbers move with mass and damping, never jump), painted poster (size is billing: ad area
-encodes importance), daylight section (tabular time stamps; the live Gliwice clock dates the edition).
+FORM: canon, the category standard played straight, chosen by the owner over the assigned direction (position 6 of 7,
+the Radmor tuner) and the pick (Radiostacja); seed key 1d695112; craft bar Oryzo. Signature interaction: the
+scroll-driven monolith, one instanced object whose 100 slices move between chapter poses on a damped chapter
+coordinate while the camera rides a rail. Motion grammar: machined, weighted, damped; the object moves, the type holds
+still; one line-mask reveal per chapter headline.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

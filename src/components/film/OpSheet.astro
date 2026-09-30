@@ -1,0 +1,79 @@
+---
+/**
+ * The OutreachPilot evidence sheet: the sector index, what user campaigns returned, the plans and the way in.
+ * Used on the home page after the drawer chapter and on /outreachpilot.
+ */
+import Sheet from '../ui/Sheet.astro';
+import Btn from '../ui/Btn.astro';
+import Lookup from './Lookup.astro';
+import { copy } from '../../content/copy';
+import { PRODUCTS, SALES, type Lang } from '../../content/site';
+interface Props { lang: Lang; id?: string; lookup?: boolean }
+const { lang, id = 'outreachpilot', lookup = true } = Astro.props;
+const c = copy[lang];
+const o = c.home.op;
+const f = c.film;
+const plans = c.op.plans;
+---
+<Sheet id={id} labelledby={`${id}-h`} guide="OutreachPilot.pl">
+  {lookup && (
+    <div class="grid sec-head">
+      <p class="t-label c-1-8">OutreachPilot.pl</p>
+      <h2 class="t-display c-1-8" id={`${id}-h`}>{f.op.sheetH2}</h2>
+      <p class="t-lead dim c-1-7">{c.home.demo.p}</p>
+    </div>
+  )}
+  {!lookup && <h2 class="sr-only" id={`${id}-h`}>{f.op.benchH3}</h2>}
+  {lookup && <Lookup lang={lang} />}
+
+  <div class="grid op-proof">
+    <div class="op-bench">
+      <h3 class="t-label dim">{f.op.benchH3}</h3>
+      <ul class="op-stats">
+        {o.benchmark.stats.map(([v, l]) => (<li><span class="op-v num">{v}</span><span class="t-small dim">{l}</span></li>))}
+      </ul>
+      <p class="t-src">{o.benchmark.note} <a class="tlink" href={PRODUCTS.outreachpilot.methodology} data-outbound data-cta="op-methodology" rel="noopener">{o.benchmark.link}</a></p>
+    </div>
+    <div class="op-plans">
+      <h3 class="t-label dim">{f.op.plansH3}</h3>
+      <ul class="rows">
+        {plans.rows.map(([name, price, what]) => (
+          <li><span class="k">{name}</span><span class="v">{price}</span><span class="note">{what}</span></li>
+        ))}
+      </ul>
+      <p class="t-src op-plans-note">{plans.note}</p>
+    </div>
+  </div>
+
+  <div class="grid op-go">
+    <div class="op-go-in">
+      <h3 class="t-h2">{f.free.h3}</h3>
+      <p class="t-lead dim">{f.free.p}</p>
+      <p class="t-body dim">{o.mcp} <a class="tlink" href={PRODUCTS.outreachpilot.mcp} data-outbound data-cta="op-mcp" rel="noopener">MCP</a></p>
+      <div class="btn-row">
+        <Btn href={PRODUCTS.outreachpilot.signup} outbound cta="op-signup">{o.cta}</Btn>
+        <Btn href={SALES.bookingUrl} variant="ghost" outbound cta="op-demo">{c.op.cta.alt}</Btn>
+      </div>
+    </div>
+    <p class="t-src op-legal">{o.legal}</p>
+  </div>
+</Sheet>
+
+<style>
+  .op-proof { margin-top: clamp(4.5rem, 12vh, 8rem); row-gap: 4rem; align-items: start; }
+  .op-bench, .op-plans { display: grid; gap: 1.5rem; align-content: start; }
+  .op-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--col-gap); border-top: 1px solid var(--line-p); padding-top: 1.5rem; }
+  .op-stats li { display: grid; gap: 0.5rem; }
+  .op-v { font: 500 clamp(2.4rem, 1.3rem + 3.2vw, 4.8rem)/0.9 var(--f-sans); letter-spacing: -0.045em; }
+  .op-plans .rows .k { font-weight: 500; }
+  .op-plans-note { margin-top: -0.25rem; }
+  .op-go { margin-top: clamp(4.5rem, 12vh, 8rem); padding-top: clamp(2.5rem, 6vh, 4rem); border-top: 1px solid var(--line-p); row-gap: 2rem; align-items: end; }
+  .op-go-in { display: grid; gap: 1.25rem; justify-items: start; }
+  .op-go-in .btn-row { margin-top: 0.75rem; }
+  @media (min-width: 960px) {
+    .op-bench { grid-column: 1 / 6; }
+    .op-plans { grid-column: 7 / 13; }
+    .op-go-in { grid-column: 1 / 8; }
+    .op-legal { grid-column: 9 / 13; }
+  }
+</style>

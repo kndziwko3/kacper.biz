@@ -49,6 +49,11 @@ stamps, email inboxes, calendars. Sales happen in a 30-minute online call booked
 - Voice: first person for Kacper, plain Polish, every market or results number with a source and date, no em dashes,
   no hype, no invented results.
 - OutreachPilot.pl is not affiliated with outreachpilot.co, outreachpilot.ai or useoutreachpilot.com.
+- Visual direction (owner's choice, 30.09.2026, after a researched direction round): the category standard played
+  straight, a dark studio with one sculpted 3D object that the scroll drives, the name set large, a clean grotesk.
+  Craft bar: Oryzo (oryzo.ai). The owner rejected loud palettes (yellow, red, black), printed or paper looks and weak or
+  small 3D; wants a premium feel and a strongly scroll-driven film. No sound. Full freedom on copy; facts, prices and
+  Justyna's Calendly stay.
 
 ## Evidence on Hand
 - CEIDG sector and city counts (src/content/ceidg.ts, via outreachpilot.pl/firmy, 29.09.2026).

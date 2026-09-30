@@ -1,0 +1,72 @@
+---
+/**
+ * Contact on the sheet: Justyna's next five working days as direct Calendly links (booking.ts, [data-days]), the ways to
+ * reach us as rows, and the enquiry form. Used on the home page and on /kontakt.
+ */
+import Sheet from '../ui/Sheet.astro';
+import ContactForm from '../ContactForm.astro';
+import { copy } from '../../content/copy';
+import { CONTACT, SALES, type Lang } from '../../content/site';
+interface Props { lang: Lang; id?: string; heading?: boolean; idPrefix?: string; defaultNeed?: string }
+const { lang, id = 'kontakt', heading = true, idPrefix = 'home', defaultNeed } = Astro.props;
+const c = copy[lang];
+const t = c.home.talk;
+const f = c.film;
+const ui = c.ui;
+---
+<Sheet id={id} labelledby={`${id}-h`} guide={f.chapters[4]}>
+  {heading ? (
+    <div class="grid sec-head">
+      <p class="t-label c-1-8">{f.chapters[4]}</p>
+      <h2 class="t-display c-1-8" id={`${id}-h`}>{f.contactH2}</h2>
+    </div>
+  ) : <h2 class="sr-only" id={`${id}-h`}>{f.contactH2}</h2>}
+  <div class="grid ct">
+    <div class="ct-call">
+      <div class="ct-who">
+        <span class="ct-av" aria-hidden="true">{SALES.initials}</span>
+        <p><b class="t-h3">{SALES.fullName}</b><span class="t-small dim">{t.justyna.role}</span></p>
+      </div>
+      <p class="t-body">{t.justyna.p}</p>
+      <p class="t-label dim ct-pick">{t.justyna.pick}</p>
+      <ul class="days" data-days data-url={SALES.bookingUrl} data-lang={lang}></ul>
+      <div class="btn-row"><a class="btn" href={SALES.bookingUrl} target="_blank" rel="noopener" data-outbound data-cta="talk-calendar">{t.justyna.full}<span class="sr-only"> {ui.newTab}</span></a></div>
+      <ul class="rows ct-lines">
+        <li><span class="k">{t.emails.studio}</span><a class="v tlink" href={`mailto:${CONTACT.studioEmail}`}>{CONTACT.studioEmail}</a></li>
+        <li><span class="k">{t.emails.product}</span><a class="v tlink" href={`mailto:${CONTACT.productEmail}`}>{CONTACT.productEmail}</a></li>
+        <li><span class="k">{lang === 'pl' ? 'Telefon' : 'Phone'}</span><a class="v tlink num" href={CONTACT.aiPhone.href}>{CONTACT.aiPhone.display}</a><span class="note">{t.phone}</span></li>
+      </ul>
+    </div>
+    <div class="ct-form">
+      <h3 class="t-h2">{t.write.h3}</h3>
+      <p class="t-small dim ct-form-p">{t.write.p}</p>
+      <ContactForm lang={lang} idPrefix={idPrefix} defaultNeed={defaultNeed} />
+    </div>
+  </div>
+</Sheet>
+
+<style>
+  .ct { row-gap: 4.5rem; align-items: start; }
+  .ct-call { display: grid; gap: 1.25rem; align-content: start; }
+  .ct-who { display: flex; gap: 1rem; align-items: center; }
+  .ct-who p { display: grid; gap: 0.15rem; }
+  .ct-av { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border-radius: 50%; background: var(--ink); color: var(--paper); font: 500 0.95rem/1 var(--f-mono); flex: none; }
+  .ct-pick { margin-top: 0.75rem; }
+  .days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.4rem; }
+  .days:empty { display: none; }
+  .ct-lines { margin-top: 1.5rem; }
+  .ct-lines .v { overflow-wrap: anywhere; }
+  .ct-form { background: #f6f2ea; border-radius: 1.25rem; padding: clamp(1.4rem, 3vw, 2.5rem); box-shadow: 0 0 0 1px var(--line-p); display: grid; gap: 0.5rem; }
+  .ct-form-p { margin-bottom: 1.25rem; }
+  .ct-form :global(.input), .ct-form :global(.textarea) { background: #fffdf8; }
+  @media (min-width: 960px) {
+    .ct-call { grid-column: 1 / 6; position: sticky; top: calc(var(--head-h) + 1.5rem); }
+    .ct-form { grid-column: 7 / 13; }
+  }
+</style>
+<style is:global>
+  .days a { display: grid; gap: 0.15rem; justify-items: center; padding: 0.8rem 0.2rem 0.85rem; border-radius: 0.8rem; box-shadow: inset 0 0 0 1px var(--line-p); transition: background-color 0.15s, color 0.15s, box-shadow 0.15s; }
+  .days a:hover { background: var(--ink); color: var(--paper); box-shadow: none; }
+  .days .d-w, .days .d-m { font: 500 0.7rem/1.2 var(--f-mono); text-transform: uppercase; letter-spacing: 0.02em; }
+  .days .d-n { font: 500 1.75rem/1 var(--f-sans); letter-spacing: -0.03em; }
+</style>

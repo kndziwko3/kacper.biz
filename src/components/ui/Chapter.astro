@@ -1,0 +1,42 @@
+---
+/**
+ * One chapter of the film: a tall track whose stage stays pinned while the object moves into this chapter's pose
+ * (`pose`, read by src/film/film.ts). The still is a render of the same pose that stands in until the film runs,
+ * and for good without a GPU. Copy sits left or right; the object takes the other side.
+ */
+interface Props {
+  pose: number;
+  still: string;
+  side?: 'left' | 'right';
+  len?: number;
+  lenM?: number;
+  first?: boolean;
+  last?: boolean;
+  guide: string;
+  id?: string;
+  labelledby?: string;
+  eager?: boolean;
+  stillPos?: string;
+}
+const { pose, still, side = 'left', len = 260, lenM = 200, first = false, last = false, guide, id, labelledby, eager = false, stillPos } = Astro.props;
+---
+<section
+  class:list={['ch', first && 'ch--first', last && 'ch--last']}
+  id={id}
+  data-ch={pose}
+  data-guide={guide}
+  aria-labelledby={labelledby}
+  style={`--len:${len}svh;--len-m:${lenM}svh;${stillPos ? `--still-pos:${stillPos};` : ''}`}
+>
+  <div class="stage">
+    <div class="still" aria-hidden="true">
+      <picture>
+        <source media="(min-width: 960px)" srcset={`/stills/${still}-d.webp`} width="1600" height="1000" />
+        <img src={`/stills/${still}-m.webp`} alt="" width="780" height="1688" loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : 'auto'} decoding="async" />
+      </picture>
+    </div>
+    <div class="stage-in grid">
+      <div class:list={['copy', side === 'left' ? 'copy--left' : 'copy--right']}><slot /></div>
+    </div>
+  </div>
+</section>

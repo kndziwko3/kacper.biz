@@ -1,59 +1,43 @@
 ---
 /**
- * Department opener for subpages: breadcrumb, the department name set as the category head, the statement as the
- * H1 and the page's actions. With a scene chapter it opens a window onto the printed map on the right. The `aside`
- * slot fills that right half where no live scene runs (no GPU, no WebGL, no JS) and the chapter has no poster.
+ * Subpage opener: one viewport of the studio. The film holds this route's pose (data-film-pose, read by
+ * src/film/film.ts) and the still of that pose stands in until it runs. Breadcrumb, label, the H1 and the actions.
  */
 import { copy } from '../../content/copy';
 import type { Lang } from '../../content/site';
 interface Props {
-  lang: Lang; crumb: string; h1: string; cat?: string; lead?: string;
-  scene?: number; side?: 'left' | 'right' | 'center'; dim?: number; guide?: string;
-  stock?: 'yellow' | 'white';
+  lang: Lang; crumb: string; h1: string; label?: string; lead?: string;
+  pose: number; still?: string; guide?: string; stillPos?: string; short?: boolean;
 }
-const { lang, crumb, h1, cat, lead, scene, side = 'left', dim, guide, stock = 'yellow' } = Astro.props;
+const { lang, crumb, h1, label, lead, pose, still = `p${pose}`, guide, stillPos, short = false } = Astro.props;
 const home = lang === 'pl' ? '/' : '/en';
-const poster = scene === 1 || scene === 2 || scene === 5;
 ---
-<section
-  class:list={['page-head', scene === undefined ? `stock-${stock}` : 'is-window m-window']}
-  data-scene={scene} data-scene-side={scene !== undefined ? side : undefined} data-scene-dim={dim}
-  data-scene-occlude={scene === undefined ? '' : undefined} data-poster={poster ? '' : undefined}
-  data-guide={guide ?? crumb} aria-labelledby="page-h1"
->
-  <div class:list={['wrap', Astro.slots.has('aside') && 'ph-grid']}>
-    <div class="ph-in m-solid">
-      <nav class="crumbs" aria-label={lang === 'pl' ? 'Ścieżka nawigacji' : 'Breadcrumb'}><a href={home}>{copy[lang].ui.home}</a><span aria-hidden="true">/</span><span aria-current="page">{crumb}</span></nav>
-      <h1 class="ph-h1" id="page-h1">
-        {cat && <span class="v-cat ph-cat">{cat}</span>}
-        <span class:list={[cat ? 'v-state ph-state' : 'v-cat']}>{h1}</span>
-      </h1>
-      {lead && <p class="v-lead ph-lead">{lead}</p>}
-      <div class="btn-row ph-actions"><slot /></div>
+<section class:list={['ph', short && 'ph--short']} data-film-pose={pose} data-guide={guide ?? crumb} aria-labelledby="page-h1" style={stillPos ? `--still-pos:${stillPos}` : undefined}>
+  <div class="still" aria-hidden="true">
+    <picture>
+      <source media="(min-width: 960px)" srcset={`/stills/${still}-d.webp`} width="1600" height="1000" />
+      <img src={`/stills/${still}-m.webp`} alt="" width="780" height="1688" loading="eager" fetchpriority="high" decoding="async" />
+    </picture>
+  </div>
+  <div class="wrap grid ph-grid">
+    <div class="ph-in">
+      <nav class="t-label ph-crumbs" aria-label={lang === 'pl' ? 'Ścieżka nawigacji' : 'Breadcrumb'}><a class="tlink" href={home}>{copy[lang].ui.home}</a><span aria-hidden="true">/</span><span aria-current="page">{crumb}</span></nav>
+      {label && <p class="t-label dim">{label}</p>}
+      <h1 class="t-display ph-h1" id="page-h1">{h1}</h1>
+      {lead && <p class="t-lead dim ph-lead">{lead}</p>}
+      {Astro.slots.has('default') && <div class="btn-row ph-actions"><slot /></div>}
     </div>
-    {Astro.slots.has('aside') && <div class="ph-aside"><slot name="aside" /></div>}
   </div>
 </section>
 <style>
-  .page-head { position: relative; padding-top: calc(var(--head-h) + clamp(2rem, 7vh, 4.5rem)); padding-bottom: clamp(3rem, 8vh, 5rem); border-bottom: 2px solid var(--ink); }
-  .page-head.is-window { min-height: min(94svh, 56rem); display: grid; align-content: end; }
-  .ph-in { max-width: 44rem; }
-  .page-head:not(.is-window) .ph-in { max-width: none; }
-  .crumbs { display: flex; gap: 0.5rem; font-stretch: var(--w-list); font-weight: 750; text-transform: uppercase; letter-spacing: 0.04em; font-size: var(--t-micro); margin-bottom: 0.9rem; }
-  .crumbs a { text-decoration: underline; text-underline-offset: 3px; }
-  .ph-h1 { display: grid; gap: 0.9rem; border-top: 8px solid var(--ink); padding-top: 0.9rem; font-weight: 900; }
-  .ph-state { max-width: 22ch; }
-  .page-head:not(.is-window) .ph-h1 > .v-cat:only-child { max-width: 16ch; }
-  .ph-lead { margin-top: 1.25rem; color: var(--fg-2); }
-  .ph-actions { margin-top: 1.75rem; }
-  .ph-actions:empty { display: none; }
-  @media (max-width: 959px) { .page-head.is-window { min-height: 0; } }
-
-  .ph-grid { display: grid; gap: 2.5rem var(--col-gap); align-items: end; }
-  @media (min-width: 960px) { .ph-grid { grid-template-columns: minmax(0, 44rem) minmax(0, 1fr); } .ph-aside { justify-self: end; width: min(100%, 26rem); } }
-  .ph-aside { display: none; }
-  :global(html:is(.scene-off, :not(.js))) .ph-aside { display: block; animation: kb-fade 0.4s var(--ease) both; }
-  /* without a live scene, a window with no poster closes up like an opaque page head (no empty band) */
-  :global(html:is(.scene-off, :not(.js))) .page-head.m-window:not([data-poster]) { padding-top: calc(var(--head-h) + clamp(2rem, 7vh, 4.5rem)) !important; min-height: 0; }
-  @keyframes kb-fade { from { opacity: 0; } }
+  .ph { position: relative; min-height: 100svh; display: grid; align-items: end; overflow: clip; }
+  .ph--short { min-height: min(78svh, 52rem); }
+  .ph-grid { padding-top: calc(var(--head-h) + 2rem); padding-bottom: clamp(3rem, 9svh, 6rem); }
+  .ph-in { display: grid; gap: 1.35rem; justify-items: start; }
+  .ph-crumbs { display: flex; gap: 0.6rem; color: var(--text-2); margin-bottom: 0.5rem; }
+  .ph-h1 { max-width: 16ch; }
+  .ph-lead { max-width: 44ch; }
+  .ph-actions { margin-top: 0.75rem; }
+  @media (min-width: 960px) { .ph-in { grid-column: 1 / 8; } }
+  @media (max-width: 959px) { .ph:not(.ph--short) .ph-grid { padding-top: 50svh; } }
 </style>

@@ -1,9 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
 import PageHead from '../ui/PageHead.astro';
+import Sheet from '../ui/Sheet.astro';
 import Btn from '../ui/Btn.astro';
-import Outreach from '../home/Outreach.astro';
-import Registry from '../home/Registry.astro';
+import OpSheet from '../film/OpSheet.astro';
 import Faq from '../Faq.astro';
 import { copy } from '../../content/copy';
 import { PRODUCTS, type Lang } from '../../content/site';
@@ -11,61 +11,57 @@ interface Props { lang: Lang }
 const { lang } = Astro.props;
 const c = copy[lang];
 const o = c.op;
+const steps = c.home.op.steps;
 const isPl = lang === 'pl';
 const path = isPl ? '/outreachpilot' : '/en/outreachpilot';
 const home = isPl ? '/' : '/en';
 const faq = [c.faq[1]!, c.faq[4]!, c.faq[5]!];
 ---
-<Base lang={lang} path={path} title={o.title} description={o.description} kind="product" guide={c.dir.guide.op}
+<Base lang={lang} path={path} title={o.title} description={o.description} kind="product"
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: o.crumb, path }]} faq={faq}
-  ogImage={isPl ? '/og/outreachpilot.png' : '/og/outreachpilot-en.png'}>
-  <PageHead lang={lang} crumb={o.crumb} cat="OutreachPilot.pl" h1={o.h1} lead={o.lead} scene={1} side="left" guide={c.dir.guide.op}>
+  ogImage={isPl ? '/og/outreachpilot.png' : '/og/outreachpilot-en.png'} still="p2">
+  <PageHead lang={lang} crumb={o.crumb} label={o.kicker} h1={o.h1} lead={o.lead} pose={2} guide="OutreachPilot.pl">
     <Btn href={PRODUCTS.outreachpilot.signup} outbound cta="op-page-signup">{c.home.op.cta}</Btn>
-    <Btn href={PRODUCTS.outreachpilot.url} variant="line" outbound cta="op-page-site">outreachpilot.pl</Btn>
+    <Btn href={PRODUCTS.outreachpilot.url} variant="ghost" outbound cta="op-page-site">outreachpilot.pl</Btn>
   </PageHead>
 
-  <section class="op-what stock-white" data-scene-occlude data-guide={o.what.h2} aria-labelledby="op-what">
-    <div class="wrap grid">
-      <div class="c-1-6">
-        <h2 class="v-head op-what-h" id="op-what">{o.what.h2}</h2>
-        <p class="v-body">{o.what.p1}</p>
-        <p class="v-body">{o.what.p2}</p>
+  <Sheet id="co-to-jest" labelledby="op-what" guide={o.what.h2}>
+    <div class="grid pg-two">
+      <div class="pg-main">
+        <h2 class="t-h2" id="op-what">{o.what.h2}</h2>
+        <p class="t-lead">{o.what.p1}</p>
+        <p class="t-body dim">{o.what.p2}</p>
       </div>
-      <div class="c-8-12">
-        <h3 class="v-list op-list-h">{o.forWho.h2}</h3>
-        <ul class="op-verticals">
-          {o.forWho.items.map(([label, href]) => <li><a class="ld" href={href} data-outbound data-cta="op-vertical" rel="noopener"><b>{label}</b><i></i><span>{href.replace('https://', '')}</span></a></li>)}
+      <div class="pg-side">
+        <h3 class="t-label dim">{o.forWho.h2}</h3>
+        <ul class="rows">
+          {o.forWho.items.map(([label, href]) => <li><a class="k tlink" href={href} data-outbound data-cta="op-vertical" rel="noopener">{label}</a><span class="v t-label dim">{href.replace('https://', '')}</span></li>)}
         </ul>
       </div>
     </div>
-  </section>
 
-  <Outreach lang={lang} heading={false} />
-  <Registry lang={lang} id="rejestr" />
+    <div class="pg-block">
+      <h2 class="t-h2">{c.home.op.h2}</h2>
+      <ol class="pg-steps">
+        {steps.map((s, i) => (<li><span class="pg-n num" aria-hidden="true">{i + 1}</span><b class="t-h3">{s.title}</b><span class="t-small dim">{s.text}</span></li>))}
+      </ol>
+    </div>
+  </Sheet>
 
-  <section class="op-more stock-white" data-scene-occlude aria-labelledby="op-mcp">
-    <div class="wrap grid">
-      <div class="c-1-6">
-        <h2 class="v-head" id="op-mcp">{o.mcp.h2}</h2>
-        <p class="v-body">{o.mcp.p} <a class="tlink" href={PRODUCTS.outreachpilot.mcp} data-outbound data-cta="op-mcp-page" rel="noopener">{o.mcp.link}</a></p>
+  <OpSheet lang={lang} id="panel" />
+
+  <Sheet id="mcp" labelledby="op-mcp" guide="MCP">
+    <div class="grid pg-two pg-rule">
+      <div class="pg-main">
+        <h2 class="t-h2" id="op-mcp">{o.mcp.h2}</h2>
+        <p class="t-body dim">{o.mcp.p} <a class="tlink" href={PRODUCTS.outreachpilot.mcp} data-outbound data-cta="op-mcp-page" rel="noopener">{o.mcp.link}</a></p>
       </div>
-      <div class="c-8-12">
-        <h2 class="v-head">{o.disambig.h2}</h2>
-        <p class="v-body">{o.disambig.p}</p>
+      <div class="pg-side">
+        <h2 class="t-h3">{o.disambig.h2}</h2>
+        <p class="t-body dim">{o.disambig.p}</p>
       </div>
     </div>
-  </section>
+  </Sheet>
 
   <Faq lang={lang} items={faq} />
 </Base>
-<style>
-  .op-what, .op-more { padding-block: clamp(3.5rem, 9vh, 6rem); border-bottom: 2px solid var(--ink); }
-  .op-what .grid, .op-more .grid { row-gap: 2.5rem; }
-  .op-what .v-body, .op-more .v-body { margin-top: 1rem; }
-  .op-list-h { padding-bottom: 0.4rem; border-bottom: 8px solid var(--ink); }
-  .op-verticals li { border-bottom: 1px solid var(--ink); }
-  .op-verticals a { padding: 0.6rem 0; }
-  .op-verticals b { font-weight: 750; }
-  .op-verticals span { font-size: var(--t-small); color: var(--fg-2); }
-  .op-verticals a:hover b { text-decoration: underline; text-underline-offset: 3px; }
-</style>

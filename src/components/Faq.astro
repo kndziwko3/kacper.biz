@@ -1,33 +1,37 @@
 ---
-/** Questions, printed open on white stock (no accordions: the answers are the content, for people and for AI answers). */
+/** Questions, set open on the sheet (no accordions: the answers are the content, for people and for AI answers). */
+import Sheet from './ui/Sheet.astro';
 import { copy } from '../content/copy';
 import type { Lang } from '../content/site';
-interface Props { lang: Lang; heading?: boolean; items?: { q: string; a: string }[] }
-const { lang, heading = true, items } = Astro.props;
+interface Props { lang: Lang; items?: { q: string; a: string }[]; h2?: string }
+const { lang, items, h2 } = Astro.props;
 const list = items ?? copy[lang].faq;
-const d = copy[lang].dir;
+const f = copy[lang].film;
 ---
-<section id="pytania" class="faq-sec stock-white" data-guide={d.guide.faq} data-scene-occlude aria-labelledby="faq-h">
-  <div class="wrap">
-    <div class="cat faq-cat">
-      <h2 class="v-cat" id="faq-h">{heading ? d.faq.cat : copy[lang].home.faq.h2}</h2>
+<Sheet id="pytania" labelledby="faq-h" guide={f.guide.faq}>
+  <div class="grid faq">
+    <div class="faq-head">
+      <p class="t-label dim">{f.guide.faq}</p>
+      <h2 class="t-h2" id="faq-h">{h2 ?? copy[lang].home.faq.h2}</h2>
     </div>
     <dl class="faq-list">
       {list.map((it) => (
         <div class="faq-item">
-          <dt class="v-head">{it.q}</dt>
-          <dd class="v-body">{it.a}</dd>
+          <dt class="t-h3">{it.q}</dt>
+          <dd class="t-body dim">{it.a}</dd>
         </div>
       ))}
     </dl>
   </div>
-</section>
+</Sheet>
 <style>
-  .faq-sec { padding-block: clamp(4rem, 10vh, 7rem); border-bottom: 2px solid var(--ink); }
-  /* set like the directory's own pages: two columns split by a hairline column rule, questions in the listing voice */
-  .faq-list { margin-top: 1.75rem; border-top: 2px solid var(--ink); }
-  @media (min-width: 900px) { .faq-list { columns: 2; column-gap: calc(var(--col-gap) * 2); column-rule: 1px solid var(--ink); } }
-  .faq-item { padding-block: 1rem 1.3rem; break-inside: avoid; }
-  .faq-item + .faq-item { border-top: 1px solid var(--ink); }
-  .faq-item dd { margin-top: 0.55rem; }
+  .faq { row-gap: 2.5rem; align-items: start; padding-top: clamp(4rem, 10vh, 7rem); border-top: 1px solid var(--line-p); }
+  .faq-head { display: grid; gap: 1rem; align-content: start; }
+  .faq-list { border-top: 1px solid var(--line-p); }
+  .faq-item { display: grid; gap: 0.75rem; padding-block: 1.5rem 1.75rem; border-bottom: 1px solid var(--line-p); }
+  .faq-item dd { max-width: 64ch; }
+  @media (min-width: 960px) {
+    .faq-head { grid-column: 1 / 5; position: sticky; top: calc(var(--head-h) + 1.5rem); }
+    .faq-list { grid-column: 6 / 13; }
+  }
 </style>

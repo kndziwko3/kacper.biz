@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 /**
- * Brand assets committed to public/ (run once, not at build time):
+ * Brand assets committed to public/ (run once after the stills change, not at build time):
  *   public/favicon.svg, apple-touch-icon.png (180), icon-192.png, icon-512.png
  *   public/og/{home,about,outreachpilot,fastlanding,work,contact}[-en].png  (1200x630)
  *
- * Cards are directory pages rendered by Chromium (playwright-core) in Archivo, with the printed map drawn from the
- * same polygon as the WebGL scene (src/scene/poland.ts).
- * Art direction: docs/art-direction.md. Usage: node scripts/og.mjs [--only home,about] [--no-icons] [--preview out.png]
+ * Cards are the studio: the page's still (public/stills, rendered from the film) on the right, Geist on the left.
+ * Usage: node scripts/og.mjs [--only home,about] [--no-icons] [--preview out.png]
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -20,83 +19,44 @@ const opt = (n) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 
 const only = opt('only')?.split(',') ?? null;
 const CHROME = process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 
-const { POLAND, CITIES, GLIWICE, project, pointInPolygon, polygonXY } = await import(pathToFileURL(path.join(ROOT, 'src/scene/poland.ts')).href);
-
-const C = { yellow: '#f7d117', white: '#f6f5f1', ink: '#000', red: '#e1251b' };
-const font = (p) => pathToFileURL(path.join(ROOT, 'node_modules', p)).href;
+const C = { studio: '#0e0c0a', text: '#ede6da', text2: '#a8a092', copper: '#c8703f', ink: '#15120f' };
+const file = (p) => pathToFileURL(path.join(ROOT, p)).href;
 const FONTS = `
-@font-face{font-family:A;src:url(${font('@fontsource-variable/archivo/files/archivo-latin-standard-normal.woff2')});font-weight:100 900;font-stretch:62% 125%;unicode-range:U+0000-00FF,U+2000-206F,U+20AC}
-@font-face{font-family:A;src:url(${font('@fontsource-variable/archivo/files/archivo-latin-ext-standard-normal.woff2')});font-weight:100 900;font-stretch:62% 125%;unicode-range:U+0100-02BA,U+1E00-1EFF}`;
-
-/**
- * The printed map, as on the site: the ordered halftone (dots growing around the cities in three steps, the scene's
- * density field), a solid border, city dots and the small red Gliwice marker.
- */
-function mapSVG({ w, h }) {
-  const poly = polygonXY();
-  const xs = poly.map((p) => p[0]), ys = poly.map((p) => p[1]);
-  const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
-  const s = Math.min(w / (maxX - minX), h / (maxY - minY));
-  const ox = (w - (maxX - minX) * s) / 2, oy = (h - (maxY - minY) * s) / 2;
-  const toPx = (x, y) => [ox + (x - minX) * s, oy + (maxY - y) * s];
-  const d = poly.map(([x, y], i) => `${i ? 'L' : 'M'}${toPx(x, y).map((v) => v.toFixed(1)).join(' ')}`).join('') + 'Z';
-  const [gx, gy] = toPx(...project(GLIWICE[0], GLIWICE[1]));
-  const at = (c) => toPx(...project(c.lon, c.lat)).map((v) => v.toFixed(1));
-  const zone = (t) => CITIES.filter((c) => c.w > t).map((c) => {
-    const [x, y] = at(c);
-    return `<circle cx="${x}" cy="${y}" r="${((0.16 + 0.24 * Math.sqrt(c.w)) * Math.sqrt(Math.log(c.w / t)) * s).toFixed(1)}"/>`;
-  }).join('');
-  const cell = (r) => `<circle cx="1.85" cy="1.6" r="${r}"/><circle cx="5.55" cy="4.8" r="${r}"/>`;
-  const dots = CITIES.map((c) => { const [x, y] = at(c); return `<circle cx="${x}" cy="${y}" r="${(2.2 + 3 * Math.sqrt(c.w)).toFixed(1)}"/>`; }).join('');
-  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
-    <defs><clipPath id="c"><path d="${d}"/></clipPath><clipPath id="z1">${zone(0.3)}</clipPath><clipPath id="z2">${zone(0.65)}</clipPath>
-    <pattern id="p0" width="7.4" height="6.4" patternUnits="userSpaceOnUse">${cell(1.2)}</pattern>
-    <pattern id="p1" width="7.4" height="6.4" patternUnits="userSpaceOnUse">${cell(1.7)}</pattern>
-    <pattern id="p2" width="7.4" height="6.4" patternUnits="userSpaceOnUse">${cell(2.25)}</pattern></defs>
-    <g clip-path="url(#c)" fill="#120f0a"><rect width="${w}" height="${h}" fill="url(#p0)"/><rect width="${w}" height="${h}" fill="url(#p1)" clip-path="url(#z1)"/><rect width="${w}" height="${h}" fill="url(#p2)" clip-path="url(#z2)"/></g>
-    <path d="${d}" fill="none" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
-    <g fill="#000">${dots}</g>
-    <circle cx="${gx}" cy="${gy}" r="5" fill="${C.red}"/><circle cx="${gx}" cy="${gy}" r="10.5" fill="none" stroke="${C.red}" stroke-width="2.4"/>
-  </svg>`;
-}
+@font-face{font-family:G;src:url(${file('src/assets/fonts/geist-latin.woff2')});font-weight:100 900}
+@font-face{font-family:G;src:url(${file('src/assets/fonts/geist-latin-ext.woff2')});font-weight:100 900;unicode-range:U+0100-02BA,U+1E00-1EFF}
+@font-face{font-family:M;src:url(${file('src/assets/fonts/geist-mono-latin.woff2')});font-weight:100 900}
+@font-face{font-family:M;src:url(${file('src/assets/fonts/geist-mono-latin-ext.woff2')});font-weight:100 900;unicode-range:U+0100-02BA,U+1E00-1EFF}`;
 
 const CARDS = {
-  home: { pl: ['Kacper Rękawek', 'Założyciel OutreachPilot.pl i FastLanding.io', 'kacper.biz', ''], en: ['Kacper Rękawek', 'Founder of OutreachPilot.pl and FastLanding.io', 'kacper.biz', ''], stock: 'yellow' },
-  about: { pl: ['Kacper Rękawek', 'Przedsiębiorca z Gliwic. Fakty, firma i kontakt.', 'kacper.biz/o-mnie', ''], en: ['Kacper Rękawek', 'Entrepreneur from Gliwice. Facts, company and contact.', 'kacper.biz/en/about', ''], stock: 'white' },
-  outreachpilot: { pl: ['OutreachPilot.pl', 'Cold mailing do firm z CEIDG i Google Maps, po polsku.', 'kacper.biz/outreachpilot', '0 zł, plan Free'], en: ['OutreachPilot.pl', 'Cold email to Polish companies from CEIDG and Google Maps.', 'kacper.biz/en/outreachpilot', 'PLN 0, Free plan'], stock: 'yellow' },
-  fastlanding: { pl: ['FastLanding.io', 'Landing page w 7 dni, strona firmowa w 14.', 'kacper.biz/fastlanding', '1 499 zł netto'], en: ['FastLanding.io', 'A landing page in 7 days, a business site in 14.', 'kacper.biz/en/fastlanding', 'PLN 1,499 net'], stock: 'yellow' },
-  work: { pl: ['Realizacje', 'Strony klientów FastLanding, które możesz otworzyć.', 'kacper.biz/realizacje', ''], en: ['Work', 'FastLanding client websites you can open.', 'kacper.biz/en/work', ''], stock: 'white' },
-  contact: { pl: ['Kontakt', 'Umów rozmowę albo napisz.', 'kacper.biz/kontakt', ''], en: ['Contact', 'Book a call or write to me.', 'kacper.biz/en/contact', ''], stock: 'yellow' },
+  home: { still: 'p0', pl: ['Kacper Rękawek', 'Założyciel OutreachPilot.pl i FastLanding.io', 'kacper.biz', ''], en: ['Kacper Rękawek', 'Founder of OutreachPilot.pl and FastLanding.io', 'kacper.biz', ''] },
+  about: { still: 'p4', flip: true, pl: ['Kacper Rękawek', 'Przedsiębiorca z Gliwic. Fakty, firma i kontakt.', 'kacper.biz/o-mnie', ''], en: ['Kacper Rękawek', 'Entrepreneur from Gliwice. Facts, company and contact.', 'kacper.biz/en/about', ''] },
+  outreachpilot: { still: 'p2', pl: ['OutreachPilot.pl', 'Cold mailing do firm z CEIDG i Google Maps, po polsku.', 'kacper.biz/outreachpilot', '0 zł, plan Free'], en: ['OutreachPilot.pl', 'Cold email to Polish companies from CEIDG and Google Maps.', 'kacper.biz/en/outreachpilot', 'PLN 0, Free plan'] },
+  fastlanding: { still: 'p3', pl: ['FastLanding.io', 'Landing page w 7 dni, strona firmowa w 14.', 'kacper.biz/fastlanding', '1 499 zł netto'], en: ['FastLanding.io', 'A landing page in 7 days, a business site in 14.', 'kacper.biz/en/fastlanding', 'PLN 1,499 net'] },
+  work: { still: 'p1', pl: ['Realizacje', 'Strony klientów FastLanding, które możesz otworzyć.', 'kacper.biz/realizacje', ''], en: ['Work', 'FastLanding client websites you can open.', 'kacper.biz/en/work', ''] },
+  contact: { still: 'p0', pl: ['Kontakt', 'Umów rozmowę albo napisz.', 'kacper.biz/kontakt', ''], en: ['Contact', 'Book a call or write to me.', 'kacper.biz/en/contact', ''] },
 };
 
 function cardHTML(key, lang) {
   const c = CARDS[key];
   const nb = (t) => t.replace(/(^|\s)([aiouwzAIOUWZ])\s/g, '$1$2 ').replace(/(^|\s)([aiouwzAIOUWZ])\s/g, '$1$2 ');
-  const [title, rawSub, url, price] = c[lang];
-  const bg = c.stock === 'white' ? C.white : C.yellow;
+  const [title, sub, url, price] = c[lang];
   return `<!doctype html><meta charset="utf-8"><style>${FONTS}
   *{margin:0;box-sizing:border-box}
-  body{width:1200px;height:630px;background:${bg};color:#000;font-family:A;overflow:hidden;position:relative}
-  .rh{position:absolute;left:0;right:0;top:0;height:64px;border-bottom:3px solid #000;display:flex;align-items:center;justify-content:space-between;padding:0 56px;font-stretch:75%;font-weight:900;text-transform:uppercase;letter-spacing:.03em;font-size:22px}
-  .rh span:last-child{font-weight:700;text-transform:none;letter-spacing:0;font-stretch:90%}
-  .tab{position:absolute;right:0;top:110px;width:40px;height:150px;background:#000}
-  .map{position:absolute;right:48px;top:118px}
-  .txt{position:absolute;left:56px;top:112px;width:640px;border-top:12px solid #000;padding-top:22px;display:flex;flex-direction:column;gap:20px}
-  h1{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:${title.length > 14 ? 86 : title.length > 9 ? 112 : 124}px;line-height:.84;letter-spacing:-.005em}
-  p{font-stretch:72%;font-weight:800;font-size:42px;line-height:1.02;max-width:600px}
-  .st{display:inline-block;align-self:flex-start;background:${C.red};color:#fff;font-stretch:75%;font-weight:800;font-size:28px;padding:6px 12px}
-  .foot{position:absolute;left:56px;right:56px;bottom:40px;display:flex;align-items:baseline;gap:10px;font-size:24px;font-weight:600}
-  .foot i{flex:1;height:8px;background:radial-gradient(circle,#000 2.3px,transparent 2.8px) 0 0/12px 8px repeat-x}
-  </style><body>
-  <div class="rh"><span>Kacper Rękawek</span><span>${url}</span></div>
-  <div class="tab"></div>
-  <div class="map">${mapSVG({ w: 430, h: 400 })}</div>
-  <div class="txt"><h1>${title}</h1><p>${nb(rawSub)}</p>${price ? `<span class="st">${price}</span>` : ''}</div>
-  <div class="foot"><span>Gliwice</span><i></i><span>${lang === 'pl' ? 'założyciel OutreachPilot.pl i FastLanding.io' : 'founder of OutreachPilot.pl and FastLanding.io'}</span></div>`;
+  body{width:1200px;height:630px;background:${C.studio};color:${C.text};font-family:G;overflow:hidden;position:relative;-webkit-font-smoothing:antialiased}
+  .still{position:absolute;inset:0;background:url(${file(`public/stills/${c.still}-d.webp`)}) 78% 50%/cover no-repeat${c.flip ? ';transform:scaleX(-1)' : ''}}
+  .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,12,10,.94) 0%,rgba(14,12,10,.7) 40%,rgba(14,12,10,0) 68%)}
+  .top{position:absolute;left:64px;right:64px;top:52px;display:flex;justify-content:space-between;font:500 17px/1 M;letter-spacing:.02em;text-transform:uppercase;color:${C.text2}}
+  .txt{position:absolute;left:64px;bottom:64px;width:660px;display:flex;flex-direction:column;gap:22px;align-items:flex-start}
+  h1{font-weight:500;font-size:${title.length > 14 ? 92 : 108}px;line-height:.9;letter-spacing:-.045em}
+  p{font-size:30px;line-height:1.25;letter-spacing:-.01em;color:${C.text2};max-width:600px}
+  .st{background:${C.copper};color:${C.ink};font-weight:500;font-size:24px;padding:10px 20px;border-radius:999px}
+  </style><body><div class="still"></div><div class="shade"></div>
+  <div class="top"><span>Kacper Rękawek</span><span>${url}</span></div>
+  <div class="txt"><h1>${title}</h1><p>${nb(sub)}</p>${price ? `<span class="st">${price}</span>` : ''}</div>`;
 }
 
-// favicon: a black thumb-index tab cut into yellow stock, with a K
-const FAVICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="4" fill="${C.yellow}"/><path d="M7 5h5v9.2L19.2 5h6.1l-7.9 9.7L26 27h-6.2l-5.9-8.8-1.9 2.3V27H7z"/></svg>`;
+// favicon: the monolith seen edge-on, four plates on studio black, the third one copper
+const FAVICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="${C.studio}"/><g fill="${C.text}"><rect x="7" y="7" width="3" height="18" rx=".6"/><rect x="12.5" y="7" width="3" height="18" rx=".6"/><rect x="23" y="7" width="3" height="18" rx=".6"/></g><rect x="17.75" y="5" width="3" height="18" rx=".6" fill="${C.copper}"/></svg>`;
 
 const browser = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox', '--allow-file-access-from-files'] });
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
@@ -108,8 +68,8 @@ if (!args.includes('--no-icons')) {
   fs.writeFileSync(path.join(OUT, 'favicon.svg'), FAVICON);
   for (const [name, size] of [['apple-touch-icon.png', 180], ['icon-192.png', 192], ['icon-512.png', 512]]) {
     await page.setViewportSize({ width: size, height: size });
-    const pad = Math.round(size * 0.14);
-    fs.writeFileSync(tmp, `<body style="margin:0;background:${C.yellow};width:${size}px;height:${size}px;display:grid;place-items:center"><div style="width:${size - 2 * pad}px;height:${size - 2 * pad}px">${FAVICON.replace('rx="4" fill="' + C.yellow + '"', 'fill="' + C.yellow + '"')}</div>`);
+    // full-bleed tiles (the platform rounds the corners)
+    fs.writeFileSync(tmp, `<body style="margin:0;background:${C.studio};width:${size}px;height:${size}px">${FAVICON.replace('rx="7" ', '').replace('<svg ', `<svg width="${size}" height="${size}" `)}`);
     await page.goto(pathToFileURL(tmp).href);
     await page.screenshot({ path: path.join(OUT, name) });
     written.push(name);
@@ -123,10 +83,10 @@ for (const key of Object.keys(CARDS)) {
     fs.writeFileSync(tmp, cardHTML(key, lang));
     await page.goto(pathToFileURL(tmp).href);
     await page.evaluate(() => document.fonts.ready);
-    await page.waitForTimeout(150);
-    const file = `og/${key}${lang === 'en' ? '-en' : ''}.png`;
-    await page.screenshot({ path: path.join(OUT, file) });
-    written.push(file);
+    await page.waitForTimeout(250);
+    const f = `og/${key}${lang === 'en' ? '-en' : ''}.png`;
+    await page.screenshot({ path: path.join(OUT, f) });
+    written.push(f);
   }
 }
 
