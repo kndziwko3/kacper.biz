@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Subset the self-hosted variable fonts (Geist, Geist Mono) to the characters this site uses (run after copy
+Subset the self-hosted variable fonts (Funnel Display, Funnel Sans, Martian Mono) to the characters this site uses (run after copy
 changes that add new characters; needs `pip install fonttools brotli`). Keeps the weight axis and all OpenType
 features. Input: node_modules/@fontsource-variable/*; output: src/assets/fonts/*.woff2 (committed).
 Usage: npm run build && python3 scripts/subset-fonts.py && npm run build
@@ -39,7 +39,7 @@ def run(src, dst):
     font.save(dst)
     print(f'{os.path.basename(dst):44} {os.path.getsize(src)//1024:4d} KB -> {os.path.getsize(dst)//1024:3d} KB  ({len(keep)} chars)')
 
-for fam, pre in [('geist', 'geist'), ('geist-mono', 'geist-mono')]:
+for fam, axes in [('funnel-display', 'wght'), ('funnel-sans', 'wght'), ('martian-mono', 'standard')]:
     for part in ['latin', 'latin-ext']:
-        src = os.path.join(ROOT, f'node_modules/@fontsource-variable/{fam}/files/{pre}-{part}-wght-normal.woff2')
-        run(src, os.path.join(OUT, f'{pre}-{part}.woff2'))
+        src = os.path.join(ROOT, f'node_modules/@fontsource-variable/{fam}/files/{fam}-{part}-{axes}-normal.woff2')
+        run(src, os.path.join(OUT, f'{fam}-{part}.woff2'))

@@ -4,7 +4,7 @@
  *   public/favicon.svg, apple-touch-icon.png (180), icon-192.png, icon-512.png
  *   public/og/{home,about,outreachpilot,fastlanding,work,contact}[-en].png  (1200x630)
  *
- * Cards are the studio: the page's still (public/stills, rendered from the film) on the right, Geist on the left.
+ * Cards are the studio: the page's still (public/stills, rendered from the film) on the right, Funnel on the left.
  * Usage: node scripts/og.mjs [--only home,about] [--no-icons] [--preview out.png]
  */
 import fs from 'node:fs';
@@ -22,10 +22,12 @@ const CHROME = process.env.CHROMIUM_PATH ?? '/opt/pw-browsers/chromium-1194/chro
 const C = { studio: '#0e0c0a', text: '#ede6da', text2: '#a8a092', copper: '#c8703f', ink: '#15120f' };
 const file = (p) => pathToFileURL(path.join(ROOT, p)).href;
 const FONTS = `
-@font-face{font-family:G;src:url(${file('src/assets/fonts/geist-latin.woff2')});font-weight:100 900}
-@font-face{font-family:G;src:url(${file('src/assets/fonts/geist-latin-ext.woff2')});font-weight:100 900;unicode-range:U+0100-02BA,U+1E00-1EFF}
-@font-face{font-family:M;src:url(${file('src/assets/fonts/geist-mono-latin.woff2')});font-weight:100 900}
-@font-face{font-family:M;src:url(${file('src/assets/fonts/geist-mono-latin-ext.woff2')});font-weight:100 900;unicode-range:U+0100-02BA,U+1E00-1EFF}`;
+@font-face{font-family:G;src:url(${file('src/assets/fonts/funnel-display-latin.woff2')});font-weight:300 800}
+@font-face{font-family:G;src:url(${file('src/assets/fonts/funnel-display-latin-ext.woff2')});font-weight:300 800;unicode-range:U+0100-02BA,U+1E00-1EFF}
+@font-face{font-family:S;src:url(${file('src/assets/fonts/funnel-sans-latin.woff2')});font-weight:300 800}
+@font-face{font-family:S;src:url(${file('src/assets/fonts/funnel-sans-latin-ext.woff2')});font-weight:300 800;unicode-range:U+0100-02BA,U+1E00-1EFF}
+@font-face{font-family:M;src:url(${file('src/assets/fonts/martian-mono-latin.woff2')});font-weight:100 800;font-stretch:75% 112.5%}
+@font-face{font-family:M;src:url(${file('src/assets/fonts/martian-mono-latin-ext.woff2')});font-weight:100 800;font-stretch:75% 112.5%;unicode-range:U+0100-02BA,U+1E00-1EFF}`;
 
 const CARDS = {
   home: { still: 'p0', pl: ['Kacper Rękawek', 'Założyciel OutreachPilot.pl i FastLanding.io', 'kacper.biz', ''], en: ['Kacper Rękawek', 'Founder of OutreachPilot.pl and FastLanding.io', 'kacper.biz', ''] },
@@ -45,11 +47,11 @@ function cardHTML(key, lang) {
   body{width:1200px;height:630px;background:${C.studio};color:${C.text};font-family:G;overflow:hidden;position:relative;-webkit-font-smoothing:antialiased}
   .still{position:absolute;inset:0;background:url(${file(`public/stills/${c.still}-d.webp`)}) 78% 50%/cover no-repeat${c.flip ? ';transform:scaleX(-1)' : ''}}
   .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,12,10,.94) 0%,rgba(14,12,10,.7) 40%,rgba(14,12,10,0) 68%)}
-  .top{position:absolute;left:64px;right:64px;top:52px;display:flex;justify-content:space-between;font:500 17px/1 M;letter-spacing:.02em;text-transform:uppercase;color:${C.text2}}
+  .top{position:absolute;left:64px;right:64px;top:52px;display:flex;justify-content:space-between;font:500 16px/1 M;font-stretch:87.5%;letter-spacing:.01em;text-transform:uppercase;color:${C.text2}}
   .txt{position:absolute;left:64px;bottom:64px;width:660px;display:flex;flex-direction:column;gap:22px;align-items:flex-start}
   h1{font-weight:500;font-size:${title.length > 14 ? 92 : 108}px;line-height:.9;letter-spacing:-.045em}
-  p{font-size:30px;line-height:1.25;letter-spacing:-.01em;color:${C.text2};max-width:600px}
-  .st{background:${C.copper};color:${C.ink};font-weight:500;font-size:24px;padding:10px 20px;border-radius:999px}
+  p{font-family:S;font-size:30px;line-height:1.25;letter-spacing:-.01em;color:${C.text2};max-width:600px}
+  .st{font-family:S;background:${C.copper};color:${C.ink};font-weight:500;font-size:24px;padding:10px 20px;border-radius:999px}
   </style><body><div class="still"></div><div class="shade"></div>
   <div class="top"><span>Kacper Rękawek</span><span>${url}</span></div>
   <div class="txt"><h1>${title}</h1><p>${nb(sub)}</p>${price ? `<span class="st">${price}</span>` : ''}</div>`;

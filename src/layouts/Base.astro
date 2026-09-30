@@ -6,8 +6,9 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import type { Lang } from '../content/site';
 import { copy } from '../content/copy';
-import geist from '../assets/fonts/geist-latin.woff2?url';
-import geistMono from '../assets/fonts/geist-mono-latin.woff2?url';
+import display from '../assets/fonts/funnel-display-latin.woff2?url';
+import sans from '../assets/fonts/funnel-sans-latin.woff2?url';
+import mono from '../assets/fonts/martian-mono-latin.woff2?url';
 
 interface Props {
   lang: Lang;
@@ -35,8 +36,9 @@ const umamiId = import.meta.env.PUBLIC_UMAMI_ID;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <link rel="preload" href={geist} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={geistMono} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={display} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sans} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={mono} as="font" type="font/woff2" crossorigin />
     {still && <link rel="preload" as="image" href={`/stills/${still}-d.webp`} media="(min-width: 960px)" fetchpriority="high" />}
     {still && <link rel="preload" as="image" href={`/stills/${still}-m.webp`} media="(max-width: 959px)" fetchpriority="high" />}
     <Seo lang={lang} path={path} {...seo} />
