@@ -38,6 +38,8 @@ export function studioEnvironment(renderer: WebGLRenderer): Texture {
   card(3, 6, 0.55, '#f6efe6', 9, 3, 0, [0, 1.5, 0]);
   // a narrow hard strip beside it: on the broad aluminium faces it reads as the crisp band that says polished metal
   card(1.1, 9, 7, '#fbf6ef', 9, 3.2, 1.7, [0, 1.5, 0]);
+  // a hard strip behind right: the side face of the opening monolith catches it as one clean band
+  card(0.8, 9, 6, '#fbf6ef', 3.4, 3.2, -9, [0, 1.5, 0]);
   // dark grey studio walls all round, so no metal face ever reads as a hole
   const walls = new Mesh(new CylinderGeometry(15, 15, 7, 32, 1, true), new MeshBasicMaterial({ color: new Color('#b8b0a6').multiplyScalar(0.09), side: BackSide }));
   walls.position.y = 2.5;
@@ -107,7 +109,7 @@ export function buildStudio(scene: Scene, shadows: boolean, shadowSize: number):
 
   // a low copper spill from the front left: it rakes the floor and warms the foot of the object, so the dark field
   // reads as a lit studio rather than a void
-  const spill = new SpotLight('#ff9a5c', 38, 18, 0.62, 1, 1.4);
+  const spill = new SpotLight('#ff9a5c', 30, 18, 0.62, 1, 1.4);
   spill.position.set(-6.5, 0.9, 4.5);
   spill.target = new Object3D();
   spill.target.position.set(0.5, 0.2, -0.5);

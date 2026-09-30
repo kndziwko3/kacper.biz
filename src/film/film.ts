@@ -42,7 +42,7 @@ interface Shot { pos: [number, number, number]; tgt: [number, number, number]; f
 
 /** Camera per pose. fx: where the object sits on a wide screen (fraction of width from the centre; + = right). */
 const SHOTS: Shot[] = [
-  { pos: [3.6, 2.05, 6.75], tgt: [0, 1.55, 0], fov: 30, fx: 0.2, drift: 0.34 },
+  { pos: [3.25, 2.0, 6.1], tgt: [0, 1.55, 0], fov: 30, fx: 0.2, drift: 0.3 },
   { pos: [1.1, 5.3, 7.4], tgt: [0, 1.6, 0], fov: 32, fx: 0.2, drift: 0.22 },
   { pos: [-4.6, 2.3, 3.0], tgt: [0.2, 1.0, -1.7], fov: 34, fx: -0.19, drift: 0 },
   { pos: [0.65, 3.95, 10.9], tgt: [0.1, 2.95, 0.5], fov: 34, fx: 0.2, drift: 0.28 },

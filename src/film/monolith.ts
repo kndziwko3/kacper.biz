@@ -52,7 +52,7 @@ function monolith(yaw: number): Pose {
   for (let i = 0; i < N; i++) {
     // the three copper slices stand a few millimetres proud of the block, so their edges take the key light
     const proud = isCopper(i) ? 1 : 0;
-    P.p[i]!.set((i - (N - 1) / 2) * PITCH, H / 2 + proud * 0.14, proud * 0.06).applyQuaternion(turn);
+    P.p[i]!.set((i - (N - 1) / 2) * PITCH, H / 2 + proud * 0.06, proud * 0.022).applyQuaternion(turn);
     P.q[i]!.copy(turn);
     P.order[i] = Math.abs(i - (N - 1) / 2) / ((N - 1) / 2);
     P.occ[i * 2] = i > 0 ? 1 : 0;
@@ -235,14 +235,14 @@ export function buildMonolith(shadows: boolean): Monolith {
         // the block's own outer corners keep their rounded chamfer: that is where the strip light glints
         + ' float outer = step(0.2, -vLocalN.x) * (1.0 - vOcc.x) + step(0.2, vLocalN.x) * (1.0 - vOcc.y);\n'
         // (three's specular anti-aliasing reads nonPerturbedNormal, so it has to agree)
-        + (reflection ? '' : ' normal = normalize(mix(normal, flatN * faceDirection, (1.0 - smoothstep(2.0, 4.5, pitchPx)) * (1.0 - clamp(outer, 0.0, 1.0))));\n nonPerturbedNormal = normal;\n'),
+        + (reflection ? '' : ' normal = normalize(mix(normal, flatN * faceDirection, (1.0 - smoothstep(1.6, 3.0, pitchPx)) * (1.0 - clamp(outer, 0.0, 1.0))));\n nonPerturbedNormal = normal;\n'),
       )
       .replace(
         '#include <opaque_fragment>',
         // faces pressed against a neighbour get no light: the stack reads as machined slices with bright edges
         // (a slice narrower than a few pixels would alias into a moire, so the gaps fade out with distance)
         ' float occN = smoothstep(0.5, 0.92, -vLocalN.x) * vOcc.x + smoothstep(0.5, 0.92, vLocalN.x) * vOcc.y;\n'
-        + ' outgoingLight *= 1.0 - 0.94 * occN * smoothstep(2.0, 4.5, pitchPx);\n'
+        + ' outgoingLight *= 1.0 - 0.94 * occN * smoothstep(1.6, 3.0, pitchPx);\n'
         + (reflection ? ' diffuseColor.a *= 0.09 * exp(vWorldY * 2.4);\n' : '')
         + '#include <opaque_fragment>',
       );
@@ -266,7 +266,8 @@ export function buildMonolith(shadows: boolean): Monolith {
   reflection.renderOrder = 1;
   mesh.renderOrder = 2;
 
-  const poses = [monolith(-0.62), fan(-0.2), register(), page(), monolith(0.35)];
+  // the opening monolith shows its sliced face to the camera: 100 edges, three of them copper
+  const poses = [monolith(0.05), fan(-0.2), register(), page(), monolith(0.35)];
 
   const m4 = new Matrix4();
   const pp = v(), qq = new Quaternion(), ss = v();

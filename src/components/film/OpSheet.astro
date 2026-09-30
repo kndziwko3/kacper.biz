@@ -7,13 +7,20 @@ import Sheet from '../ui/Sheet.astro';
 import Btn from '../ui/Btn.astro';
 import Lookup from './Lookup.astro';
 import { copy } from '../../content/copy';
-import { PRODUCTS, SALES, type Lang } from '../../content/site';
+import { BENCHMARK, PRODUCTS, SALES, type Lang } from '../../content/site';
+import { typo } from '../../lib/typo';
 interface Props { lang: Lang; id?: string; lookup?: boolean }
 const { lang, id = 'outreachpilot', lookup = true } = Astro.props;
 const c = copy[lang];
 const o = c.home.op;
 const f = c.film;
 const plans = c.op.plans;
+const isPl = lang === 'pl';
+const [open, reply, bounce] = o.benchmark.stats.map(([v, l]) => `${v} ${l}`);
+// one ruled sentence that leads with the sample, the three rates inline
+const bench = isPl
+  ? `${BENCHMARK.emails.pl} maili ze ${BENCHMARK.campaignsWithSends} kampanii, w których poszła wysyłka: ${open}, ${reply} i ${bounce}.`
+  : `${BENCHMARK.emails.en} emails from ${BENCHMARK.campaignsWithSends} campaigns that sent: ${open}, ${reply} and ${bounce}.`;
 ---
 <Sheet id={id} labelledby={`${id}-h`} guide="OutreachPilot.pl">
   {lookup && (
@@ -28,10 +35,8 @@ const plans = c.op.plans;
   <div class="grid op-proof">
     <div class="op-bench">
       <h3 class="t-label dim">{f.op.benchH3}</h3>
-      <ul class="op-stats">
-        {o.benchmark.stats.map(([v, l]) => (<li><span class="op-v num">{v}</span><span class="t-small dim">{l}</span></li>))}
-      </ul>
-      <p class="t-src">{o.benchmark.note} <a class="tlink" href={PRODUCTS.outreachpilot.methodology} data-outbound data-cta="op-methodology" rel="noopener">{o.benchmark.link}</a></p>
+      <p class="op-line" set:html={typo(bench, lang)} />
+      <p class="t-src">{f.op.benchNote} <a class="tlink" href={PRODUCTS.outreachpilot.methodology} data-outbound data-cta="op-methodology" rel="noopener">{o.benchmark.link}</a></p>
     </div>
     <div class="op-plans">
       <h3 class="t-label dim">{f.op.plansH3}</h3>
@@ -61,9 +66,7 @@ const plans = c.op.plans;
 <style>
   .op-proof { margin-top: clamp(4.5rem, 12vh, 8rem); row-gap: 4rem; align-items: start; }
   .op-bench, .op-plans { display: grid; gap: 1.5rem; align-content: start; }
-  .op-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--col-gap); border-top: 1px solid var(--line-p); padding-top: 1.5rem; }
-  .op-stats li { display: grid; gap: 0.5rem; }
-  .op-v { font: 500 clamp(2.4rem, 1.3rem + 3.2vw, 4.8rem)/0.9 var(--f-display); letter-spacing: -0.045em; }
+  .op-line { font: 500 var(--t-h3)/1.3 var(--f-display); letter-spacing: -0.015em; padding-block: 1.25rem; border-block: 1px solid var(--line-p); text-wrap: pretty; }
   .op-plans .rows .k { font-weight: 500; }
   .op-plans-note { margin-top: -0.25rem; }
   .op-go { margin-top: clamp(4.5rem, 12vh, 8rem); padding-top: clamp(2.5rem, 6vh, 4rem); border-top: 1px solid var(--line-p); row-gap: 2rem; align-items: end; }

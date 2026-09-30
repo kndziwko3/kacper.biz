@@ -34,10 +34,6 @@ const rail = [['start', ch[0]], ['trzy', ch[1]], ['film-op', ch[2]], ['film-fl',
     <div class="hero">
       <h1 class="t-name hero-name" id="hero-h"><span>Kacper</span> <span>Rękawek</span></h1>
       <p class="t-lead hero-offer">{f.hero.role}, {f.hero.place}</p>
-      <div class="btn-row">
-        <Btn href={SALES.bookingUrl} outbound cta="hero-booking">{f.book}</Btn>
-        <a class="btn btn--ghost" href="#trzy">{f.scroll}<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2v11M3.5 8.5 8 13l4.5-4.5" /></svg></a>
-      </div>
     </div>
   </Chapter>
 
@@ -94,6 +90,13 @@ const rail = [['start', ch[0]], ['trzy', ch[1]], ['film-op', ch[2]], ['film-fl',
   .beats--plain .beat { grid-template-columns: 1fr; }
   .beats--plain .beat > * { grid-column: 1; }
   @media (max-width: 759px) { .beat .t-small { display: none; } .beat { padding-block: 0.7rem; } }
+  /* short desktop windows: the pinned copy must still clear the rail */
+  @media (min-width: 960px) and (max-height: 760px) {
+    :global(.ch .t-display) { font-size: clamp(2.1rem, 0.9rem + 3.1vw, 3.8rem); }
+    .beat .t-small { display: none; }
+    .beat { padding-block: 0.6rem; }
+    :global(.ch .t-lead) { font-size: 1.05rem; }
+  }
   /* room at the foot of each stage for the chapter rail */
   :global(.ch .stage-in) { padding-bottom: calc(clamp(2.5rem, 7svh, 5.5rem) + 4.5rem); }
 </style>
