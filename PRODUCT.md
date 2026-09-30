@@ -53,7 +53,8 @@ stamps, email inboxes, calendars. Sales happen in a 30-minute online call booked
   straight, a dark studio with one sculpted 3D object that the scroll drives, the name set large, a clean grotesk.
   Craft bar: Oryzo (oryzo.ai). The owner rejected loud palettes (yellow, red, black), printed or paper looks and weak or
   small 3D; wants a premium feel and a strongly scroll-driven film. No sound. Full freedom on copy; facts, prices and
-  Justyna's Calendly stay.
+  Justyna's Calendly stay. Later the same day the owner rejected the first object (a monolith of 100 plates) and left
+  the object to us: it is now a machined 96% keyboard with exactly 100 keys, three of them copper (the 3 in 100).
 
 ## Evidence on Hand
 - CEIDG sector and city counts (src/content/ceidg.ts, via outreachpilot.pl/firmy, 29.09.2026).

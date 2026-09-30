@@ -84,14 +84,15 @@ const rail = [['start', ch[0]], ['trzy', ch[1]], ['film-op', ch[2]], ['film-fl',
 <style>
   .hero { display: grid; gap: 1.5rem; }
   .hero-name { display: grid; margin-left: -0.05em; }
+  @media (max-width: 600px) { .hero-name { font-size: 18vw; } }
   .hero-name span { display: block; }
   .hero-offer { max-width: 32ch; }
   @media (min-width: 960px) { .hero-offer { max-width: none; } }
   /* the name is the widest thing on the page: it runs past the copy column, under the object's shoulder */
   @media (min-width: 960px) { :global(.ch--first .copy) { grid-column: 1 / 11; } }
   /* the greeting the board types, letter by letter with the keys (static and whole without the live film) */
-  .typed { display: grid; gap: 0.35rem; }
-  .typed-line { display: flex; align-items: center; min-height: 1.3em; font: 500 var(--t-h3)/1.2 var(--f-display); letter-spacing: -0.015em; white-space: nowrap; }
+  .typed { display: grid; gap: 0.5rem; margin-block: 0.4rem 0.2rem; }
+  .typed-line { display: flex; align-items: center; min-height: 1.15em; font: 500 clamp(1.5rem, 0.9rem + 2.2vw, 2.75rem)/1.1 var(--f-display); letter-spacing: -0.025em; white-space: nowrap; }
   .typed-caret { display: none; width: 2px; height: 1.05em; margin-left: 3px; background: var(--copper-hi); }
   :global(html.film-live) .typed-caret { display: inline-block; animation: caret 1.05s steps(1) infinite; }
   :global(html.film-live) .typed.is-sent .typed-caret { animation: none; opacity: 0; }

@@ -34,12 +34,11 @@ const bench = isPl
 
   <div class="grid op-proof">
     <div class="op-bench">
-      <h3 class="t-label dim">{f.op.benchH3}</h3>
-      <p class="op-line" set:html={typo(bench, lang)} />
-      <p class="t-src">{f.op.benchNote} <a class="tlink" href={PRODUCTS.outreachpilot.methodology} data-outbound data-cta="op-methodology" rel="noopener">{o.benchmark.link}</a></p>
+      <h3 class="op-line" set:html={typo(bench, lang)} />
+      <p class="t-src">{f.op.benchH3}. {f.op.benchNote} <a class="tlink" href={PRODUCTS.outreachpilot.methodology} data-outbound data-cta="op-methodology" rel="noopener">{o.benchmark.link}</a></p>
     </div>
     <div class="op-plans">
-      <h3 class="t-label dim">{f.op.plansH3}</h3>
+      <h3 class="t-h3">{f.op.plansH3}</h3>
       <ul class="rows">
         {plans.rows.map(([name, price, what]) => (
           <li><span class="k">{name}</span><span class="v">{price}</span><span class="note">{what}</span></li>
@@ -66,7 +65,7 @@ const bench = isPl
 <style>
   .op-proof { margin-top: clamp(4.5rem, 12vh, 8rem); row-gap: 4rem; align-items: start; }
   .op-bench, .op-plans { display: grid; gap: 1.5rem; align-content: start; }
-  .op-line { font: 500 var(--t-h3)/1.3 var(--f-display); letter-spacing: -0.015em; padding-block: 1.25rem; border-block: 1px solid var(--line-p); text-wrap: pretty; }
+  .op-line { font: 500 var(--t-h3)/1.3 var(--f-display); margin: 0; letter-spacing: -0.015em; padding-block: 1.25rem; border-block: 1px solid var(--line-p); text-wrap: pretty; }
   .op-plans .rows .k { font-weight: 500; }
   .op-plans-note { margin-top: -0.25rem; }
   .op-go { margin-top: clamp(4.5rem, 12vh, 8rem); padding-top: clamp(2.5rem, 6vh, 4rem); border-top: 1px solid var(--line-p); row-gap: 2rem; align-items: end; }

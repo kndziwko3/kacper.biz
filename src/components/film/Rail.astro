@@ -1,7 +1,8 @@
 ---
 /**
  * The chapter rail on the bottom edge of the film: a row of keys, one per chapter, the one on screen a copper cap
- * (main.ts sets aria-current from the chapter tracks). Links jump to a chapter; on a phone only the current name shows.
+ * (main.ts sets aria-current from the chapter tracks). Links jump to a chapter; on a phone the other chapters shrink
+ * to small keys with one letter each.
  */
 interface Props { chapters: { id: string; name: string }[]; label: string }
 const { chapters, label } = Astro.props;
@@ -9,7 +10,7 @@ const { chapters, label } = Astro.props;
 <nav class="rail" aria-label={label} data-rail>
   <ol>
     {chapters.map((c, i) => (
-      <li><a href={`#${c.id}`} data-rail-to={c.id} aria-current={i === 0 ? 'step' : undefined}><span class="rail-name">{c.name}</span></a></li>
+      <li><a href={`#${c.id}`} data-rail-to={c.id} aria-current={i === 0 ? 'step' : undefined}><span class="rail-name">{c.name}</span><span class="rail-key" aria-hidden="true">{c.name.charAt(0).toUpperCase()}</span></a></li>
     ))}
   </ol>
 </nav>
@@ -19,13 +20,14 @@ const { chapters, label } = Astro.props;
   .rail a { display: flex; align-items: center; gap: 0.5rem; min-height: 2.25rem; padding: 0.35rem 0.85rem; border-radius: var(--cap-r); color: var(--text-2); font: 500 var(--t-label)/1 var(--f-mono); font-stretch: 87.5%; text-transform: uppercase; letter-spacing: 0.01em; white-space: nowrap; transition: color 0.2s, background-color 0.2s; }
   .rail a:hover { color: #ede6da; }
   .rail a[aria-current] { color: var(--ink); background: var(--copper); box-shadow: var(--cap-skirt); }
+  .rail-key { display: none; }
   :global(html.rail-hide) .rail { opacity: 0; translate: -50% 150%; pointer-events: none; }
   @media (max-width: 759px) {
-    .rail a { padding: 0.35rem 0.8rem; }
-    /* the chapters you are not in shrink to ticks; the current one keeps its name */
-    .rail a:not([aria-current]) { min-width: 1.6rem; padding-inline: 0; justify-content: center; }
+    .rail a { min-height: 2.75rem; padding: 0.35rem 0.8rem 0.45rem; }
+    /* the chapters you are not in shrink to small graphite keys with one letter; the current one keeps its name */
+    .rail a:not([aria-current]) { min-width: 2.75rem; padding-inline: 0; justify-content: center; background: #1c1916; box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.1), inset 0 -3px 0 rgba(0, 0, 0, 0.45); }
     .rail a:not([aria-current]) .rail-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-    .rail a:not([aria-current])::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .rail a:not([aria-current]) .rail-key { display: block; }
   }
   @media (prefers-reduced-motion: reduce) { .rail { transition: none; } }
 </style>

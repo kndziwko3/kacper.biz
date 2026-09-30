@@ -76,7 +76,7 @@ export function buildStudio(scene: Scene, shadows: boolean, shadowSize: number):
   // a soft, warm pool under the object (reads as the key's footprint even without shadows)
   const pool = new Mesh(
     new CircleGeometry(4.2, 48),
-    new MeshBasicMaterial({ color: '#4a2f1d', transparent: true, opacity: 0.8, depthWrite: false }),
+    new MeshBasicMaterial({ color: '#30261e', transparent: true, opacity: 0.75, depthWrite: false }),
   );
   pool.rotation.x = -Math.PI / 2;
   pool.position.y = 0.002;
@@ -105,7 +105,7 @@ export function buildStudio(scene: Scene, shadows: boolean, shadowSize: number):
     key.shadow.camera.far = 22;
   }
 
-  const rim = new DirectionalLight('#f3efe8', 1.4);
+  const rim = new DirectionalLight('#e8edf1', 1.4);
   rim.position.set(6, 5, -7);
   scene.add(rim);
 
@@ -114,7 +114,7 @@ export function buildStudio(scene: Scene, shadows: boolean, shadowSize: number):
   back.position.set(0, 12, -9);
   back.receiveShadow = false;
   scene.add(back);
-  const wash = new SpotLight('#ffcf9f', 70, 30, 0.55, 1, 1.2);
+  const wash = new SpotLight('#f2d6bb', 55, 30, 0.55, 1, 1.2);
   wash.position.set(1.5, 3, 4);
   wash.target = new Object3D();
   wash.target.position.set(0.5, 4.2, -9);

@@ -2,9 +2,11 @@
  * One fullscreen triangle composites the linear HDR frame: a lens depth of field (single-pass gather on a golden-angle
  * spiral, after Dennis Gustafsson's "bokeh in a single pass", so sharp foreground edges never pick up a halo from the
  * blurred background), a lens vignette in linear light, the tone map and the sRGB transfer (three's own chunks, applied
- * because this pass draws to the screen), then fine animated grain and a triangular dither so dark gradients never band.
+ * because this pass draws to the screen), a black level lifted to the page's studio black (the tone map crushes the
+ * near-blacks, so without it the canvas would sit darker than the page around it and every overlay would show its
+ * edge), then fine animated grain and a triangular dither so dark gradients never band.
  */
-import { BufferGeometry, Float32BufferAttribute, Mesh, OrthographicCamera, Scene, ShaderMaterial, Vector2, type Texture } from 'three';
+import { BufferGeometry, Float32BufferAttribute, Mesh, OrthographicCamera, Scene, ShaderMaterial, Vector2, Vector3, type Texture } from 'three';
 
 export interface FinalPass {
   scene: Scene;
@@ -29,6 +31,8 @@ export function finalPass(taps: number): FinalPass {
       uGrain: { value: 0.02 },
       uVignette: { value: 0.42 },
       uExposure: { value: 1 },
+      /** The page ground in display space: the darkest the film may get. */
+      uLift: { value: new Vector3(14 / 255, 12 / 255, 10 / 255) },
       uNear: { value: 0.1 },
       uFar: { value: 80 },
       uFocus: { value: 7 },
@@ -46,6 +50,7 @@ export function finalPass(taps: number): FinalPass {
       uniform sampler2D tDepth;
       uniform vec2 uRes;
       uniform float uTime, uGrain, uVignette, uExposure, uNear, uFar, uFocus, uAperture, uMaxR;
+      uniform vec3 uLift;
       varying vec2 vUv;
       float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
       float linZ(float d) { float z = d * 2.0 - 1.0; return 2.0 * uNear * uFar / (uFar + uNear - z * (uFar - uNear)); }
@@ -86,6 +91,7 @@ export function finalPass(taps: number): FinalPass {
         gl_FragColor = vec4(c, 1.0);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
+        gl_FragColor.rgb = uLift + gl_FragColor.rgb * (1.0 - uLift);
         float n = hash(gl_FragCoord.xy + fract(uTime) * 97.13) + hash(gl_FragCoord.xy * 1.37 + fract(uTime * 1.31) * 31.7) - 1.0;
         gl_FragColor.rgb += n * uGrain + n * (1.0 / 255.0);
       }

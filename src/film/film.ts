@@ -9,9 +9,10 @@
  * with weight and never twitches with the wheel.
  */
 import {
-  DepthTexture, Euler, HalfFloatType, NeutralToneMapping, Raycaster, Vector2, PCFShadowMap, PerspectiveCamera, Scene, SRGBColorSpace, Vector3, WebGLRenderer,
+  DepthTexture, Euler, HalfFloatType, NeutralToneMapping, Raycaster, RectAreaLight, Vector2, PCFShadowMap, PerspectiveCamera, Scene, SRGBColorSpace, Vector3, WebGLRenderer,
   WebGLRenderTarget,
 } from 'three';
+import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib.js';
 import { buildStudio, studioEnvironment } from './studio';
 import { buildKeyboard } from './keyboard';
 import { finalPass } from './post';
@@ -30,7 +31,11 @@ export interface FilmOptions {
   supersample?: boolean;
 }
 
-export interface State { a: number; b: number; t: number; local: number }
+export interface State {
+  a: number; b: number; t: number; local: number;
+  /** Phones: how far the stage that owns the object has scrolled (px, + = down): the film rides with its chapter. */
+  ride?: number;
+}
 
 export interface Film {
   rescan(): void;
@@ -53,17 +58,20 @@ interface Shot {
   cone: number;
   ap: number;
   vig: number;
+  /** Exposure and the cool rim from behind (the exploded build separates its layers with it). */
+  exp: number;
+  rim: number;
   /** Phone framing: camera distance multiplier and how far the picture rides up (fraction of the height). */
   mob: [number, number];
 }
 
 /** Camera and light per pose. */
 export const SHOTS: Shot[] = [
-  { pos: [4.4, 3.2, 6.8], tgt: [0.5, 1.5, 0], fov: 30, fx: 0.3, drift: 0.22, env: 1, key: [0.3, 1.2, 0], cone: 0.42, ap: 0.035, vig: 0.42, mob: [1.85, 0.13] },
-  { pos: [1.6, 3.4, 9.2], tgt: [0.2, 1.85, 0], fov: 30, fx: 0.25, drift: 0.16, env: 1, key: [0.2, 1.4, 0], cone: 0.42, ap: 0.03, vig: 0.42, mob: [2.05, 0.2] },
-  { pos: [-3.6, 3.4, 2.6], tgt: [0.2, 0.95, 0], fov: 30, fx: -0.26, drift: 0.1, env: 0.9, key: [0, 1.0, 0], cone: 0.42, ap: 0.06, vig: 0.45, mob: [2.6, 0.25] },
-  { pos: [4.2, 4.0, 8.4], tgt: [0.1, 1.45, 0], fov: 30, fx: 0.24, drift: 0.2, env: 1, key: [0.1, 1.2, 0], cone: 0.42, ap: 0.03, vig: 0.42, mob: [1.72, 0.1] },
-  { pos: [2.9, 2.6, 3.9], tgt: [0.9, 1.1, 0.1], fov: 30, fx: 0.35, drift: 0.12, env: 0.6, key: [1.05, 1.1, 0.12], cone: 0.3, ap: 0.08, vig: 0.5, mob: [2.5, 0.25] },
+  { pos: [3.6, 2.7, 5.4], tgt: [0.6, 1.45, 0], fov: 28, fx: 0.4, drift: 0.22, env: 1, key: [0.3, 1.2, 0], cone: 0.42, ap: 0.035, vig: 0.42, exp: 1, rim: 0.8, mob: [1.8, 0.2] },
+  { pos: [1.3, 8.4, 8.2], tgt: [0.15, 1.75, 0], fov: 24, fx: 0.29, drift: 0.16, env: 1, key: [0.2, 1.9, 0.2], cone: 0.42, ap: 0.03, vig: 0.42, exp: 0.86, rim: 0.8, mob: [2.3, 0.27] },
+  { pos: [-2.2, 2.9, 4.4], tgt: [-0.95, 1.2, 0.25], fov: 28, fx: -0.25, drift: 0.1, env: 0.9, key: [0, 1.0, 0], cone: 0.42, ap: 0.06, vig: 0.45, exp: 1, rim: 0.7, mob: [2.2, 0.3] },
+  { pos: [3.46, 3.54, 6.89], tgt: [0.1, 1.45, 0], fov: 32, fx: 0.24, drift: 0.2, env: 1, key: [0.1, 1.2, 0], cone: 0.42, ap: 0.03, vig: 0.42, exp: 1, rim: 3.2, mob: [1.72, 0.1] },
+  { pos: [0.15, 2.2, 1.7], tgt: [0.94, 1.2, 0.48], fov: 22, fx: 0.3, drift: 0.08, env: 0.55, key: [0.94, 1.2, 0.48], cone: 0.3, ap: 0.12, vig: 0.5, exp: 1, rim: 0.5, mob: [1.35, 0.27] },
 ];
 
 const TIERS: Record<Tier, { dpr: number; shadows: boolean; shadow: number; msaa: number; dof: number }> = {
@@ -121,6 +129,30 @@ class Tracks {
     out.local = clamp01((y - m1) / Math.max(1, tr.top + span - m1));
     return out;
   }
+  /**
+   * Phones: where the stage that owns the object is (px, + = below its pinned place). It comes up from below until it
+   * pins and scrolls away once its pinned span is spent; a subpage head simply scrolls with the page. Raw scroll, so
+   * the object moves exactly with the page.
+   */
+  ride(y: number, vh: number): number {
+    const T = this.items;
+    if (!T.length) return -y;
+    const LEAD = 0.55;
+    let k = 0;
+    for (let i = 0; i < T.length; i++) if (T[i]!.top - (i > 0 ? LEAD * vh : 0) <= y + 1) k = i;
+    const tr = T[k]!;
+    const span = Math.max(1, tr.height - vh);
+    return y < tr.top ? tr.top - y : -Math.max(0, y - (tr.top + span));
+  }
+  /** How much of the viewport the nearest sheet covers while it slides in or out (0..1). */
+  sheetCover(y: number, vh: number): number {
+    let c = 0;
+    for (const s of this.sheets) {
+      const top = s.top - y, bottom = s.bottom - y;
+      if (top < vh && bottom > 0) c = Math.max(c, (Math.min(vh, bottom) - Math.max(0, top)) / vh);
+    }
+    return c;
+  }
   covered(y: number, vh: number): boolean {
     return this.sheets.some((s) => s.top <= y + 1 && s.bottom >= y + vh - 1);
   }
@@ -142,6 +174,12 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
   const studio = buildStudio(scene, cfg.shadows, cfg.shadow);
   const kb = await buildKeyboard(renderer, cfg.shadows);
   scene.add(kb.rig);
+  // the glint: a narrow softbox that follows the camera's mirror angle over the copper caps, so their tops always
+  // carry one crisp bright bar (and it slides across Enter as the key goes down)
+  RectAreaLightUniformsLib.init();
+  const glint = new RectAreaLight('#fff4ea', 16, 1.1, 0.13);
+  scene.add(glint);
+  const gp = new Vector3(), gn = new Vector3(), gv = new Vector3();
 
   const camera = new PerspectiveCamera(30, 1, 0.1, 80);
   const rt = new WebGLRenderTarget(1, 1, { type: HalfFloatType, samples: opts.supersample ? 0 : cfg.msaa });
@@ -211,7 +249,9 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     camera.lookAt(tgt);
     camera.fov = A.fov + (B.fov - A.fov) * e;
     const fx = mobile ? 0 : A.fx + (B.fx - A.fx) * e;
-    const shiftY = mobile ? height * (A.mob[1] + (B.mob[1] - A.mob[1]) * e) : 0;
+    // on a phone the copy sits under the object, so the film rides with its chapter: it leaves upward with the stage
+    // that scrolls away and comes up from below with the next one, never parked behind a block of text
+    const shiftY = mobile ? height * (A.mob[1] + (B.mob[1] - A.mob[1]) * e) - (st.ride ?? 0) : 0;
     camera.setViewOffset(width, height, -fx * width, shiftY, width, height);
     camera.updateProjectionMatrix();
     // the chapter's look: how much the room lights the object, where the key spot lands, how shallow the lens is
@@ -224,6 +264,9 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     pu.uAperture!.value = mix(A.ap, B.ap) * (mobile ? 0.6 : 1);
     pu.uMaxR!.value = Math.max(6, Math.round(height * dpr * 0.014));
     pu.uVignette!.value = mix(A.vig, B.vig);
+    studio.rim.intensity = mix(A.rim, B.rim);
+    // a sheet sliding over the film takes some of the light with it, so the handoff reads as paper over a lit set
+    pu.uExposure!.value = mix(A.exp, B.exp) * (1 - 0.4 * tracks.sheetCover(yD, height));
     // the pointer presses the cap it rests on (mouse only, and only while it keeps moving now and then)
     if (!mobile && time - pointerAt < 4) {
       camera.updateMatrixWorld();
@@ -231,6 +274,14 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
       kb.pointer(raycaster.ray);
     } else kb.pointer(null);
     kb.apply(st.a, st.b, st.t, st.local, time);
+    // aim the glint: mirror the view ray about the copper tops' normal and park the card on that line
+    const pose = st.t < 0.5 ? st.a : st.b;
+    kb.copper(gp, gn, pose === 4);
+    gv.subVectors(gp, camera.position).normalize();
+    gv.addScaledVector(gn, -2 * gv.dot(gn));
+    glint.position.copy(gp).addScaledVector(gv, 3.4);
+    glint.lookAt(gp);
+    glint.translateX(pose === 4 ? (st.local - 0.5) * 0.9 : 0);
     if (kb.typed !== lastTyped) {
       lastTyped = kb.typed;
       window.dispatchEvent(new CustomEvent('film:typed', { detail: kb.typed }));
@@ -252,6 +303,7 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     if (Math.abs(yD - y) < 0.3) yD = y;
     tracks.state(yD, height, target);
     Object.assign(state, target);
+    state.ride = mobile ? tracks.ride(y, height) : 0;
     // a route change re-poses the object instead of cutting to the new page's pose
     if (morph.k < 1) {
       morph.k = Math.min(1, morph.k + dt / 1.8);
@@ -296,8 +348,8 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
 
   function render(st?: State): void {
     if (destroyed) return;
-    if (st) Object.assign(state, st);
-    else { yD = window.scrollY; tracks.state(yD, height, state); }
+    if (st) { Object.assign(state, st); state.ride = st.ride ?? 0; }
+    else { yD = window.scrollY; tracks.state(yD, height, state); state.ride = mobile ? tracks.ride(yD, height) : 0; }
     place(state);
     draw();
   }

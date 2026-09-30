@@ -1,7 +1,7 @@
 ---
 /**
  * FastBot after hours, on the dark sheet: the business is closed (its listed hours say so), a customer writes at 22:14
- * and the bot answers. The sample conversation replays once in view (chat.ts, [data-chat]).
+ * and the bot answers. The whole sample conversation is static HTML; it lights up line by line once in view (chat.ts).
  */
 import Sheet from '../ui/Sheet.astro';
 import Btn from '../ui/Btn.astro';
@@ -38,7 +38,6 @@ const m = b.chat;
           <li class="msg msg--bot" data-msg>{m.a2}</li>
           <li class="msg msg--me" data-msg>{m.q2}</li>
           <li class="msg-done" data-msg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8" /></svg> {m.done}</li>
-          <li class="chat-typing" aria-hidden="true" data-typing hidden><i></i><i></i><i></i></li>
         </ol>
         <figcaption class="chat-note"><span>{m.note}</span><button type="button" class="tlink" data-chat-replay hidden>{m.replay}</button></figcaption>
       </figure>
@@ -56,7 +55,7 @@ const m = b.chat;
     .bt-side { grid-column: 8 / 13; position: sticky; top: calc(var(--head-h) + 1.5rem); }
   }
 
-  .chat { margin: 0; background: var(--paper); color: var(--ink); border-radius: 1.5rem; overflow: hidden; box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.7); }
+  .chat { margin: 0; background: var(--paper); color: var(--ink); border-radius: 1rem; overflow: hidden; box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.7); }
   .chat :focus-visible { outline-color: var(--copper-ink); }
   .chat-top { display: grid; grid-template-columns: auto 1fr; column-gap: 0.8rem; row-gap: 0.25rem; align-items: center; padding: 1rem 1.2rem; border-bottom: 1px solid var(--line-p); }
   .chat-av { grid-row: span 2; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--ink); color: var(--paper); font: 500 0.8rem/1 var(--f-mono); }
@@ -64,7 +63,7 @@ const m = b.chat;
   .chat-who b { font-weight: 500; }
   .chat-who span { font-size: 0.8125rem; color: var(--ink-2); }
   .chat-hours { grid-column: 2; color: var(--ink-2); }
-  .chat-log { display: grid; gap: 0.6rem; padding: 1.2rem; min-height: 27rem; align-content: start; }
+  .chat-log { display: grid; gap: 0.6rem; padding: 1.2rem; align-content: start; }
   .chat-day { justify-self: center; color: var(--ink-2); margin-bottom: 0.3rem; }
   .msg { max-width: 84%; padding: 0.7rem 0.95rem; font-size: 0.97rem; line-height: 1.42; border-radius: 1.1rem; }
   .msg--me { justify-self: end; background: var(--ink); color: var(--paper); border-bottom-right-radius: 0.35rem; }
@@ -74,14 +73,11 @@ const m = b.chat;
   .chip.is-picked { background: var(--copper); color: var(--ink); box-shadow: none; }
   .msg-done { justify-self: center; display: inline-flex; align-items: center; gap: 0.45rem; font-size: var(--t-small); margin-top: 0.5rem; }
   .msg-done svg { width: 16px; height: 16px; color: var(--copper-ink); }
-  .chat-typing { justify-self: start; display: flex; gap: 4px; padding: 0.8rem 0.95rem; border-radius: 1.1rem; background: var(--paper-2); }
-  .chat-typing[hidden] { display: none; }
-  .chat-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-2); animation: dot 1s infinite; }
-  .chat-typing i:nth-child(2) { animation-delay: 0.15s; }
-  .chat-typing i:nth-child(3) { animation-delay: 0.3s; }
-  @keyframes dot { 0%, 60%, 100% { opacity: 0.25; } 30% { opacity: 1; } }
   .chat-note { display: flex; justify-content: space-between; gap: 1rem; padding: 0.8rem 1.2rem; border-top: 1px solid var(--line-p); font: 400 0.75rem/1.5 var(--f-mono); color: var(--ink-2); }
   .chat-note .tlink { white-space: nowrap; }
-  :global(.js) .chat.is-playing [data-msg] { opacity: 0; transform: translateY(6px); }
-  :global(.js) .chat.is-playing [data-msg].is-shown { opacity: 1; transform: none; transition: opacity 0.3s var(--ease), transform 0.4s var(--ease); }
+  /* on a phone the disclaimer takes the whole row and the replay link sits under it */
+  @media (max-width: 480px) { .chat-note { flex-direction: column; gap: 0.5rem; align-items: flex-start; } }
+  /* while it plays (about a second), the lines still to come wait at 40%: the card keeps its full height */
+  :global(.js) .chat.is-playing [data-msg] { opacity: 0.4; }
+  :global(.js) .chat.is-playing [data-msg].is-shown { opacity: 1; transition: opacity 0.45s var(--ease); }
 </style>

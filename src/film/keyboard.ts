@@ -175,7 +175,7 @@ function switchGeometry(): BufferGeometry {
   const hp = housing.getAttribute('position');
   for (let i = 0; i < hp.count; i++) if (hp.getY(i) > 3) { hp.setX(i, hp.getX(i) * 0.8); hp.setZ(i, hp.getZ(i) * 0.84); }
   housing.computeVertexNormals();
-  parts.push(paint(housing, '#2a2623'));
+  parts.push(paint(housing, '#5a524a'));
   const bottom = new BoxGeometry(13.6, 5, 13.6); bottom.translate(0, -2.9, 0);
   parts.push(paint(bottom, '#191715'));
   const stemA = new BoxGeometry(4.1, 3.6, 1.3); stemA.translate(0, 6.6, 0);
@@ -339,13 +339,14 @@ export function buildPoses(): Pose[] {
     // 0: the board, three-quarter, floating
     { rig: tf(0.15, 1.35, 0, 0.35, -0.7, 0), layer: layersAt(), ...s },
     // 1: the grid over the board; the board settles lower and flatter
-    { rig: tf(0, 0.62, 0, 0.1, -0.3, 0), layer: layersAt(), ...g },
+    // (the stripped board sinks away below the frame: the ten-by-ten floats alone)
+    { rig: tf(0, 0.62, 0, 0.1, -0.3, 0), layer: layersAt({ switches: [0, -300, -120], plate: [0, -300, -120], pcb: [0, -300, -120], case: [0, -300, -120] }), ...g },
     // 2: typing, low along the rows
-    { rig: tf(0, 1.0, 0, 0.1, 0.25, 0), layer: layersAt(), ...s },
+    { rig: tf(0, 1.0, 0, 0.05, 0.25, 0), layer: layersAt(), ...s },
     // 3: the build, exploded up and back
     { rig: tf(0, 0.72, -0.1, 0.34, -0.62, 0.04), layer: layersAt({ caps: [0, 118, -44], switches: [0, 78, -28], plate: [0, 44, -15], pcb: [0, 18, -4] }), ...s },
     // 4: the board again, close on Enter
-    { rig: tf(0, 1.0, 0, 0.18, -0.75, 0.05), layer: layersAt(), ...s },
+    { rig: tf(0, 1.0, 0, 0.05, -0.35, 0), layer: layersAt(), ...s },
   ];
 }
 
@@ -368,7 +369,8 @@ function typing(local: number, out: Float32Array): number {
   for (let s = 0; s < n; s++) {
     const p = u - s;
     if (p < 0 || p > 1) continue;
-    const down = Math.min(1, Math.max(0, p / 0.18)) * Math.min(1, Math.max(0, (0.85 - p) / 0.2));
+    // a key goes down fast and stays down for most of its step, so a still frame always holds one key pressed
+    const down = Math.min(1, Math.max(0, p / 0.08)) * Math.min(1, Math.max(0, (1 - p) / 0.1));
     for (const k of TYPED[s]!) { const i = Number(k); out[i] = Math.max(out[i]!, down); }
   }
   return Math.min(n, Math.floor(u + 0.3));
@@ -376,20 +378,26 @@ function typing(local: number, out: Float32Array): number {
 
 /* ── materials ── */
 
-const CAP_VARY = 'varying vec3 vKey;\nvarying vec3 vCapN;\nvarying float vTopF;\nvarying float vKind;\nvarying float vGlyph;\nvarying float vPress;\n';
+const CAP_VARY = 'varying vec3 vKey;\nvarying vec3 vCapN;\nvarying float vTopF;\nvarying float vKind;\nvarying float vGlyph;\nvarying float vPress;\nvarying float vTone;\n';
+
+/** Cream PBT and the copper-hot glow of a pressed legend, in linear light. */
+const CREAM_L = new Color('#e7dfd0');
+const GLOW_L = new Color('#ff8a4a').multiplyScalar(4.5);
 
 function capMaterial(atlas: CanvasTexture): MeshPhysicalMaterial {
   const m = new MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.58, metalness: 0, specularIntensity: 0.55, envMapIntensity: 1 });
   m.onBeforeCompile = (s) => {
     s.uniforms.uAtlas = { value: atlas };
-    s.vertexShader = 'attribute vec2 aSize;\nattribute float aKind;\nattribute float aGlyph;\nattribute float aTop;\nattribute float aPress;\n' + CAP_VARY + s.vertexShader
+    s.uniforms.uCream = { value: CREAM_L };
+    s.uniforms.uGlow = { value: GLOW_L };
+    s.vertexShader = 'attribute vec2 aSize;\nattribute float aKind;\nattribute float aGlyph;\nattribute float aTop;\nattribute float aPress;\nattribute float aTone;\n' + CAP_VARY + s.vertexShader
       .replace('#include <begin_vertex>', `#include <begin_vertex>
         // nine-slice: move each half of the 1u cap outward, so a 6.25u bar keeps the 1u corners
         vec2 ext = (aSize - 1.0) * 0.5 * ${P.toFixed(2)};
         transformed.x += sign(position.x) * ext.x;
         transformed.z += sign(position.z) * ext.y;
-        vKey = transformed; vCapN = objectNormal; vTopF = aTop; vKind = aKind; vGlyph = aGlyph; vPress = aPress;`);
-    s.fragmentShader = 'uniform sampler2D uAtlas;\n' + CAP_VARY + s.fragmentShader
+        vKey = transformed; vCapN = objectNormal; vTopF = aTop; vKind = aKind; vGlyph = aGlyph; vPress = aPress; vTone = aTone;`);
+    s.fragmentShader = 'uniform sampler2D uAtlas;\nuniform vec3 uCream;\nuniform vec3 uGlow;\n' + CAP_VARY + s.fragmentShader
       .replace('#include <color_fragment>', `#include <color_fragment>
         // legends: printed (dye-sub) on PBT, engraved on copper
         vec2 luv = vec2(vKey.x / ${LEG_W.toFixed(1)} + 0.5, vKey.z / ${LEG_H.toFixed(1)} + 0.5);
@@ -397,15 +405,24 @@ function capMaterial(atlas: CanvasTexture): MeshPhysicalMaterial {
         vec2 auv = (vec2(mod(cell, ${AT_C}.0), floor(cell / ${AT_C}.0)) + clamp(luv, 0.0, 1.0)) / vec2(${AT_C}.0, ${AT_R}.0);
         float inCell = step(0.0, luv.x) * step(luv.x, 1.0) * step(0.0, luv.y) * step(luv.y, 1.0);
         float leg = texture2D(uAtlas, auv).a * inCell * smoothstep(0.55, 0.8, vCapN.y) * step(0.0, vGlyph);
+        // in the ten-by-ten every PBT cap turns the same blank cream: 97 alike, 3 copper
+        float plain = vKind < 1.5 ? vTone : 0.0;
+        diffuseColor.rgb = mix(diffuseColor.rgb, uCream, plain);
+        leg *= 1.0 - plain;
         vec3 legC = vKind < 0.5 ? vec3(0.03, 0.026, 0.022) : vKind < 1.5 ? vec3(0.74, 0.69, 0.61) : vec3(0.06, 0.025, 0.01);
         diffuseColor.rgb = mix(diffuseColor.rgb, legC, leg * (vKind > 1.5 ? 0.85 : 0.94));
         // the skirt darkens where it meets the plate (no light gets between the caps)
         diffuseColor.rgb *= mix(0.42, 1.0, smoothstep(0.2, 4.2, vKey.y));
         // a key that is down sits in its neighbours' shade
         diffuseColor.rgb *= 1.0 - 0.34 * vPress;`)
+      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+        // a pressed key lights its legend from below, copper-hot, like a shine-through cap
+        totalEmissiveRadiance += uGlow * leg * vPress;`)
       .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
         // PBT is matte with a sheen on the worn top; copper is polished
-        roughnessFactor = vKind > 1.5 ? 0.2 + 0.05 * (1.0 - vTopF) + 0.3 * leg : roughnessFactor - 0.08 * vTopF;`)
+        // (the copper cap's filleted rim is buffed harder than its top, so the rim draws a bright ring)
+        float rim = smoothstep(0.2, 0.45, vCapN.y) * (1.0 - smoothstep(0.82, 0.95, vCapN.y));
+        roughnessFactor = vKind > 1.5 ? mix(0.2, 0.07, rim) + 0.3 * leg : roughnessFactor - 0.08 * vTopF;`)
       .replace('#include <metalnessmap_fragment>', `#include <metalnessmap_fragment>
         metalnessFactor = vKind > 1.5 ? 1.0 - 0.6 * leg : 0.0;`);
   };
@@ -423,6 +440,8 @@ export interface Keyboard {
   pointer(ray: Ray | null): void;
   /** The cap under the pointer (-1: none). */
   readonly over: number;
+  /** World position and top normal of the copper caps (all three, or Enter alone): where the glint card aims. */
+  copper(outP: Vector3, outN: Vector3, enterOnly: boolean): void;
   dispose(): void;
 }
 
@@ -439,12 +458,15 @@ export async function buildKeyboard(renderer: WebGLRenderer, shadows: boolean): 
   const caps = new InstancedMesh(capGeo, capMat, N);
   caps.instanceMatrix.setUsage(DynamicDrawUsage);
   caps.castShadow = shadows; caps.receiveShadow = shadows; caps.frustumCulled = false;
-  const CREAM = new Color('#e7dfd0'), GRAPHITE = new Color('#35312d'), COPPER = new Color('#c8703f');
+  // copper as metal: its measured reflectance (linear), not the brand swatch, so it reads as metal and not resin
+  const CREAM = new Color('#e7dfd0'), GRAPHITE = new Color('#35312d'), COPPER = new Color(0.93, 0.44, 0.22);
   KEYS.forEach((k, i) => caps.setColorAt(i, k.kind === 2 ? COPPER : k.kind === 1 ? GRAPHITE : CREAM));
   const aSize = new InstancedBufferAttribute(new Float32Array(N * 2), 2); aSize.setUsage(DynamicDrawUsage);
   capGeo.setAttribute('aSize', aSize);
   const aPress = new InstancedBufferAttribute(new Float32Array(N), 1); aPress.setUsage(DynamicDrawUsage);
   capGeo.setAttribute('aPress', aPress);
+  const aTone = new InstancedBufferAttribute(new Float32Array(N), 1); aTone.setUsage(DynamicDrawUsage);
+  capGeo.setAttribute('aTone', aTone);
   capGeo.setAttribute('aKind', new InstancedBufferAttribute(new Float32Array(KEYS.map((k) => k.kind)), 1));
   capGeo.setAttribute('aGlyph', new InstancedBufferAttribute(new Float32Array(KEYS.map((k, i) => (k.label ? i : -1))), 1));
   layers.caps.add(caps);
@@ -452,7 +474,7 @@ export async function buildKeyboard(renderer: WebGLRenderer, shadows: boolean): 
 
   /* switches */
   const swGeo = switchGeometry();
-  const swMat = new MeshPhysicalMaterial({ vertexColors: true, roughness: 0.34, metalness: 0, clearcoat: 0.3, clearcoatRoughness: 0.4 });
+  const swMat = new MeshPhysicalMaterial({ vertexColors: true, roughness: 0.3, metalness: 0, clearcoat: 0.6, clearcoatRoughness: 0.25 });
   const sw = new InstancedMesh(swGeo, swMat, N);
   const m4 = new Matrix4();
   KEYS.forEach((k, i) => { const c = centre(k); m4.makeTranslation(c.x, 0, c.z); sw.setMatrixAt(i, m4); });
@@ -463,7 +485,7 @@ export async function buildKeyboard(renderer: WebGLRenderer, shadows: boolean): 
   /* plate: brushed aluminium, one cut-out per switch */
   const holes = KEYS.map((k) => { const c = centre(k); return { x: c.x, z: -c.z, w: 14, d: 14, r: 0.5 }; });
   const plateGeo = slab(roundedRect(KW + 4, KD + 4, 2, holes), -1.5, 0);
-  const plateMat = new MeshPhysicalMaterial({ color: '#a7a39c', metalness: 1, roughness: 0.42, envMapIntensity: 1.2 });
+  const plateMat = new MeshPhysicalMaterial({ color: '#c4c0b9', metalness: 1, roughness: 0.36, envMapIntensity: 1.35 });
   const plate = new Mesh(plateGeo, plateMat);
   plate.castShadow = shadows; plate.receiveShadow = shadows;
   layers.plate.add(plate);
@@ -474,7 +496,7 @@ export async function buildKeyboard(renderer: WebGLRenderer, shadows: boolean): 
   pcbCv.width = 2048; pcbCv.height = Math.round(2048 * (KD + 8) / (KW + 8));
   {
     const g = pcbCv.getContext('2d')!;
-    g.fillStyle = '#121513'; g.fillRect(0, 0, pcbCv.width, pcbCv.height);
+    g.fillStyle = '#0b0c0b'; g.fillRect(0, 0, pcbCv.width, pcbCv.height);
     const sx = pcbCv.width / (KW + 8), sz = pcbCv.height / (KD + 8);
     g.strokeStyle = 'rgba(200,112,63,0.55)'; g.lineWidth = 0.35 * sx;
     KEYS.forEach((k) => {
@@ -492,7 +514,7 @@ export async function buildKeyboard(renderer: WebGLRenderer, shadows: boolean): 
   pcbTex.colorSpace = SRGBColorSpace; pcbTex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   const pcbGeo = new BoxGeometry(KW + 8, 1.6, KD + 8);
   // top face UVs span the board: BoxGeometry already maps 0..1 per face
-  const pcbMat = new MeshStandardMaterial({ map: pcbTex, roughness: 0.7, metalness: 0.15 });
+  const pcbMat = new MeshStandardMaterial({ map: pcbTex, roughness: 0.85, metalness: 0.05 });
   const pcb = new Mesh(pcbGeo, pcbMat);
   pcb.position.y = -6.4;
   pcb.castShadow = shadows; pcb.receiveShadow = shadows;
@@ -527,6 +549,8 @@ export async function buildKeyboard(renderer: WebGLRenderer, shadows: boolean): 
   const pp = new Vector3(), qq = new Quaternion(), tmpQ = new Quaternion(), e3 = new Euler(), one = new Vector3(1, 1, 1);
   const rp = new Vector3(), rq = new Quaternion(), lv = new Vector3();
   const K = { typed: 0, over: -1 };
+  const COPPER_IDS = KEYS.map((k, i) => (k.kind === 2 ? i : -1)).filter((i) => i >= 0);
+  const gm = new Matrix4(), gv = new Vector3();
   const ENTER = idx('enter');
   // hover: the cap under the pointer goes down, and springs back when the pointer leaves it
   const hover = new Float32Array(N);
@@ -605,15 +629,23 @@ export async function buildKeyboard(renderer: WebGLRenderer, shadows: boolean): 
       const sz = A.size[i]![1] + (B.size[i]![1] - A.size[i]![1]) * e;
       aSize.setXY(i, sx, sz);
       // in-chapter motion
-      if (!moving && a === 1 && KEYS[i]!.kind === 2) pp.addScaledVector(GRID_N, 6 + 30 * ease(Math.min(1, local * 1.5)));
+      if (!moving && a === 1 && KEYS[i]!.kind === 2) {
+        // the three copper caps step a cap and a half out of the field and tip their tops into the key light
+        const pop = ease(Math.min(1, local * 1.6));
+        pp.addScaledVector(GRID_N, 30 * pop);
+        tmpQ.setFromEuler(e3.set(-0.32 * pop, 0.12 * pop, 0));
+        qq.multiply(tmpQ);
+      }
       pp.y -= press[i]! * TRAVEL;
       aPress.setX(i, press[i]!);
+      aTone.setX(i, a === 1 && b === 1 ? 1 : a === 1 ? 1 - e : b === 1 ? e : 0);
       m4.compose(pp, qq, one);
       caps.setMatrixAt(i, m4);
     }
     caps.instanceMatrix.needsUpdate = true;
     aSize.needsUpdate = true;
     aPress.needsUpdate = true;
+    aTone.needsUpdate = true;
   };
 
   apply(0, 0, 0, 0, 0);
@@ -622,6 +654,18 @@ export async function buildKeyboard(renderer: WebGLRenderer, shadows: boolean): 
     typed: 0,
     pointer(ray: Ray | null): void { hasRay = !!ray; if (ray) worldRay.copy(ray); },
     get over() { return K.over; },
+    copper(outP: Vector3, outN: Vector3, enterOnly: boolean): void {
+      caps.updateWorldMatrix(true, false);
+      outP.set(0, 0, 0); outN.set(0, 0, 0);
+      const ids = enterOnly ? [ENTER] : COPPER_IDS;
+      for (const i of ids) {
+        caps.getMatrixAt(i, gm);
+        gm.premultiply(caps.matrixWorld);
+        outP.add(gv.set(0, 8, 0).applyMatrix4(gm));
+        outN.add(gv.set(0, 1, 0).transformDirection(gm));
+      }
+      outP.multiplyScalar(1 / ids.length); outN.normalize();
+    },
     dispose(): void { disposables.forEach((d) => d.dispose()); },
   };
   return kb;

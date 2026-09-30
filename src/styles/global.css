@@ -137,6 +137,16 @@ html.film-live .still { opacity: 0; }
   .copy--right { grid-column: 7 / 13; }
 }
 @media (max-width: 959px) {
+  /* on a phone the shade belongs to the copy block, not the screen: it rises from just above the first line, so the
+     object above the copy stays whole */
+  .stage::after, .ph::after { display: none; }
+  .stage .copy, .ph-in { position: relative; }
+  .stage .copy::before, .ph-in::before {
+    content: ''; position: absolute; z-index: -1; pointer-events: none;
+    inset: -3.5rem calc(-1 * var(--gutter)) -14rem;
+    /* opaque under the copy: whatever part of the object passes behind the text is hidden, never a see-through ghost */
+    background: linear-gradient(to bottom, rgba(14, 12, 10, 0) 0, var(--studio) 3.5rem, var(--studio) calc(100% - 7rem), rgba(14, 12, 10, 0) 100%);
+  }
   .ch { height: var(--len-m, var(--len, 220svh)); }
   /* the object lives in the top half; copy sits low, on a quiet floor */
   .stage-in { padding-top: 44svh; }
@@ -167,6 +177,10 @@ html.film-off .ch { height: calc(var(--len, 260svh) * 0.55); }
   padding-block: clamp(4.5rem, 11vh, 8.5rem);
 }
 .sheet + .sheet { padding-top: 0; }
+/* the sheet is paper laid over a lit set: a soft shade falls on the film just past its leading and trailing edges */
+.ch + .sheet::before, .sheet:has(+ .ch)::after { content: ''; position: absolute; left: 0; right: 0; height: 5rem; pointer-events: none; }
+.ch + .sheet::before { bottom: 100%; background: linear-gradient(to top, rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0)); }
+.sheet:has(+ .ch)::after { top: 100%; background: linear-gradient(to bottom, rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0)); }
 .sheet .t-src { color: var(--ink-2); }
 .sheet .dim { color: var(--ink-2); }
 .sheet--dark { background: var(--graphite); color: var(--text); --text: #ede6da; --text-2: #a8a092; --line-d: rgba(237, 230, 218, 0.14); }

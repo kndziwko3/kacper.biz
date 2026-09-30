@@ -60,9 +60,8 @@ const sorted = [...SECTORS].sort((a, b) => a.name[lang].localeCompare(b.name[lan
         <p class="lk-count"><span class="lk-big lk-big--2 num" data-out="city">{fmt(defCity.count, lang)}</span><span class="t-small lk-unit">{cityParts[0]}<span data-out="cityLoc">{cityForm(defCity)}</span>{cityParts[1]}</span></p>
       </div>
       <figure class="lk-mail">
-        <figcaption class="t-label">{d.mailLabel}</figcaption>
         <p class="lk-line" lang="pl">{mailParts[0]}<mark data-out="cityIn">{defCity.in}</mark>{mailParts[1]}</p>
-        <p class="t-small lk-note">{d.mailNote}</p>
+        <figcaption class="t-small lk-note">{d.mailLabel} {d.mailNote}</figcaption>
       </figure>
       <div class="btn-row"><Btn href={sectorUrl(defSector)} outbound cta="registry-sector">{d.cta}</Btn></div>
     </div>
@@ -95,7 +94,7 @@ const sorted = [...SECTORS].sort((a, b) => a.name[lang].localeCompare(b.name[lan
   .lk-city input:focus-visible + span { outline: 2px solid var(--copper-ink); outline-offset: 3px; }
 
   /* the readout: a dark instrument face on the sheet */
-  .lk-card { background: var(--graphite); color: #ede6da; border-radius: 1.25rem; padding: clamp(1.4rem, 2.6vw, 2.25rem); display: grid; gap: 1.75rem; --text-2: #a8a092; --line-d: rgba(237, 230, 218, 0.14); }
+  .lk-card { background: var(--graphite); color: #ede6da; border-radius: 1rem; padding: clamp(1.4rem, 2.6vw, 2.25rem); display: grid; gap: 1.75rem; --text-2: #a8a092; --line-d: rgba(237, 230, 218, 0.14); }
   .lk-card :focus-visible { outline-color: var(--copper-hi); }
   .lk-head { display: flex; justify-content: space-between; gap: 1rem; color: #a8a092; padding-bottom: 1rem; border-bottom: 1px solid rgba(237, 230, 218, 0.14); }
   .lk-counts { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
@@ -104,7 +103,6 @@ const sorted = [...SECTORS].sort((a, b) => a.name[lang].localeCompare(b.name[lan
   .lk-big--2 { color: #ede6da; }
   .lk-unit { color: #a8a092; max-width: 24ch; }
   .lk-mail { display: grid; gap: 0.7rem; padding-top: 1.5rem; border-top: 1px solid rgba(237, 230, 218, 0.14); }
-  .lk-mail figcaption { color: #a8a092; }
   .lk-line { font-size: var(--t-lead); line-height: 1.4; letter-spacing: -0.01em; }
   .lk-line mark { background: none; color: inherit; text-decoration: underline; text-decoration-color: var(--copper); text-decoration-thickness: 2px; text-underline-offset: 0.2em; }
   .lk-note { color: #a8a092; }
