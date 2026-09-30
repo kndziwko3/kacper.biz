@@ -1,7 +1,7 @@
 ---
 /**
- * The home page is one film: five chapters (the monolith, the rotunda, the drawer, the exploded page, the monolith
- * again) with the evidence sheets laid over it between them. See src/film/film.ts for the poses.
+ * The home page is one film: five chapters (the board, the ten-by-ten grid of caps, the board typing, the exploded
+ * build, the board close on Enter) with the evidence sheets laid over it between them. See src/film/keyboard.ts.
  */
 import Base from '../../layouts/Base.astro';
 import Chapter from '../ui/Chapter.astro';
@@ -14,6 +14,7 @@ import Faq from '../Faq.astro';
 import Rail from '../film/Rail.astro';
 import { copy } from '../../content/copy';
 import { SALES, type Lang } from '../../content/site';
+import { TYPED_TEXT } from '../../content/typed';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -46,6 +47,11 @@ const rail = [['start', ch[0]], ['trzy', ch[1]], ['film-op', ch[2]], ['film-fl',
   <Chapter pose={2} still="p2" side="right" len={300} lenM={240} guide={ch[2]} labelledby="op-ch-h" id="film-op">
     <h2 class="t-display reveal" id="op-ch-h">{opName}</h2>
     <p class="t-lead">{up(opLine)}</p>
+    <p class="typed" data-typed-line>
+      <span class="sr-only">{f.op.typedSr}</span>
+      <span class="typed-line" aria-hidden="true"><span data-typed-text>{TYPED_TEXT}</span><span class="typed-caret"></span></span>
+      <span class="t-src typed-gloss">{f.op.typedGloss}</span>
+    </p>
     <ol class="beats">
       {f.op.beats.map(([t, d], i) => (<li class="beat"><span class="t-label beat-n num" aria-hidden="true">{i + 1}</span><b class="t-h3">{t}</b><span class="t-small dim">{d}</span></li>))}
     </ol>
@@ -64,7 +70,7 @@ const rail = [['start', ch[0]], ['trzy', ch[1]], ['film-op', ch[2]], ['film-fl',
   <FlSheet lang={lang} />
   <BotSheet lang={lang} />
 
-  <Chapter pose={4} still="p4" side="right" last len={220} lenM={180} guide={ch[4]} labelledby="close-h" id="film-kontakt">
+  <Chapter pose={4} still="p4" last len={220} lenM={180} guide={ch[4]} labelledby="close-h" id="film-kontakt">
     <h2 class="t-display reveal" id="close-h">{f.close.h2}</h2>
     <p class="t-lead dim measure">{f.close.p}</p>
     <div class="btn-row"><Btn href={SALES.bookingUrl} outbound cta="close-booking">{f.close.cta}</Btn></div>
@@ -83,6 +89,14 @@ const rail = [['start', ch[0]], ['trzy', ch[1]], ['film-op', ch[2]], ['film-fl',
   @media (min-width: 960px) { .hero-offer { max-width: none; } }
   /* the name is the widest thing on the page: it runs past the copy column, under the object's shoulder */
   @media (min-width: 960px) { :global(.ch--first .copy) { grid-column: 1 / 11; } }
+  /* the greeting the board types, letter by letter with the keys (static and whole without the live film) */
+  .typed { display: grid; gap: 0.35rem; }
+  .typed-line { display: flex; align-items: center; min-height: 1.3em; font: 500 var(--t-h3)/1.2 var(--f-display); letter-spacing: -0.015em; white-space: nowrap; }
+  .typed-caret { display: none; width: 2px; height: 1.05em; margin-left: 3px; background: var(--copper-hi); }
+  :global(html.film-live) .typed-caret { display: inline-block; animation: caret 1.05s steps(1) infinite; }
+  :global(html.film-live) .typed.is-sent .typed-caret { animation: none; opacity: 0; }
+  @keyframes caret { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { :global(html.film-live) .typed-caret { animation: none; } }
   .beats { display: grid; border-top: 1px solid var(--line-d); margin-top: 0.5rem; }
   .beat { display: grid; grid-template-columns: 2rem 1fr; column-gap: 1rem; row-gap: 0.35rem; padding-block: 1rem; border-bottom: 1px solid var(--line-d); }
   .beat > :not(.beat-n) { grid-column: 2; }

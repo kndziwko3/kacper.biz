@@ -9,11 +9,11 @@
  * with weight and never twitches with the wheel.
  */
 import {
-  AgXToneMapping, HalfFloatType, PCFShadowMap, PerspectiveCamera, Scene, SRGBColorSpace, Vector3, WebGLRenderer,
+  DepthTexture, Euler, HalfFloatType, NeutralToneMapping, Raycaster, Vector2, PCFShadowMap, PerspectiveCamera, Scene, SRGBColorSpace, Vector3, WebGLRenderer,
   WebGLRenderTarget,
 } from 'three';
 import { buildStudio, studioEnvironment } from './studio';
-import { buildMonolith, smooth } from './monolith';
+import { buildKeyboard } from './keyboard';
 import { finalPass } from './post';
 
 export type Tier = 'high' | 'mid' | 'low';
@@ -34,28 +34,46 @@ export interface State { a: number; b: number; t: number; local: number }
 
 export interface Film {
   rescan(): void;
+  /** Characters of the chapter-2 sentence the board has typed so far (the page mirrors them). */
+  typed(): number;
   render(state?: State): void;
   destroy(): void;
 }
 
-interface Shot { pos: [number, number, number]; tgt: [number, number, number]; fov: number; fx: number; drift: number }
+interface Shot {
+  pos: [number, number, number];
+  tgt: [number, number, number];
+  fov: number;
+  /** Where the object sits on a wide screen (fraction of width from the centre; + = right). */
+  fx: number;
+  drift: number;
+  /** The look of the chapter: environment light, where the key spot points and how wide, lens aperture, vignette. */
+  env: number;
+  key: [number, number, number];
+  cone: number;
+  ap: number;
+  vig: number;
+  /** Phone framing: camera distance multiplier and how far the picture rides up (fraction of the height). */
+  mob: [number, number];
+}
 
-/** Camera per pose. fx: where the object sits on a wide screen (fraction of width from the centre; + = right). */
-const SHOTS: Shot[] = [
-  { pos: [3.25, 2.0, 6.1], tgt: [0, 1.55, 0], fov: 30, fx: 0.2, drift: 0.3 },
-  { pos: [1.1, 5.3, 7.4], tgt: [0, 1.6, 0], fov: 32, fx: 0.2, drift: 0.22 },
-  { pos: [-4.6, 2.3, 3.0], tgt: [0.2, 1.0, -1.7], fov: 34, fx: -0.19, drift: 0 },
-  { pos: [0.65, 3.95, 10.9], tgt: [0.1, 2.95, 0.5], fov: 34, fx: 0.2, drift: 0.28 },
-  { pos: [-3.9, 1.45, 5.3], tgt: [0, 1.6, 0], fov: 28, fx: -0.19, drift: 0.3 },
+/** Camera and light per pose. */
+export const SHOTS: Shot[] = [
+  { pos: [4.4, 3.2, 6.8], tgt: [0.5, 1.5, 0], fov: 30, fx: 0.3, drift: 0.22, env: 1, key: [0.3, 1.2, 0], cone: 0.42, ap: 0.035, vig: 0.42, mob: [1.85, 0.13] },
+  { pos: [1.6, 3.4, 9.2], tgt: [0.2, 1.85, 0], fov: 30, fx: 0.25, drift: 0.16, env: 1, key: [0.2, 1.4, 0], cone: 0.42, ap: 0.03, vig: 0.42, mob: [2.05, 0.2] },
+  { pos: [-3.6, 3.4, 2.6], tgt: [0.2, 0.95, 0], fov: 30, fx: -0.26, drift: 0.1, env: 0.9, key: [0, 1.0, 0], cone: 0.42, ap: 0.06, vig: 0.45, mob: [2.6, 0.25] },
+  { pos: [4.2, 4.0, 8.4], tgt: [0.1, 1.45, 0], fov: 30, fx: 0.24, drift: 0.2, env: 1, key: [0.1, 1.2, 0], cone: 0.42, ap: 0.03, vig: 0.42, mob: [1.72, 0.1] },
+  { pos: [2.9, 2.6, 3.9], tgt: [0.9, 1.1, 0.1], fov: 30, fx: 0.35, drift: 0.12, env: 0.6, key: [1.05, 1.1, 0.12], cone: 0.3, ap: 0.08, vig: 0.5, mob: [2.5, 0.25] },
 ];
 
-const TIERS: Record<Tier, { dpr: number; shadows: boolean; shadow: number; msaa: number }> = {
-  high: { dpr: 1.5, shadows: true, shadow: 2048, msaa: 4 },
-  mid: { dpr: 1.35, shadows: true, shadow: 1024, msaa: 2 },
-  low: { dpr: 1, shadows: false, shadow: 512, msaa: 2 },
+const TIERS: Record<Tier, { dpr: number; shadows: boolean; shadow: number; msaa: number; dof: number }> = {
+  high: { dpr: 1.5, shadows: true, shadow: 2048, msaa: 4, dof: 40 },
+  mid: { dpr: 1.35, shadows: true, shadow: 1024, msaa: 2, dof: 20 },
+  low: { dpr: 1, shadows: false, shadow: 512, msaa: 2, dof: 0 },
 };
 const PIXEL_BUDGET = 2560 * 1440;
 
+const smooth = (a: number, b: number, x: number) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 const damp = (a: number, b: number, lambda: number, dt: number) => a + (b - a) * (1 - Math.exp(-lambda * dt));
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 
@@ -82,18 +100,25 @@ class Tracks {
     const pose = document.querySelector<HTMLElement>('[data-film-pose]')?.dataset.filmPose;
     this.routePose = pose !== undefined && pose !== '' ? Number(pose) : null;
   }
+  /**
+   * A chapter takes the object over from LEAD viewports before its track pins (while the previous stage or sheet is
+   * still scrolling away) and finishes the move MORPH of the way into its pinned scroll, so the object has arrived by
+   * the time the new copy holds still. The rest of the pinned scroll is the chapter's own motion (`local`).
+   */
   state(y: number, vh: number, out: State): State {
     const T = this.items;
     if (!T.length) { const p = this.routePose ?? 0; out.a = out.b = p; out.t = 0; out.local = clamp01(y / Math.max(1, vh * 2)); return out; }
+    const LEAD = 0.55, MORPH = 0.16;
     let k = -1;
-    for (let i = 0; i < T.length; i++) if (T[i]!.top <= y + 1) k = i;
+    for (let i = 0; i < T.length; i++) if (T[i]!.top - (i > 0 ? LEAD * vh : 0) <= y + 1) k = i;
     if (k < 0) { out.a = out.b = T[0]!.pose; out.t = 0; out.local = 0; return out; }
     const tr = T[k]!;
-    const p = clamp01((y - tr.top) / Math.max(1, tr.height - vh));
-    if (k === 0) { out.a = out.b = tr.pose; out.t = 0; out.local = p; return out; }
-    const tt = smooth(0, 0.42, p);
+    const span = Math.max(1, tr.height - vh);
+    if (k === 0) { out.a = out.b = tr.pose; out.t = 0; out.local = clamp01((y - tr.top) / span); return out; }
+    const m0 = tr.top - LEAD * vh, m1 = tr.top + MORPH * span;
+    const tt = smooth(m0, m1, y);
     if (tt >= 1) { out.a = out.b = tr.pose; out.t = 0; } else { out.a = T[k - 1]!.pose; out.b = tr.pose; out.t = tt; }
-    out.local = clamp01((p - 0.42) / 0.58);
+    out.local = clamp01((y - m1) / Math.max(1, tr.top + span - m1));
     return out;
   }
   covered(y: number, vh: number): boolean {
@@ -104,8 +129,9 @@ class Tracks {
 export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): Promise<Film> {
   const cfg = TIERS[opts.tier];
   const renderer = new WebGLRenderer({ canvas, antialias: false, alpha: false, stencil: false, depth: true, powerPreference: 'high-performance' });
-  renderer.toneMapping = AgXToneMapping;
-  renderer.toneMappingExposure = 0.95;
+  // Khronos PBR Neutral keeps the cream caps cream and the copper copper (AgX greys both)
+  renderer.toneMapping = NeutralToneMapping;
+  renderer.toneMappingExposure = 0.86;
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.shadowMap.enabled = cfg.shadows;
   renderer.shadowMap.type = PCFShadowMap;
@@ -114,13 +140,25 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
   scene.environment = studioEnvironment(renderer);
   scene.environmentIntensity = 1;
   const studio = buildStudio(scene, cfg.shadows, cfg.shadow);
-  const mono = buildMonolith(cfg.shadows);
-  scene.add(mono.reflection, mono.mesh);
+  const kb = await buildKeyboard(renderer, cfg.shadows);
+  scene.add(kb.rig);
 
   const camera = new PerspectiveCamera(30, 1, 0.1, 80);
   const rt = new WebGLRenderTarget(1, 1, { type: HalfFloatType, samples: opts.supersample ? 0 : cfg.msaa });
-  const post = finalPass();
-  post.setInput(rt.texture);
+  if (cfg.dof) rt.depthTexture = new DepthTexture(1, 1);
+  const post = finalPass(cfg.dof);
+  post.setInput(rt.texture, rt.depthTexture);
+  const pu = post.material.uniforms;
+  pu.uNear!.value = 0.1; pu.uFar!.value = 80;
+  if (import.meta.env.DEV) {
+    // look-dev handle: mutate shots and poses from the console, the loop picks them up on the next frame
+    (window as unknown as { __film: unknown }).__film = {
+      SHOTS, kb, scene, studio, renderer, post,
+      rig(i: number, p: [number, number, number], r: [number, number, number]): void {
+        const R = kb.poses[i]!.rig; R.p.set(...p); R.q.setFromEuler(new Euler(r[0], r[1], r[2], 'YXZ'));
+      },
+    };
+  }
 
   const tracks = new Tracks();
   const target: State = { a: 0, b: 0, t: 0, local: 0 };
@@ -128,7 +166,9 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
 
   let width = 1, height = 1, dpr = 1, dprScale = 1, mobile = false;
   let yD = window.scrollY, time = 0, raf = 0, last = 0, destroyed = false, asleep = false;
-  let px = 0, py = 0, tpx = 0, tpy = 0;
+  let px = 0, py = 0, tpx = 0, tpy = 0, pointerAt = -1e9;
+  let lastTyped = -1;
+  const raycaster = new Raycaster(), ndc = new Vector2();
   let ema = 16.7, frames = 0, shifts = 0;
   const morph = { from: 0, k: 1 };
 
@@ -138,7 +178,7 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     if (!force && w === width && Math.abs(h - height) / Math.max(1, height) < 0.25) return;
     width = w; height = h; mobile = w < 900;
     dpr = Math.min(window.devicePixelRatio || 1, mobile ? Math.min(1.5, cfg.dpr + 0.15) : cfg.dpr) * dprScale;
-    if (opts.supersample) { dpr = window.devicePixelRatio || 1; mono.setPxScale(dpr); }
+    if (opts.supersample) dpr = window.devicePixelRatio || 1;
     else if (w * h * dpr * dpr > PIXEL_BUDGET) dpr = Math.sqrt(PIXEL_BUDGET / (w * h));
     renderer.setPixelRatio(dpr);
     renderer.setSize(w, h, false);
@@ -148,16 +188,16 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
   };
 
   const pos = new Vector3(), tgt = new Vector3(), off = new Vector3(), pa = new Vector3(), pb = new Vector3(), ta = new Vector3(), tb = new Vector3();
-  const shotInto = (i: number, local: number, P: Vector3, Tg: Vector3): { fov: number; fx: number } => {
+  const shotInto = (i: number, local: number, P: Vector3, Tg: Vector3): Shot => {
     const s = SHOTS[i] ?? SHOTS[0]!;
     P.set(...s.pos); Tg.set(...s.tgt);
-    if (i === 2) { P.z -= local * 1.6; Tg.z -= local * 1.6; }
     off.subVectors(P, Tg);
     if (s.drift) off.applyAxisAngle(new Vector3(0, 1, 0), (local - 0.5) * s.drift);
-    if (mobile) off.multiplyScalar(1.72);
+    if (mobile) off.multiplyScalar(s.mob[0]);
     P.copy(Tg).add(off);
-    return { fov: s.fov, fx: s.fx };
+    return s;
   };
+  const keyAt = new Vector3(), ka = new Vector3(), kb3 = new Vector3();
 
   const place = (st: State): void => {
     const e = st.t * st.t * (3 - 2 * st.t);
@@ -171,10 +211,30 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     camera.lookAt(tgt);
     camera.fov = A.fov + (B.fov - A.fov) * e;
     const fx = mobile ? 0 : A.fx + (B.fx - A.fx) * e;
-    const shiftY = mobile ? height * 0.09 : 0;
+    const shiftY = mobile ? height * (A.mob[1] + (B.mob[1] - A.mob[1]) * e) : 0;
     camera.setViewOffset(width, height, -fx * width, shiftY, width, height);
     camera.updateProjectionMatrix();
-    mono.apply(st.a, st.b, st.t, st.local, time);
+    // the chapter's look: how much the room lights the object, where the key spot lands, how shallow the lens is
+    const mix = (x: number, y: number) => x + (y - x) * e;
+    scene.environmentIntensity = mix(A.env, B.env);
+    keyAt.lerpVectors(ka.set(...A.key), kb3.set(...B.key), e);
+    studio.key.target.position.copy(keyAt);
+    studio.key.angle = mix(A.cone, B.cone);
+    pu.uFocus!.value = pos.distanceTo(tgt);
+    pu.uAperture!.value = mix(A.ap, B.ap) * (mobile ? 0.6 : 1);
+    pu.uMaxR!.value = Math.max(6, Math.round(height * dpr * 0.014));
+    pu.uVignette!.value = mix(A.vig, B.vig);
+    // the pointer presses the cap it rests on (mouse only, and only while it keeps moving now and then)
+    if (!mobile && time - pointerAt < 4) {
+      camera.updateMatrixWorld();
+      raycaster.setFromCamera(ndc.set(tpx, tpy), camera);
+      kb.pointer(raycaster.ray);
+    } else kb.pointer(null);
+    kb.apply(st.a, st.b, st.t, st.local, time);
+    if (kb.typed !== lastTyped) {
+      lastTyped = kb.typed;
+      window.dispatchEvent(new CustomEvent('film:typed', { detail: kb.typed }));
+    }
   };
 
   const draw = (): void => {
@@ -225,6 +285,7 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     if (e.pointerType === 'touch') return;
     tpx = (e.clientX / Math.max(1, width)) * 2 - 1;
     tpy = -((e.clientY / Math.max(1, height)) * 2 - 1);
+    pointerAt = time;
   };
   const onVisibility = (): void => { if (document.hidden) stop(); else start(); };
   let scrollTimer = 0;
@@ -260,6 +321,7 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
   ro.observe(document.body);
 
   return {
+    typed: () => kb.typed,
     rescan(): void {
       // the pose on screen now is where the next page's pose grows from
       const shown = state.t >= 0.5 ? state.b : state.a;
@@ -277,7 +339,7 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
       window.removeEventListener('pointermove', onPointer);
       window.removeEventListener('scroll', onStillScroll);
       document.removeEventListener('visibilitychange', onVisibility);
-      mono.dispose(); studio.dispose(); post.dispose(); rt.dispose();
+      kb.dispose(); studio.dispose(); post.dispose(); rt.dispose();
       scene.environment?.dispose();
       renderer.dispose();
     },

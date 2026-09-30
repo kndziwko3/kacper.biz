@@ -22,7 +22,7 @@ const alt = (name: string, kind: string) => (isPl ? `Strona ${name}, ${kind}` : 
 ---
 <Base lang={lang} path={path} title={w.title} description={w.description} kind="work"
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: w.crumb, path }]} ogImage={isPl ? '/og/work.png' : '/og/work-en.png'} still="p1">
-  <PageHead lang={lang} crumb={w.crumb} h1={w.h1} lead={w.lead} pose={1} short guide={c.film.guide.work} />
+  <PageHead lang={lang} crumb={w.crumb} h1={w.h1} lead={w.lead} pose={3} short guide={c.film.guide.work} />
 
   <Sheet id="strony" guide={c.film.guide.work}>
     <h2 class="sr-only">{w.h1}</h2>

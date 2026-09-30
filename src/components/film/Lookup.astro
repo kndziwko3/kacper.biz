@@ -89,7 +89,7 @@ const sorted = [...SECTORS].sort((a, b) => a.name[lang].localeCompare(b.name[lan
   .lk-row input:focus-visible + .lk-in { outline: 2px solid var(--copper-ink); outline-offset: 2px; }
 
   .lk-cities { display: flex; flex-wrap: wrap; gap: 0.45rem; }
-  .lk-city span { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0.5rem 1.05rem; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-p); cursor: pointer; font-size: 0.95rem; transition: background-color 0.15s, color 0.15s, box-shadow 0.15s; }
+  .lk-city span { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0.5rem 1.05rem; border-radius: calc(var(--cap-r) - 0.1rem); box-shadow: inset 0 0 0 1px var(--line-p); cursor: pointer; font-size: 0.95rem; transition: background-color 0.15s, color 0.15s, box-shadow 0.15s; }
   .lk-city span:hover { box-shadow: inset 0 0 0 1px var(--ink); }
   .lk-city input:checked + span { background: var(--ink); color: var(--paper); box-shadow: none; }
   .lk-city input:focus-visible + span { outline: 2px solid var(--copper-ink); outline-offset: 3px; }

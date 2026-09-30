@@ -1,7 +1,7 @@
 ---
 /**
- * The header floats over the film and the sheets: every item is a solid pill, so it reads on black and on cream.
- * The copper pill books the call from anywhere; on the home page the chapter rail (Rail.astro) does the wayfinding.
+ * The header floats over the film and the sheets: every item is a solid key (graphite caps, the copper cap books the
+ * call), so it reads on black and on cream, and it goes down 2 px when pressed like the board's own keys; on the home page the chapter rail (Rail.astro) does the wayfinding.
  */
 import { NAV, ROUTE_PAIRS, CONTACT, SALES, type Lang } from '../content/site';
 import { copy } from '../content/copy';
@@ -54,11 +54,12 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
   .hd::after { content: ''; position: absolute; inset: 0 0 -1.5rem; z-index: -1; pointer-events: none; background: linear-gradient(to bottom, rgba(237, 231, 220, 0.96) 0%, rgba(237, 231, 220, 0.96) 58%, rgba(237, 231, 220, 0)); opacity: 0; transition: opacity 0.25s var(--ease); }
   :global(html.hd-paper) .hd::before { opacity: 0; }
   :global(html.hd-paper) .hd::after { opacity: 1; }
-  .hp { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0.55rem 1.05rem; border-radius: 999px; background: var(--studio); color: var(--text); box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.12); font: 500 0.95rem/1 var(--f-sans); letter-spacing: -0.01em; transition: box-shadow 0.2s var(--ease); }
-  .hp:hover { box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.42); }
+  .hp { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0.55rem 1.05rem 0.62rem; border-radius: var(--cap-r); background: #1c1916; color: var(--text); box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.1), inset 0 -3px 0 rgba(0, 0, 0, 0.45); font: 500 0.95rem/1 var(--f-sans); letter-spacing: -0.01em; transition: box-shadow 0.15s var(--ease), transform 0.12s var(--ease); }
+  .hp:hover { box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.36), inset 0 -3px 0 rgba(0, 0, 0, 0.45); }
+  .hp:active { transform: translateY(2px); box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.45); }
   .hd-mark { justify-self: start; font-weight: 600; }
   .hd-end { justify-self: end; display: flex; gap: 0.5rem; align-items: center; }
-  .hd-book { min-height: 2.75rem; padding: 0.55rem 1.1rem; font-size: 0.95rem; }
+  .hd-book { min-height: 2.75rem; padding: 0.55rem 1.1rem 0.62rem; font-size: 0.95rem; }
   .hd-lg { display: none; }
   @media (min-width: 760px) { .hd-lg { display: inline; } .hd-sm { display: none; } }
   @media (max-width: 420px) { .hd-lang { display: none; } }

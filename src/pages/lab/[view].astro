@@ -16,8 +16,9 @@ const q = new URLSearchParams(location.search);
 const a = Number(q.get('a') ?? 0);
 const st = { a, b: Number(q.get('b') ?? a), t: Number(q.get('t') ?? 0), local: Number(q.get('l') ?? 0.5) };
 createFilm(document.getElementById('c') as HTMLCanvasElement, { tier: (q.get('tier') as Tier) ?? 'high', reduced: false, still: st, supersample: q.has('ss') })
-  .then(() => {
-    const w = window as unknown as { __ready: boolean; __png?: string };
+  .then((film) => {
+    const w = window as unknown as { __ready: boolean; __png?: string; __api: unknown };
+    w.__api = film;
     // supersampled stills are read straight off the canvas, before the frame is presented
     if (q.has('ss')) w.__png = (document.getElementById('c') as HTMLCanvasElement).toDataURL('image/png');
     w.__ready = true;

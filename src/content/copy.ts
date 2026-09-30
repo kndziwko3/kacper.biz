@@ -53,6 +53,8 @@ const pl = {
     },
     op: {
       h2: 'OutreachPilot.pl: wpisujesz branżę i miasto, odpowiedzi czytasz w swojej skrzynce.',
+      typedSr: 'Przykładowe powitanie z poprawnym wołaczem: Dzień dobry, Panie Tomaszu.',
+      typedGloss: 'Pan Tomasz w wołaczu. Imiona i miasta AI odmienia sama.',
       beats: [
         ['Lista firm', 'Google Maps, PKT.pl, OpenStreetMap i CEIDG przeszukiwane na żywo. Filtr „bez www” zostawia firmy bez strony.'],
         ['Mail po polsku', 'AI pisze trzy maile z poprawną odmianą imion i miast. Nie dopisuje faktów spoza Twojej oferty.'],
@@ -466,6 +468,8 @@ const en: Copy = {
     },
     op: {
       h2: 'OutreachPilot.pl: type a sector and a city, read the replies in your own inbox.',
+      typedSr: 'A sample greeting in correct Polish, with the name in the vocative: Dzień dobry, Panie Tomaszu (Good morning, Mr Tomasz).',
+      typedGloss: 'Tomasz in the Polish vocative. The AI declines names and cities itself.',
       beats: [
         ['A list of companies', 'Google Maps, PKT.pl, OpenStreetMap and CEIDG searched live. The “no website” filter keeps only companies without a site.'],
         ['Emails in Polish', 'The AI writes three emails with names and cities declined correctly, and adds no facts beyond your offer.'],

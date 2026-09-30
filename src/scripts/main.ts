@@ -20,7 +20,7 @@ let film: Film | null = null;
 let filmState: 'idle' | 'starting' | 'live' | 'off' = 'idle';
 let cleanups: Cleanup[] = [];
 
-/* ── chapter rail: lights the chapter whose track holds the viewport centre ── */
+/* ── chapter rail: a chapter lights as soon as its headline is on screen (a line 70% down the viewport) ── */
 function rail(): Cleanup {
   const nav = document.querySelector<HTMLElement>('[data-rail]');
   if (!nav) return () => undefined;
@@ -28,16 +28,31 @@ function rail(): Cleanup {
   const set = (id: string) => links.forEach((a, k) => { if (k === id) a.setAttribute('aria-current', 'step'); else a.removeAttribute('aria-current'); });
   const io = new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting && links.has(e.target.id)) set(e.target.id);
-  }, { rootMargin: '-50% 0px -50% 0px' });
+  }, { rootMargin: '-70% 0px -29% 0px' });
   document.querySelectorAll<HTMLElement>('[data-ch]').forEach((ch) => io.observe(ch));
   // the rail belongs to the film: it steps aside while a sheet or the footer passes under it
   const under = new Set<Element>();
   const io2 = new IntersectionObserver((entries) => {
     for (const e of entries) { if (e.isIntersecting) under.add(e.target); else under.delete(e.target); }
     root.classList.toggle('rail-hide', under.size > 0);
-  }, { rootMargin: '-88% 0px 0px 0px' });
+  }, { rootMargin: '-94% 0px 0px 0px' });
   document.querySelectorAll('[data-sheet], footer').forEach((el) => io2.observe(el));
   return () => { io.disconnect(); io2.disconnect(); root.classList.remove('rail-hide'); };
+}
+
+/* ── the greeting the board types in the OutreachPilot chapter follows the keys ── */
+function typedLine(): Cleanup {
+  const line = document.querySelector<HTMLElement>('[data-typed-line]');
+  const text = line?.querySelector<HTMLElement>('[data-typed-text]');
+  if (!line || !text) return () => undefined;
+  const full = text.textContent ?? '';
+  const on = (e: Event) => {
+    const n = (e as CustomEvent<number>).detail;
+    text.textContent = full.slice(0, Math.min(n, full.length));
+    line.classList.toggle('is-sent', n > full.length);
+  };
+  window.addEventListener('film:typed', on);
+  return () => { window.removeEventListener('film:typed', on); text.textContent = full; line.classList.remove('is-sent'); };
 }
 
 /* ── header ground: the band under the pills turns to paper while a light sheet runs beneath it ── */
@@ -175,6 +190,7 @@ function onPage(): void {
   initLeadForms();
   cleanups.push(
     rail(),
+    typedLine(),
     headerGround(),
     menu(),
     initRegistry(reduced),

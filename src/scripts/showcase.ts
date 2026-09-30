@@ -1,4 +1,7 @@
-/** Proof frames: each capture slides up inside its frame while the frame crosses the viewport (scroll-linked). */
+/**
+ * Proof frames: each capture slides up inside its frame while the frame crosses the viewport (scroll-linked). The tour
+ * starts only once the frame's top has passed 55% of the viewport, so every frame first shows the top of its page.
+ */
 export function initShowcase(reduced = false): () => void {
   const frames = Array.from(document.querySelectorAll<HTMLElement>('[data-tour]'));
   if (!frames.length || reduced) return () => undefined;
@@ -11,7 +14,7 @@ export function initShowcase(reduced = false): () => void {
       const img = f.querySelector('img');
       if (!img) return;
       const r = f.getBoundingClientRect();
-      const p = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
+      const p = Math.min(1, Math.max(0, (vh * 0.55 - r.top) / (vh * 0.55 + r.height)));
       const travel = Math.max(0, img.getBoundingClientRect().height - r.height);
       img.style.transform = `translate3d(0, ${(-travel * p).toFixed(1)}px, 0)`;
     });

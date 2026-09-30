@@ -24,22 +24,20 @@ export function studioEnvironment(renderer: WebGLRenderer): Texture {
     env.add(m);
     return m;
   };
+  // a wide softbox low behind the object: every face that tips toward the camera (the cap tops, the copper) mirrors it
+  card(18, 5.5, 1.35, '#fbf6f0', -1, 3.2, -11, [0, 1.2, 0]);
   // overhead softbox, slightly warm
-  card(10, 6, 1.6, '#fff1e2', 0, 9, 1, [0, 0, 0]);
+  card(9, 7, 1.1, '#fbf5ee', 0, 10, -1, [0, 0, 0]);
   // big diffusion scrim on the camera side: faces turned toward the viewer read as soft, light metal
-  card(14, 8, 0.28, '#f6eee6', 2, 3.5, 11, [0, 1.5, 0]);
-  // tall strip, key side (front left): the long highlight that runs down every chamfer
-  card(1.1, 11, 6, '#ffe9d4', -7, 3, 5.5, [0, 1.5, 0]);
+  card(14, 6, 0.22, '#f6eee6', 2, 3, 11, [0, 1.2, 0]);
+  // tall strip, key side (front left): the long highlight that runs along the case rim and chamfers
+  card(1.0, 11, 6, '#fdf1e6', -7.5, 3, 5, [0, 1.2, 0]);
   // thin rim strip, back right: separates the silhouette from the dark
-  card(0.45, 10, 8, '#f4f1ec', 7.5, 3.5, -5.5, [0, 1.5, 0]);
-  // second strip, right front, lower: a cool-neutral kicker for the plate faces
-  card(1.2, 7, 3.2, '#efeee9', 7, 3, 7, [0, 1.5, 0]);
-  // softbox on the right: the page and the drawer faces pick it up
-  card(3, 6, 0.55, '#f6efe6', 9, 3, 0, [0, 1.5, 0]);
-  // a narrow hard strip beside it: on the broad aluminium faces it reads as the crisp band that says polished metal
-  card(1.1, 9, 7, '#fbf6ef', 9, 3.2, 1.7, [0, 1.5, 0]);
-  // a hard strip behind right: the side face of the opening monolith catches it as one clean band
-  card(0.8, 9, 6, '#fbf6ef', 3.4, 3.2, -9, [0, 1.5, 0]);
+  card(0.45, 10, 8, '#f4f1ec', 7.5, 3.5, -5.5, [0, 1.2, 0]);
+  // hard strip, right front: the crisp band on the case front and the copper faces
+  card(1.1, 8, 5, '#fbf6ef', 8.5, 2.6, 4.5, [0, 1.2, 0]);
+  // a narrow horizontal strip above the camera: one bright line along every front chamfer
+  card(12, 0.35, 7, '#fff6ec', 1, 7.5, 8, [0, 1.2, 0]);
   // dark grey studio walls all round, so no metal face ever reads as a hole
   const walls = new Mesh(new CylinderGeometry(15, 15, 7, 32, 1, true), new MeshBasicMaterial({ color: new Color('#b8b0a6').multiplyScalar(0.09), side: BackSide }));
   walls.position.y = 2.5;
@@ -92,7 +90,7 @@ export function buildStudio(scene: Scene, shadows: boolean, shadowSize: number):
   };
   scene.add(pool);
 
-  const key = new SpotLight('#ffe2c4', 62, 30, 0.42, 0.85, 1.6);
+  const key = new SpotLight('#fff5ec', 62, 30, 0.42, 0.85, 1.6);
   key.position.set(-4.5, 8.5, 5.5);
   key.target = new Object3D();
   key.target.position.set(0, 1.2, 0);
@@ -106,14 +104,6 @@ export function buildStudio(scene: Scene, shadows: boolean, shadowSize: number):
     key.shadow.camera.near = 4;
     key.shadow.camera.far = 22;
   }
-
-  // a low copper spill from the front left: it rakes the floor and warms the foot of the object, so the dark field
-  // reads as a lit studio rather than a void
-  const spill = new SpotLight('#ff9a5c', 30, 18, 0.62, 1, 1.4);
-  spill.position.set(-6.5, 0.9, 4.5);
-  spill.target = new Object3D();
-  spill.target.position.set(0.5, 0.2, -0.5);
-  scene.add(spill, spill.target);
 
   const rim = new DirectionalLight('#f3efe8', 1.4);
   rim.position.set(6, 5, -7);

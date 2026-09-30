@@ -49,7 +49,7 @@ const m = b.chat;
 <style>
   .bt { row-gap: 3.5rem; align-items: start; }
   .bt-text { display: grid; gap: 1.5rem; justify-items: start; align-content: start; }
-  .bt-time { font: 500 clamp(5.5rem, 2rem + 13vw, 15rem)/0.8 var(--f-display); letter-spacing: -0.055em; color: var(--copper-hi); margin-bottom: 1rem; }
+  .bt-time { font: 500 clamp(4.5rem, 1.8rem + 10vw, 11.5rem)/0.8 var(--f-display); letter-spacing: -0.04em; color: var(--copper-hi); margin-bottom: 1rem; }
   .bt-price { max-width: 44ch; padding-top: 1.25rem; border-top: 1px solid var(--line-d); color: var(--text); }
   @media (min-width: 960px) {
     .bt-text { grid-column: 1 / 7; }
@@ -70,7 +70,7 @@ const m = b.chat;
   .msg--me { justify-self: end; background: var(--ink); color: var(--paper); border-bottom-right-radius: 0.35rem; }
   .msg--bot { justify-self: start; background: var(--paper-2); border-bottom-left-radius: 0.35rem; }
   .chips { justify-self: start; display: flex; flex-wrap: wrap; gap: 0.35rem; }
-  .chip { padding: 0.4rem 0.8rem; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line-p); font-size: 0.875rem; }
+  .chip { padding: 0.4rem 0.8rem; border-radius: calc(var(--cap-r) - 0.15rem); box-shadow: inset 0 0 0 1px var(--line-p); font-size: 0.875rem; }
   .chip.is-picked { background: var(--copper); color: var(--ink); box-shadow: none; }
   .msg-done { justify-self: center; display: inline-flex; align-items: center; gap: 0.45rem; font-size: var(--t-small); margin-top: 0.5rem; }
   .msg-done svg { width: 16px; height: 16px; color: var(--copper-ink); }
