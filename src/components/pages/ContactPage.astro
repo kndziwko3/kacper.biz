@@ -13,7 +13,7 @@ const path = isPl ? '/kontakt' : '/en/contact';
 const home = isPl ? '/' : '/en';
 ---
 <Base lang={lang} path={path} title={k.title} description={k.description} kind="contact"
-  breadcrumbs={[{ name: c.ui.home, path: home }, { name: k.crumb, path }]} ogImage={isPl ? '/og/contact.png' : '/og/contact-en.png'} still="p4">
-  <PageHead lang={lang} crumb={k.crumb} h1={k.h1} lead={k.lead} pose={4} short guide={c.film.chapters[4]} />
+  breadcrumbs={[{ name: c.ui.home, path: home }, { name: k.crumb, path }]} ogImage={isPl ? '/og/contact.png' : '/og/contact-en.png'} still="p0">
+  <PageHead lang={lang} crumb={k.crumb} h1={k.h1} lead={k.lead} pose={0} short guide={c.film.chapters[4]} />
   <ContactSheet lang={lang} heading={false} idPrefix="contact" />
 </Base>
