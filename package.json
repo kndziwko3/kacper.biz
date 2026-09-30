@@ -10,7 +10,8 @@
     "check": "astro check",
     "fonts": "python3 scripts/subset-fonts.py",
     "stills": "node scripts/stills.mjs",
-    "og": "node scripts/og.mjs"
+    "og": "node scripts/og.mjs",
+    "provenance": "node scripts/provenance.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

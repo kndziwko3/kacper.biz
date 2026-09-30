@@ -1,395 +1,439 @@
 ---
 name: kacper.biz
-description: "A printed business directory: Kacper Rękawek has an entry, his two products are the display ads, and the directory's own furniture is the interface."
+description: "A dark product studio with one real object in it: a machined 96% keyboard of 100 keys, three of them copper, taken apart by the scroll while cream evidence sheets carry the facts."
 colors:
-  directory-yellow: "#f7d117"
-  spot-red: "#e1251b"
-  spot-red-deep: "#b3170f"
-  ink: "#000000"
-  white-pages: "#f6f5f1"
-  reversed-black: "#000000"
-  knockout-white: "#ffffff"
+  copper: "#c8703f"
+  copper-hi: "#e39463"
+  copper-ink: "#974719"
+  studio: "#0e0c0a"
+  graphite: "#191613"
+  cap-graphite: "#1c1916"
+  text: "#ede6da"
+  text-2: "#a8a092"
+  paper: "#ede7dc"
+  paper-2: "#e3dccf"
+  field: "#f6f2ea"
+  ink: "#15120f"
+  ink-2: "#5b5349"
+  placeholder: "#6e655a"
+  error: "#a3341c"
+  error-ink: "#9c2f15"
+  error-wash: "#f8ede6"
+  pbt-cream: "#e7dfd0"
+  pbt-graphite: "#35312d"
+  case-graphite: "#2d2a27"
+  plate-aluminium: "#c4c0b9"
 typography:
-  display:
-    fontFamily: "Archivo, 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif"
-    fontSize: "clamp(3.4rem, 1.6rem + 5.4vw, 6rem)"
-    fontWeight: 900
+  name:
+    fontFamily: "'Funnel Display', 'Display Fallback', system-ui, sans-serif"
+    fontSize: "clamp(4.2rem, 1.2rem + 11.2vw, 13.5rem)"
+    fontWeight: 500
     lineHeight: 0.84
-    letterSpacing: "-0.004em"
-    fontFeature: "'lnum', 'tnum'"
-    fontVariation: "'wdth' 62"
-  category:
-    fontFamily: "Archivo, 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif"
-    fontSize: "clamp(2.6rem, 1.5rem + 4vw, 5.2rem)"
-    fontWeight: 900
-    lineHeight: 0.86
-    letterSpacing: "-0.004em"
-    fontFeature: "'lnum', 'tnum'"
-    fontVariation: "'wdth' 62"
-  ad-headline:
-    fontFamily: "Archivo, 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif"
-    fontSize: "clamp(1.9rem, 1.2rem + 2vw, 3rem)"
-    fontWeight: 900
-    lineHeight: 0.88
-    letterSpacing: "-0.003em"
-    fontFeature: "'lnum', 'tnum'"
-    fontVariation: "'wdth' 62"
-  statement:
-    fontFamily: "Archivo, 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif"
-    fontSize: "clamp(1.9rem, 1.2rem + 2.3vw, 3.35rem)"
-    fontWeight: 800
+    letterSpacing: "-0.04em"
+  display:
+    fontFamily: "'Funnel Display', 'Display Fallback', system-ui, sans-serif"
+    fontSize: "clamp(2.35rem, 1.1rem + 4.3vw, 5.6rem)"
+    fontWeight: 500
     lineHeight: 0.98
-    letterSpacing: "-0.014em"
-    fontFeature: "'lnum', 'tnum'"
-    fontVariation: "'wdth' 72"
-  head:
-    fontFamily: "Archivo, 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif"
-    fontSize: "clamp(1.2rem, 1.05rem + 0.6vw, 1.6rem)"
-    fontWeight: 800
-    lineHeight: 1.08
-    letterSpacing: "-0.006em"
-    fontFeature: "'lnum', 'tnum'"
-    fontVariation: "'wdth' 75"
+    letterSpacing: "-0.035em"
+  headline:
+    fontFamily: "'Funnel Display', 'Display Fallback', system-ui, sans-serif"
+    fontSize: "clamp(1.9rem, 1.2rem + 2.4vw, 3.4rem)"
+    fontWeight: 500
+    lineHeight: 1.02
+    letterSpacing: "-0.03em"
+  title:
+    fontFamily: "'Funnel Display', 'Display Fallback', system-ui, sans-serif"
+    fontSize: "clamp(1.25rem, 1.1rem + 0.5vw, 1.6rem)"
+    fontWeight: 500
+    lineHeight: 1.2
+    letterSpacing: "-0.015em"
+  numeral:
+    fontFamily: "'Funnel Display', 'Display Fallback', system-ui, sans-serif"
+    fontSize: "2.4rem"
+    fontWeight: 500
+    lineHeight: 0.9
+    letterSpacing: "-0.04em"
   lead:
-    fontFamily: "Archivo, 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif"
-    fontSize: "clamp(1.14rem, 1rem + 0.55vw, 1.42rem)"
+    fontFamily: "'Funnel Sans', 'Sans Fallback', system-ui, sans-serif"
+    fontSize: "clamp(1.12rem, 1rem + 0.45vw, 1.38rem)"
     fontWeight: 400
-    lineHeight: 1.38
-    letterSpacing: "normal"
-    fontFeature: "'lnum', 'tnum'"
-    fontVariation: "'wdth' 100"
+    lineHeight: 1.45
+    letterSpacing: "-0.005em"
   body:
-    fontFamily: "Archivo, 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif"
-    fontSize: "clamp(1rem, 0.97rem + 0.15vw, 1.0625rem)"
+    fontFamily: "'Funnel Sans', 'Sans Fallback', system-ui, sans-serif"
+    fontSize: "1.0625rem"
+    fontWeight: 400
+    lineHeight: 1.55
+    letterSpacing: "normal"
+    fontFeature: "'lnum'"
+  small:
+    fontFamily: "'Funnel Sans', 'Sans Fallback', system-ui, sans-serif"
+    fontSize: "0.9375rem"
     fontWeight: 400
     lineHeight: 1.5
     letterSpacing: "normal"
-    fontFeature: "'lnum', 'tnum'"
-    fontVariation: "'wdth' 100"
-  listing:
-    fontFamily: "Archivo, 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 750
-    lineHeight: 1.2
-    letterSpacing: "0.018em"
-    fontFeature: "'lnum', 'tnum'"
-    fontVariation: "'wdth' 75"
-  slip:
-    fontFamily: "Archivo, 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif"
-    fontSize: "0.95rem"
-    fontWeight: 800
-    lineHeight: 1.05
-    letterSpacing: "0.02em"
-    fontFeature: "'lnum', 'tnum'"
-    fontVariation: "'wdth' 75"
-  micro:
-    fontFamily: "Archivo, 'Archivo Fallback', 'Arial Narrow', Arial, sans-serif"
-    fontSize: "0.78rem"
+  source:
+    fontFamily: "'Funnel Sans', 'Sans Fallback', system-ui, sans-serif"
+    fontSize: "0.8125rem"
     fontWeight: 400
-    lineHeight: 1.45
+    lineHeight: 1.55
     letterSpacing: "normal"
-    fontFeature: "'lnum', 'tnum'"
-    fontVariation: "'wdth' 90"
+  button:
+    fontFamily: "'Funnel Sans', 'Sans Fallback', system-ui, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 500
+    lineHeight: 1
+    letterSpacing: "-0.005em"
+  key:
+    fontFamily: "'Funnel Sans', 'Sans Fallback', system-ui, sans-serif"
+    fontSize: "0.95rem"
+    fontWeight: 500
+    lineHeight: 1
+    letterSpacing: "-0.01em"
+  label:
+    fontFamily: "'Martian Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace"
+    fontSize: "0.75rem"
+    fontWeight: 500
+    lineHeight: 1.35
+    letterSpacing: "0.01em"
+    fontVariation: "'wdth' 87.5"
 rounded:
-  none: "0px"
+  focus: "2px"
+  cap-inner: "0.5rem"
+  cap: "0.6rem"
+  tray: "0.9rem"
+  panel: "1rem"
+  bubble: "1.1rem"
+  circle: "50%"
 spacing:
-  gutter: "clamp(1rem, 3.4vw, 3.25rem)"
-  column-gap: "clamp(0.9rem, 1.8vw, 1.6rem)"
-  section: "clamp(4rem, 10vh, 7rem)"
-  running-head: "52px"
-  thumb-tab: "44px"
-  page-max: "1480px"
+  gutter: "clamp(1rem, 0.4rem + 2.6vw, 3rem)"
+  col-gap: "clamp(1rem, 0.5rem + 1.6vw, 2rem)"
+  page-max: "104rem"
+  head: "4.25rem"
+  key-target: "2.75rem"
+  row: "1rem"
+  sec-head: "clamp(2.5rem, 6vh, 4rem)"
+  sheet-block: "clamp(4.5rem, 11vh, 8.5rem)"
+  block: "clamp(5rem, 13vh, 9rem)"
+  measure: "62ch"
 components:
-  running-head:
-    backgroundColor: "{colors.directory-yellow}"
+  key-copper:
+    backgroundColor: "{colors.copper}"
     textColor: "{colors.ink}"
-    height: "{spacing.running-head}"
-  thumb-tab:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.directory-yellow}"
-    width: "{spacing.thumb-tab}"
-    height: "7.4rem"
-  thumb-tab-current:
-    backgroundColor: "{colors.spot-red}"
-    textColor: "{colors.knockout-white}"
-  button-slip:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.directory-yellow}"
-    typography: "{typography.slip}"
-    rounded: "{rounded.none}"
-    padding: "0.7rem 1.15rem"
-    height: "48px"
-  button-slip-hover:
-    backgroundColor: "{colors.spot-red}"
-    textColor: "{colors.knockout-white}"
-  button-slip-line:
+    typography: "{typography.button}"
+    rounded: "{rounded.cap}"
+    padding: "0.8rem 1.35rem"
+    height: "3rem"
+  key-copper-hover:
+    backgroundColor: "{colors.copper-hi}"
+    textColor: "{colors.ink}"
+  key-ghost:
+    backgroundColor: "transparent"
+    textColor: "{colors.text}"
+    typography: "{typography.button}"
+    rounded: "{rounded.cap}"
+    padding: "0.8rem 1.35rem"
+    height: "3rem"
+  key-ghost-paper:
     backgroundColor: "transparent"
     textColor: "{colors.ink}"
-    typography: "{typography.slip}"
-    rounded: "{rounded.none}"
-    padding: "0.7rem 1.15rem"
-    height: "48px"
-  button-slip-line-hover:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.directory-yellow}"
-  button-slip-reversed:
-    backgroundColor: "{colors.directory-yellow}"
-    textColor: "{colors.reversed-black}"
-    typography: "{typography.slip}"
-    rounded: "{rounded.none}"
-    padding: "0.7rem 1.15rem"
-    height: "48px"
-  button-slip-reversed-hover:
-    backgroundColor: "{colors.spot-red}"
-    textColor: "{colors.knockout-white}"
-  button-slip-head:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.directory-yellow}"
-    rounded: "{rounded.none}"
-    padding: "0.4rem 0.7rem"
-    height: "40px"
-  display-ad:
-    backgroundColor: "{colors.directory-yellow}"
+  header-key:
+    backgroundColor: "{colors.cap-graphite}"
+    textColor: "{colors.text}"
+    typography: "{typography.key}"
+    rounded: "{rounded.cap}"
+    padding: "0.55rem 1.05rem 0.62rem"
+    height: "{spacing.key-target}"
+  header-key-book:
+    backgroundColor: "{colors.copper}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.none}"
-    padding: "clamp(1rem, 1.8vw, 1.5rem)"
-  display-ad-reversed:
-    backgroundColor: "{colors.reversed-black}"
-    textColor: "{colors.directory-yellow}"
-    rounded: "{rounded.none}"
-    padding: "clamp(1rem, 1.8vw, 1.5rem)"
-  display-ad-white:
-    backgroundColor: "{colors.white-pages}"
+    typography: "{typography.key}"
+    rounded: "{rounded.cap}"
+    padding: "0.55rem 1.1rem 0.62rem"
+    height: "{spacing.key-target}"
+  rail:
+    backgroundColor: "{colors.studio}"
+    rounded: "{rounded.tray}"
+    padding: "0.3rem"
+  rail-key:
+    backgroundColor: "transparent"
+    textColor: "{colors.text-2}"
+    typography: "{typography.label}"
+    rounded: "{rounded.cap}"
+    padding: "0.35rem 0.85rem"
+    height: "2.25rem"
+  rail-key-current:
+    backgroundColor: "{colors.copper}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.none}"
-    padding: "clamp(1rem, 1.8vw, 1.5rem)"
-  price-sticker:
-    backgroundColor: "{colors.spot-red}"
-    textColor: "{colors.knockout-white}"
-    rounded: "{rounded.none}"
-    padding: "0.3rem 0.55rem 0.28rem"
-  sheet-bar:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.directory-yellow}"
-    padding: "0.45rem 0.9rem"
-  coupon-field:
-    backgroundColor: "{colors.knockout-white}"
+  rail-key-mini:
+    backgroundColor: "{colors.cap-graphite}"
+    textColor: "{colors.text-2}"
+    typography: "{typography.label}"
+    rounded: "{rounded.cap}"
+    width: "{spacing.key-target}"
+    height: "{spacing.key-target}"
+  sheet:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    padding: "clamp(4.5rem, 11vh, 8.5rem) clamp(1rem, 0.4rem + 2.6vw, 3rem)"
+  sheet-dark:
+    backgroundColor: "{colors.graphite}"
+    textColor: "{colors.text}"
+  readout-card:
+    backgroundColor: "{colors.graphite}"
+    textColor: "{colors.text}"
+    rounded: "{rounded.panel}"
+    padding: "clamp(1.4rem, 2.6vw, 2.25rem)"
+  form-panel:
+    backgroundColor: "{colors.field}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.panel}"
+    padding: "clamp(1.4rem, 3vw, 2.5rem)"
+  work-frame:
+    backgroundColor: "{colors.paper-2}"
+    rounded: "{rounded.panel}"
+  input:
+    backgroundColor: "{colors.field}"
     textColor: "{colors.ink}"
     typography: "{typography.body}"
-    rounded: "{rounded.none}"
-    padding: "0.75rem 0.85rem"
-    height: "50px"
-  choice-chip:
-    backgroundColor: "{colors.knockout-white}"
+    rounded: "{rounded.cap}"
+    padding: "0.85rem 1rem"
+    height: "3.25rem"
+  input-invalid:
+    backgroundColor: "{colors.error-wash}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.none}"
-    padding: "0.45rem 0.8rem"
-    height: "44px"
-  choice-chip-selected:
+  chip:
+    backgroundColor: "{colors.field}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.cap-inner}"
+    padding: "0.5rem 1rem"
+    height: "{spacing.key-target}"
+  chip-selected:
     backgroundColor: "{colors.ink}"
-    textColor: "{colors.directory-yellow}"
-  city-tab:
-    backgroundColor: "{colors.directory-yellow}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.none}"
-    padding: "0.3rem 0.65rem"
-    height: "40px"
-  city-tab-selected:
-    backgroundColor: "{colors.spot-red}"
-    textColor: "{colors.knockout-white}"
+    textColor: "{colors.paper}"
   index-row-selected:
     backgroundColor: "{colors.ink}"
-    textColor: "{colors.directory-yellow}"
+    textColor: "{colors.paper}"
+    rounded: "{rounded.cap-inner}"
+    padding: "0.62rem 0.75rem"
+  chat-card:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.panel}"
+  chat-bubble-visitor:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.paper}"
+    rounded: "{rounded.bubble}"
+    padding: "0.7rem 0.95rem"
+  chat-bubble-bot:
+    backgroundColor: "{colors.paper-2}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.bubble}"
+    padding: "0.7rem 0.95rem"
 ---
 
 # Design System: kacper.biz
 
 ## Overview
 
-**Creative North Star: "The Printed Business Directory"**
+**Creative North Star: "The Product Studio"**
 
-kacper.biz is set as the book OutreachPilot reads companies from. Kacper Rękawek has an entry, OutreachPilot.pl and FastLanding.io are display ads billed by size, and the directory's own furniture carries the interface: a running head with guide words, thumb-index tabs cut into the fore-edge, leader dots, category heads, a rate card, an order coupon and a colophon on the back cover. Every surface is a printed sheet on one of three paper stocks, in black ink plus one red spot ink.
+kacper.biz is shot like a product: a warm studio-black set with one real object in it, a machined 96% keyboard of exactly 100 keys, three of them solid copper (Esc, K, Enter). Scrolling moves the camera and the board changes pose chapter by chapter; between chapters, flat cream evidence sheets slide over the film and carry the facts. The page's own controls are keys from the same board: the same corner, a darker skirt edge, 2px of travel under the finger.
 
-Density follows a real directory page: small listing caps, dotted leaders, tabular figures and hairline rules, broken by large condensed black caps for names, departments and counts. One family, Archivo, speaks in four widths. Motion behaves like a press: ad plates print in from the top, leader dots are laid down row by row, counters roll with damping, tabs slide out of the fore-edge and pages turn from the fore-edge. Nothing on the page emits light.
+Density is low on the film and high on the sheets. A film chapter holds one statement: the name or a headline in Funnel Display, a line of Funnel Sans, at most one key. The sheets carry the evidence in rows with hairlines, tabular figures, source lines and forms. Martian Mono appears only where the board itself would print: short labels, counts, dates, the chapter rail and the legends on the caps.
 
-Behind the opaque sheets sits one WebGL map of Poland printed as an ordered halftone screen, visible only through transparent window sections. Without a GPU, WebGL or JavaScript an SVG poster of the same map stands in, and the page stays complete and readable on a phone in daylight (PRODUCT.md). Two directions were refused in the surface brief: the incumbent dark page with a glowing 3D map, a giant name and one neon accent, and its opposite, a white editorial page with a serif display and a portrait.
+Motion is machined, weighted and damped. The object moves between chapters, the type holds still, and each chapter headline gets one line-mask reveal. Without a GPU, WebGL or JavaScript every stage shows a pre-rendered still of the same pose, and the page stays complete. Refused in the direction: an abstract sculpture, a floating blob, particles, a glowing globe; loud palettes (yellow, red, black) and printed or paper-textured looks.
 
 **Key Characteristics:**
-- Three stocks (directory yellow, white pages, reversed black), black ink, one red spot ink.
-- Archivo only, hierarchy by width: 62% display, 72% statement, 75% listing, 100% reading.
-- Leader lines, rules in four weights (8, 3, 2 and 1 px), square bullets, zero radius, no elevation.
-- Display ads whose area encodes importance, signed at the foot, with the price on a red sticker.
-- Order-slip buttons that ink red on hover and print a red plate out of register on press.
-- A printed halftone map behind window sections, with an SVG poster as the fallback.
-- Tabular lining figures everywhere; numbers roll with damping and never jump.
+- Two grounds only: studio black for the film and its chrome, cream paper for the evidence sheets.
+- One hue: copper, in three tempers (key face, lit on dark, ink on paper).
+- Every control is a keycap: 0.6rem corner, 3px skirt, 2px press travel.
+- One object, one canvas: a fixed WebGL film behind the page, stills in its place when it cannot run.
+- A monumental name in Funnel Display; Funnel Sans for reading; Martian Mono for data only.
+- Flat, opaque sheets with hairline rows; depth belongs to the film and the keys.
 
 ## Colors
 
-Three paper stocks, black ink and a single red spot ink; every other tone on the page is ink mixed into its own stock. Tokens live on `:root` in `src/styles/global.css` (`--yellow`, `--white`, `--black`, `--ink`, `--red`, `--red-deep`).
+Warm near-neutrals on two grounds, with copper as the only hue.
 
 ### Primary
-- **Directory Yellow** (#f7d117): the business-page stock and the page ground (`html`, `body`, running head, Spis menu, Kacper's entry, the index of sectors, the OutreachPilot sheets, the contact page, the closing FastLanding ad). On reversed black it becomes the ink: headlines, links, rules and order slips print yellow on black (14.09:1). Text selection on yellow reverses to ink with yellow type.
-
-### Secondary
-- **Spot Red** (#e1251b): the one spot ink. As a fill it carries prices (the sticker), the current thumb tab, the selected city tab, the three "www" marks on the 3-in-100 sheet, the "interested" reply tag and every order slip on hover, always with Knockout White type (4.69:1). As a line it prints the misregistered plate on press, the text caret, the 16px leader of the map callout and the underline of a hovered link. On the map it marks Gliwice, the picked city's ink spread and ring, and returning replies. On yellow it reaches 3.14:1, so as type it appears only at display sizes (the current Spis entry, a hovered product name on the work page).
-- **Spot Red Deep** (#b3170f): the same spot pulled darker for red type at reading sizes: required-field asterisks, form errors and invalid borders, the active step number, the sector count on the index result page, the count in the map callout, the "www" rows on white pages and the check marks in the proof panel and chat (6.32:1 on white pages, 4.62:1 on yellow).
+- **Copper** (#C8703F): the face of the primary key (ink text on it, 5.19:1), the current key on the chapter rail, a picked FastBot reply, text selection, the input caret, the copper pads on the film's PCB. The three copper caps on the board are the same metal, rendered from its measured reflectance (see Board Materials).
+- **Lit Copper** (#E39463): copper as type or line on dark grounds: the focus ring, the big counts on the readout card, the FastBot clock, the typed caret, a hovered or current menu item, step numerals on the graphite sheet, primary key hover (8.07:1 on studio).
+- **Copper Ink** (#974719): copper as type on paper: step numerals, the required-field mark, the focus ring inside a sheet, link underline on hover (5.28:1 on paper).
 
 ### Neutral
-- **Ink** (#000000): all type, rules, frames, leader dots, square bullets, the solid order slip, the sheet bars (an ink strip with yellow caps) and the halftone map. Focus outlines draw in the current foreground (3px solid, 3px offset).
-- **White Pages** (#f6f5f1): the stock for the personal and reading parts (the 3-in-100 sheet, FastLanding, questions, About, Work, Privacy) and for inner sheets set on yellow or black: the index result page, the OutreachPilot proof panel, the order coupon and the FastBot chat.
-- **Reversed Black** (#000000): the reversed stock for FastBot at night, the colophon on the back cover and the OutreachPilot display ads. The foreground flips to Directory Yellow; the black stock class also declares `color-scheme: dark`.
-- **Knockout White** (#ffffff): type reversed out of red, and the paper of form fields, choice chips, the bot's chat bubbles and the screenshot frames on the work and FastLanding sheets.
-- **Derived inks**: each stock recomputes `--fg-2` (foreground at 76% over the stock) and `--fg-3` (62%) with `color-mix(in srgb, ...)` on the stock element itself. They resolve to #3b3206 and #5e4f09 on yellow, #3b3b3a and #5d5d5c on white pages, #bc9f11 and #99820e on black; the lightest (`--fg-3` on yellow) holds 5.42:1.
+- **Studio Black** (#0E0C0A): the page ground, the film's lifted black level, the header band, the rail tray, the menu, the footer, the shade behind chapter copy. Also the theme colour.
+- **Graphite** (#191613): the dark sheet (FastBot) and the readout card on the index sheet.
+- **Graphite Keycap** (#1C1916): the face of every dark key (header keys, the phone rail's letter keys) and the studio backdrop in the film.
+- **Warm Light** (#EDE6DA): text on dark. Its 14% alpha is the dark hairline (`--line-d`).
+- **Dim Stone** (#A8A092): secondary text on dark: leads, source lines, rail keys at rest (7.54:1 on studio).
+- **Cream Paper** (#EDE7DC): the evidence sheets and the paper band behind the header when a sheet is under it.
+- **Second Stock** (#E3DCCF): hover on index rows, the bot's chat bubble, the ground inside screenshot frames.
+- **Field Cream** (#F6F2EA): inputs, choice chips, the contact form panel.
+- **Ink** (#15120F): text on paper, selected chips and index rows, avatar discs. Its 16% alpha is the paper hairline (`--line-p`); 28% outlines inputs and chips.
+- **Worn Ink** (#5B5349): secondary text on paper: leads, captions, field labels (6.14:1 on paper).
+- **Placeholder Ink** (#6E655A): input placeholders only (5.12:1 on the field).
+
+### State
+- **Error Rust** (#A3341C): the border or outline of an invalid field or choice group.
+- **Error Ink** (#9C2F15): error messages and the failed form status (6.03:1 on paper).
+- **Error Wash** (#F8EDE6): the background of an invalid field.
+
+### Board Materials (the film)
+- **Cream PBT** (#E7DFD0): the alpha caps; in the 10 x 10 grid every PBT cap turns this one blank cream. The sheets are the same cream, so the board and the page share their stock.
+- **Graphite PBT** (#35312D): the modifier caps.
+- **Anodised Graphite** (#2D2A27): the CNC case, metallic, with a diamond-cut chamfer that shows bare polished aluminium as one bright line round the rim.
+- **Brushed Aluminium** (#C4C0B9): the switch plate, one cut-out per key.
+- Copper on the board is rendered from its measured linear reflectance (0.93, 0.44, 0.22), not from the swatch, so it reads as metal and not as resin; a pressed legend glows copper.
 
 ### Named Rules
-**The Three Stocks Rule.** Every sheet is printed on one stock: `.stock-yellow`, `.stock-white` or `.stock-black`. The stock re-points `--stock` and `--fg`, and the derived inks are recomputed on that element, so secondary type always belongs to its paper.
+**The One Metal Rule.** Copper is the only hue on the page. It marks the one primary key per screen, the chapter you are in, and the counts that matter. There is no second accent, no gradient on type and no glow in the page UI (in the film, the only emitted light is a pressed legend lighting copper); Error Rust appears only on a failed field.
 
-**The Tinted Ink Rule.** Secondary type is ink mixed into its own stock at 76% (body, notes) and 62% (sources, captions, inactive steps). The palette has no gray token.
+**The Three Tempers Rule.** Copper changes temper with its ground: Copper (#C8703F) is a key face carrying ink; on studio or graphite, copper type is Lit Copper; on paper, it is Copper Ink. Copper #C8703F is never text on paper (2.92:1).
 
-**The One Spot Rule.** Red is the only hue besides the stocks. It fills prices and marks the active state (current tab, selected city, hovered or pressed slip) and Gliwice on the map. Red type at reading sizes uses Spot Red Deep.
+**The Two Grounds Rule.** Everything sits on studio black or on cream paper. A sheet swaps the text variables (text becomes ink, dim becomes worn ink, the dark hairline becomes the paper hairline) instead of inventing new colours; hairlines are always the ground's text colour at low alpha.
 
 ## Typography
 
-**Display Font:** Archivo variable (wght 100–900, wdth 62–125%), self-hosted as two subset woff2 files in `src/assets/fonts/` and preloaded, with a metric-adjusted fallback on Arial Narrow and Arial (size-adjust 96%, ascent 92%, descent 22%).
-**Body Font:** Archivo at 100% width.
-**Label/Mono Font:** Archivo at 75% width in bold caps. The system has no monospace, serif or italic.
+**Display Font:** Funnel Display (with Display Fallback, a metric-matched Arial: ascent 95%, descent 24%)
+**Body Font:** Funnel Sans (with Sans Fallback, the same metric-matched Arial)
+**Label/Mono Font:** Martian Mono (with ui-monospace, SFMono-Regular, Menlo), variable width 75 to 112.5%
 
-**Character:** One grotesque stretched and squeezed like a directory typecase. Condensed black caps carry names, departments and counts; normal-width regular carries reading. Lining tabular figures are set on `body` and inherited by every role.
+**Character:** A clean grotesk played straight: Funnel Display at weight 500 with tight negative tracking carries the name and the headlines like lettering on a product box, Funnel Sans reads quietly at the same weight family, and Martian Mono is the engraving: the voice of the board's own legends. All three are self-hosted woff2 subsets (latin and latin-ext).
 
 ### Hierarchy
-- **Display** (900, 62% width, uppercase, clamp(3.4rem, 1.6rem + 5.4vw, 6rem), line-height 0.84): the name in Kacper's entry, which fills its column instead (min(14.6cqi, 9.5rem) from 700px, min(22cqi, 6.4rem) on phones, with 0.1em below for the Ę ogonek). The same face and weight set counts at local sizes: the register total, index counts, benchmark figures, step and day numbers, the FastBot clock (up to 13rem).
-- **Category** (900, 62%, uppercase, clamp(2.6rem, 1.5rem + 4vw, 5.2rem), 0.86): department heads (Indeks branż, OutreachPilot.pl, FastLanding.io, Pytania, Kontakt) under an 8px rule, and the Spis title.
-- **Ad headline** (900, 62%, uppercase, clamp(1.9rem, 1.2rem + 2vw, 3rem), 0.88): display-ad headlines. The OutreachPilot entry ad scales up to clamp(2.2rem, 1.3rem + 2.6vw, 3.5rem), the call ad down to clamp(1.7rem, 1.2rem + 1.2vw, 2.2rem).
-- **Statement** (800, 72%, sentence case, clamp(1.9rem, 1.2rem + 2.3vw, 3.35rem), 0.98, -0.014em): the one-sentence claim under a category head, subpage H1 statements, the colophon lead.
-- **Head** (800, 75%, sentence case, clamp(1.2rem, 1.05rem + 0.6vw, 1.6rem), 1.08): step titles, questions, the coupon heading. Privacy headings use the same width at clamp(1.3rem, 1.15rem + 0.6vw, 1.7rem).
-- **Lead** (400, 100%, clamp(1.14rem, 1rem + 0.55vw, 1.42rem), 1.38): the paragraph that opens a department, max 42ch.
-- **Body** (400, 100%, clamp(1rem, 0.97rem + 0.15vw, 1.0625rem), 1.5): reading text in `--fg-2`, max 64ch (68ch for long reads).
-- **Listing** (750, 75%, uppercase, 0.875rem, 0.018em, 1.2): labels, legends, sheet heads, table heads. Register and index rows use the same voice at 0.74–0.8rem; the running-head title and guide words use it at 900 and 700.
-- **Slip** (800, 75%, uppercase, 0.95rem, 0.02em, 1.05): order-slip labels; 0.78rem in the phone running head, 0.82rem from 760px.
-- **Micro** (400, 90% width, 0.78rem, 1.45): sources, captions, fine print and the running-head clock, in `--fg-3`, sources capped at 70ch.
+- **Name** (500, clamp(4.2rem, 1.2rem + 11.2vw, 13.5rem), line-height 0.84, -0.04em): "Kacper Rękawek" on the first stage, two lines, about 11vw on desktop and 18vw on phones. Nothing else on the site reaches this size.
+- **Display** (500, clamp(2.35rem, 1.1rem + 4.3vw, 5.6rem), 0.98, -0.035em): chapter headlines, sheet heads, the subpage H1 (max 16ch).
+- **Headline** (500, clamp(1.9rem, 1.2rem + 2.4vw, 3.4rem), 1.02, -0.03em): section heads inside sheets (prices, clauses, process, FAQ, FastBot, the enquiry form) and client names on the work page.
+- **Title** (500, clamp(1.25rem, 1.1rem + 0.5vw, 1.6rem), 1.2, -0.015em): H3s, beat titles in a chapter, the benchmark sentence, prose H2s.
+- **Numeral** (500, 2.4rem, 0.9, -0.04em; 3.4rem from 960px): process step numbers in Copper Ink (Lit Copper on the graphite sheet). Large counts (the readout's figures, the FastBot clock, the footer's closing name) use the display face at local fluid sizes with -0.04em tracking.
+- **Lead** (400, clamp(1.12rem, 1rem + 0.45vw, 1.38rem), 1.45): the line under a headline; the subpage lead holds 44ch.
+- **Body** (400, 1.0625rem, 1.55, lining numerals): running text at 62ch (prose pages 68ch).
+- **Small** (400, 0.9375rem, 1.5): row notes, breadcrumbs, form errors, beat descriptions.
+- **Source** (400, 0.8125rem, 1.55): the source and date under every number, form hints and notices, max 70ch.
+- **Button** (500, 1rem, 1, -0.005em): labels on copper and ghost keys.
+- **Key** (500, 0.95rem, 1, -0.01em): labels on header keys; choice and city chips use the same size at weight 400.
+- **Label** (Martian Mono 500, 0.75rem, 1.35, 0.01em, uppercase, width 87.5%): rail keys, column heads in the footer, field labels and legends (0.02em), row metadata, dates.
 
 ### Named Rules
-**The Width Is The Voice Rule.** Hierarchy is set by width first (62 display, 72 statement, 75 listing, 100 reading), weight second, size third. A new role takes one of these widths; fine print at 90% is the single width outside the four voices.
+**The Monument Rule.** The name is set once, largest, in two lines, and runs past the copy column under the object's shoulder. Headlines never borrow its size.
 
-**The Tabular Figures Rule.** Every number is set in lining tabular figures and glued to its unit and its thousand groups with no-break spaces (`src/lib/typo.ts`), so counts, prices and times align in columns and never break across a line.
+**The Mono Is Data Rule.** Martian Mono sets short labels, counts, dates, the rail and the cap legends, always uppercase at label size on the page. It never sets a sentence and never sits above a heading as a kicker.
 
-**The Polish Setting Rule.** Copy passes through `typo()` at build time: no single-letter word ends a line, short Polish words bind to the next word, a numeric range keeps its en dash joined to both numbers, and an em dash in copy throws in development.
+**The Tabular Figures Rule.** Figures are lining everywhere; in rows, counts and prices they are tabular, and every market or results number carries a source line directly under it.
 
 ## Layout
 
-The page is a stack of sheets inside one container: max 1480px, side gutters clamp(1rem, 3.4vw, 3.25rem), and from 1100px an extra 44px on the right so nothing runs under the thumb tabs. Inside, a 12-column grid with a clamp(0.9rem, 1.8vw, 1.6rem) column gap; below 960px every child spans the full row, and from 960px the span classes take over (register 3 of 12, entry 9 of 12; statement 8 with lead 4; text 5 or 6 with figure 6 or 7).
+A 12-column grid inside a 104rem wrap, with a fluid gutter (clamp(1rem, 0.4rem + 2.6vw, 3rem)) and column gap (clamp(1rem, 0.5rem + 1.6vw, 2rem)). Below 960px every block spans the full width; from 960px copy takes columns 1 to 6 or 7 to 12 and the other half belongs to the object. The fixed header is 4.25rem tall and anchors are offset by it.
 
-Sections open with clamp(4rem, 10vh, 7rem) of vertical padding and close on a 2px ink rule. The running head is fixed at 52px, so the first section of every page starts at 52px plus clamp(1.5rem, 4.5vh, 3rem) (home) or clamp(2rem, 7vh, 4.5rem) (subpages). On the home page the stocks alternate: yellow entry, white 3-in-100 sheet, yellow index window, yellow OutreachPilot sheets around a map window, white FastLanding, black FastBot, white questions, yellow contact, black colophon.
+**Chapters.** Each film chapter is a tall track (190 to 300svh on desktop, 150 to 240svh on phones) with a sticky stage of 100svh. The object starts its change of pose 0.55 of a viewport before a track pins and settles within the first 16% of it; the rest of the track drives motion inside the pose. Copy sits low: bottom-aligned on phones, vertically centred from 960px. On phones the object lives in the top half and the copy starts at 44svh, so the object rides with its chapter and is never parked behind text. Without a live film the tracks shorten (0.55 of their length on desktop, 0.6 on phones); with reduced motion they collapse to their content.
 
-The entry's ads share one grid. Phones stack them. From 700px the OutreachPilot and FastLanding ads sit side by side (5fr and 4fr) on a four-row subgrid, so headline, bullets, order line and signature align across the plates, and the call ad runs full width below; from 1280px all three stand in one row (5fr, 4fr, 3fr). Columns of type follow the directory: the index list splits into two columns from 560px, the 3-in-100 sheet keeps four columns of 25 at every width, questions run in two columns from 900px, the process in five from 960px, the colophon in four (1fr 1fr 1fr 1.6fr) from 1100px. The index list, the 3-in-100 sheet, the questions and the process are split by 1px column rules. Sticky elements from 960px: the 3-in-100 text, the OutreachPilot proof panel (top: calc(50vh - 11rem)), the FastBot chat, the case notes on the work page.
+**Sheets.** Evidence sheets span the viewport with block padding of clamp(4.5rem, 11vh, 8.5rem); consecutive sheets join without a second top padding. Inside, a section head (headline over lead, clamp(2.5rem, 6vh, 4rem) below it) opens the sheet, and sub-blocks are spaced by clamp(5rem, 13vh, 9rem), often opened by a hairline. Two-column sheet layouts put the main block at columns 1 to 6 and a side block at 8 to 12; where the side block is an instrument, a form or a case record it stays pinned 1.5rem under the header while the main block scrolls.
 
-Map windows are transparent sections over the fixed canvas (the index, the OutreachPilot map band at clamp(24rem, 78vh, 46rem), page heads with a chapter, the 404); every opaque sheet is marked `data-scene-occlude` so the map can sleep under it. Below 960px a window opens at the top of its section (padding-top: calc(52px + 34svh)) and the text sits below it on a stock sheet that extends 1.5rem upward, with the poster pinned by default at 52px + 17svh.
+**Subpage opener.** One viewport of the studio holding the route's pose: H1, lead, keys and breadcrumb bottom-left; on phones the text starts at 50svh.
+
+Breakpoints in use: 420px (the language key drops), 480, 560 (the sector index goes to two columns), 600, 640 (form fields pair up), 700, 760 (full header labels, full rail names), 960px (grid spans, side-by-side chapters, sticky side blocks), and a short-window rule at 960px wide and 760px tall that trims chapter type so the copy clears the rail.
 
 ### Named Rules
-**The Size Is Billing Rule.** Ad area encodes importance: OutreachPilot takes the widest track (5fr), FastLanding the next (4fr), the call the smallest (3fr). A new ad is billed by the same logic.
+**The Opaque Floor Rule.** Copy never fights lit metal. On desktop a studio shade (90% to transparent, from the copy side) sits behind the stage copy; on phones an opaque studio block rises from just above the first line, so any part of the object that passes behind text is hidden, never a see-through ghost.
 
-**The Window Rule.** The map is visible only through transparent window sections. Every other section is an opaque stock, and the sheets on either side of a window carry a printed 2px rule, so the map reads as passing under paper.
+**The One Object Rule.** There is one canvas and one object. Subpages hold a single pose of the same board; no second 3D element, illustration or decorative image enters the film side.
 
 ## Elevation & Depth
 
-The system is flat. No shadow creates elevation and no surface floats. Depth comes from printing facts: stocks change from sheet to sheet, 3px ink frames enclose inner sheets (the index result page, the proof panel, the chat, screenshot frames), and the map lies under the paper, seen through windows and tilted like a sheet on a desk (the poster at perspective(190vh) rotateX(32deg), 38deg in the OutreachPilot window). `box-shadow` appears only in four print roles, recorded in the sidecar: the field focus ring, the highlighter band under the re-declined city, the phone-only stock extension above a text sheet, and the 2px ink fore-edge during a page turn.
+The page is flat; depth belongs to the film and to the keys. Sheets are opaque cream stock with no shadow of their own; where a sheet meets the film it casts a soft 5rem shade onto the film at its leading and trailing edges. Controls get depth only as keycaps: an inset darker skirt along the bottom edge and, on copper, a lit top edge; pressing moves the key 2px down and the skirt collapses to 1px. Objects laid on a sheet (screenshot frames, the FastBot chat card) carry one long, soft, negatively spread drop.
+
+### Shadow Vocabulary
+- **Cap skirt** (`box-shadow: inset 0 -3px 0 rgba(21, 18, 15, 0.22)`): the bottom edge of every copper key and the current rail key.
+- **Cap top light** (`box-shadow: inset 0 1px 0 rgba(255, 232, 214, 0.3)`): the lit top edge of a copper key, paired with the skirt.
+- **Cap pressed** (`box-shadow: inset 0 -1px 0 rgba(21, 18, 15, 0.22), inset 0 1px 0 rgba(255, 232, 214, 0.2)` with `translateY(2px)`): a copper key going down.
+- **Dark key** (`box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.1), inset 0 -3px 0 rgba(0, 0, 0, 0.45)`): header keys and the phone rail's letter keys; hover lifts the rim to 0.36, press to 0.2 with a 1px skirt.
+- **Ghost key** (`box-shadow: inset 0 0 0 1px var(--line-d), inset 0 -3px 0 var(--line-d)`): the hairline key; on hover rim and skirt take the current text colour.
+- **Rail tray rim** (`box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.12)`): the tray that holds the rail keys.
+- **Field focus** (`box-shadow: 0 0 0 3px rgba(200, 112, 63, 0.35)` with an ink border): inputs and textareas in focus.
+- **Frame drop** (`box-shadow: 0 0 0 1px var(--line-p), 0 30px 60px -40px rgba(21, 18, 15, 0.45)`): screenshot frames on a sheet; hover darkens the rim to ink and deepens the drop to 0.55.
+- **Chat drop** (`box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.7)`): the cream chat card on the graphite sheet.
+- **Sheet shade** (`linear-gradient(to top, rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0))`, 5rem tall): the shade a sheet casts on the film beyond its edges.
 
 ### Named Rules
-**The Flat Stock Rule.** Surfaces never lift. A panel is another sheet of stock inside a 3px ink frame.
+**The Key Depth Rule.** A control shows depth only the way a keycap does: skirt, top light, 2px travel. No floating drop shadows, no glows, no lift on hover.
 
-**The Misregistration Rule.** Press feedback is print: an order slip drops 1px and its red plate prints 1.5px out of register; a display ad prints its red plate 1.5px out while pressed.
+**The Paper Over Light Rule.** Sheets are opaque and flat. The film sleeps while a sheet covers the screen; the only depth a sheet shows is the shade it casts on the film.
 
 ## Shapes
 
-Every corner is square (0px; fields reset the browser radius explicitly). Form comes from rectangles and rules in four weights, each with one job: 8px heavy rules over category heads and under sheet heads (rate card, clauses, process, benchmark, proof sheet, the Justyna listing); 3px frames (`--frame`) around display ads and inner sheets; 2px for section rules, the running-head rule, slip, field and chip borders and the ad signature rule; 1px for row rules and column rules. The one dashed line is the 2px cut line around the order coupon, with a 24px scissors mark on its top edge. Round forms exist only as printed dots: leader dots (0.075em radius at a 0.36em pitch), halftone dots and map rings. Bullets are solid 0.5em squares; the typing indicator is three 7px squares.
+Every control shares the keycap corner (0.6rem): copper and ghost keys, header keys, rail keys, inputs. Shapes nest concentrically around it: controls set inside a group step in (chips and selected index rows at 0.5rem), and holders step out (the rail tray at 0.9rem, the cap plus its 0.3rem padding; cards, frames, the form panel and the chat card at 1rem). Chat bubbles are 1.1rem with a 0.35rem tail corner on the speaker's side. Avatars are discs. Focus rings are 2px outlines offset 3px with a 2px corner. Rules are 1px hairlines in the ground's text colour at low alpha. There are no pills and no square-cornered controls.
 
 ### Named Rules
-**The Square Corner Rule.** Radius is zero on every element. Roundness is reserved for printed dots.
-
-**The Rule Weight Rule.** 8px opens a department, 3px frames an ad or a sheet, 2px closes a section or edges a control, 1px separates rows and columns. A new element takes the weight of its job.
+**The Cap Radius Rule.** 0.6rem is the corner of a key. A new control uses it; a container around controls adds its own padding to it; a control inside a container subtracts. Never a pill (999px), never a sharp corner on anything the finger presses.
 
 ## Components
 
-### Buttons (order slips)
-A printed order slip: a solid block of ink with caps, square, no arrow (`src/components/ui/Btn.astro`, `.btn` in `global.css`).
-- **Shape:** square (0px), 2px border in the fill color, 48px minimum height (40px in the phone running head, 36px from 760px).
-- **Primary:** ink fill with type in the stock color (yellow on yellow pages, white pages on white), padding 0.7rem 1.15rem, Slip type.
-- **Hover / Focus:** hover inks the slip in Spot Red with Knockout White type (0.18s, cubic-bezier(0.16, 1, 0.3, 1)). Press lands the slip 1px down and right while a 2px red plate prints 1.5px up and left behind it. Focus draws a 3px outline in the foreground at a 3px offset.
-- **Line:** transparent with a 2px ink border and ink type; hover fills it with ink and stock-colored type.
-- **Reversed:** on black stock and inside reversed ads the slip is yellow with black type; hover inks it red; the line variant turns yellow on hover.
-- **Text links:** 700 weight with a 2px underline at a 4px offset; the underline turns red on hover. Links inside reading text use a 1px underline that thickens to 2px.
+### Buttons (keys)
+Tactile and quiet: the page's buttons are caps from the same board.
+- **Shape:** keycap corner (0.6rem), minimum height 3rem, padding 0.8rem 1.35rem, label in Funnel Sans 500 at 1rem.
+- **Copper key (primary):** Copper face, ink label, cap skirt plus cap top light. One per screen, for the single primary action (book the call, send the enquiry). Hover warms the face to Lit Copper.
+- **Press:** 2px travel (`translateY(2px)`, 0.12s on the standard ease) and the skirt collapses to 1px.
+- **Focus:** a 2px Lit Copper outline offset 3px (Copper Ink on a sheet).
+- **Ghost key (secondary):** transparent, a hairline rim and hairline skirt in the ground's line colour; on hover both take the text colour. Warm Light label on dark, ink on paper.
 
-### Chips (choices, city tabs, quick replies)
-- **Style:** square, 2px ink border, 600 to 650 weight. Enquiry choices sit on Knockout White (44px minimum); city tabs on yellow (40px); FastBot quick replies are bare outlines.
-- **State:** a selected choice or quick reply turns into an ink block with yellow type; a selected city turns into a Spot Red block with Knockout White type, the active state carrying the spot. Hover: yellow under a choice, ink at 10% over yellow under a city tab. Focus: 3px ink outline at a 2 to 3px offset.
+### Chips (choices, city chips, quick replies)
+- **Style:** keys set inside a group at 0.5rem, minimum height 2.75rem, padding 0.5rem 1rem, Funnel Sans 0.95rem. On the enquiry form they sit on Field Cream with a 28% ink rim; the sector index's city chips are transparent with the paper hairline.
+- **State:** hover draws the rim in ink; selected fills with ink and turns the label cream; keyboard focus shows a Copper Ink outline. The FastBot quick replies are the smallest chips (hairline rim); the one the visitor picked fills copper with an ink label.
 
-### Cards / Containers (display ads and inner sheets)
-- **Corner Style:** square (0px).
-- **Background:** the ad's own stock: yellow (FastLanding), reversed black (OutreachPilot), white pages (the call).
-- **Shadow Strategy:** none (see Elevation & Depth).
-- **Border:** 3px frame in the rule color; the reversed ad's frame is black.
-- **Internal Padding:** clamp(1rem, 1.8vw, 1.5rem), 0.9rem between parts.
-- **Anatomy:** ad headline; a square-bullet list at 0.97rem; a foot with the price sticker and one or two slips; the signature: a 2px rule, the advertiser's name in 850-weight listing caps, a leader line and a cross-reference or place at the right end.
-- **Inner sheets:** the index result page, the proof panel, the chat and screenshot frames are white sheets in a 3px frame, topped by a sheet bar: an ink strip with yellow listing caps (sector and city, "KROK 1 Z 4", a URL). A proof frame's bar on the FastLanding sheet turns red on hover, and its capture scrolls inside the frame as the frame crosses the viewport.
-- **Print-in:** on first view the entry ads clip in from the top (0.7s) at 0.25s, 0.4s and 0.55s.
+### Cards / Containers
+- **Evidence sheet:** Cream Paper, ink text, full-bleed, flat; the graphite variant carries FastBot at night.
+- **Readout card:** a Graphite instrument face set on the cream index sheet: 1rem corner, padding clamp(1.4rem, 2.6vw, 2.25rem), hairline-divided head, the two counts in the display face (the first in Lit Copper) that roll to each new value, the sample sentence at lead size with the declined city name underlined in copper.
+- **Form panel:** Field Cream at 1rem with a paper hairline ring, padding clamp(1.4rem, 3vw, 2.5rem); its inputs step up one tone lighter so they read on it.
+- **Screenshot frame:** Second Stock at 1rem, clipped, with the frame drop; the full-page screenshot inside travels upward as the frame crosses the viewport.
+- **Shadow Strategy:** see Elevation & Depth. No card floats on the dark film.
 
-### Price Sticker
-A Spot Red block with Knockout White type at 75% width, 800, 1rem, padding 0.3rem 0.55rem 0.28rem, the note in a 600-weight small at 0.78em. It is the price carrier on every ad; the FastBot price wraps at 750, 0.92rem.
-
-### Inputs / Fields (the order coupon)
-- **Style:** 2px ink border, 0px radius, Knockout White field, 50px minimum height, padding 0.75rem 0.85rem, textarea from 7rem; labels in listing caps at 0.78rem; a red caret.
-- **Focus:** the outline gives way to a double ring: a 3px yellow gap inside a 5px ink ring (0.15s).
-- **Error:** invalid fields take a Spot Red Deep border; the error line sets 700 at 0.85rem in Spot Red Deep; required marks are Spot Red Deep asterisks.
-- **Coupon:** the form sits on white pages inside a 2px dashed ink cut line padded clamp(0.6rem, 1.2vw, 0.9rem), with the scissors mark on the top edge.
+### Inputs / Fields
+- **Style:** Field Cream, 1px ink rim at 28% (50% on hover), keycap corner, minimum height 3.25rem (textarea 8rem), padding 0.85rem 1rem, body type, a copper caret, Placeholder Ink placeholders.
+- **Labels:** Martian Mono 0.75rem uppercase in Worn Ink above the field; required marks in Copper Ink.
+- **Focus:** the rim turns ink and a 3px copper ring (35%) appears; no outline.
+- **Error:** Error Rust rim over Error Wash; the message below in Error Ink at small size, weight 500.
 
 ### Navigation
-- **Running head:** fixed, 52px, yellow, 2px ink rule below. Left, the book title in listing caps at 900 (1rem, 0.9rem on phones). Centre, from 760px, the guide words: the first and last department in view in micro listing caps with a dotted leader between them; a changed word slides up in 260ms. Right, the Gliwice clock (from 1100px, micro at 90% width), the language switch (from 760px) and the booking slip, shortened to "Rozmowa" on phones.
-- **Thumb index (from 1100px):** black tabs 44px wide and at least 7.4rem tall, 4px apart, fixed to the right edge below the head, labelled in vertical listing caps at 0.8rem. Tabs rest tucked 8px into the fore-edge and slide out (0.28s) on hover, on focus, or while their department is in view; the current page's tab is Spot Red with Knockout White type.
-- **Spis (below 1100px):** a full-screen yellow dialog opened by a 2px-outlined "Spis" button: the title in Category caps, an 8px rule, leader-line rows with department names in 900 condensed caps at clamp(1.7rem, 8vw, 2.4rem) and a note at the right; the current page in red; the booking slip, email and language link at the foot. Escape closes it and returns focus.
-- **Breadcrumbs:** subpages open with listing caps at 0.78rem above the category head, the home link underlined.
-- **Page turn:** a client-side navigation lays the next page over the old one from the fore-edge (clip-path from the right, 0.55s, cubic-bezier(0.65, 0, 0.35, 1), a 2px ink edge line) while the old page darkens to 90% brightness; going back wipes from the left. The running head, tabs and colophon swap without animation; the map canvas persists across pages.
+- **Header keys:** a fixed 4.25rem bar of solid keys that reads on black and on cream: "kacper.biz" at left; the language key, the copper "book a call" key and Menu at right. Graphite Keycap faces with the dark-key rim and skirt, Funnel Sans 500 at 0.95rem, 2.75rem tall. Behind them a band of the ground (studio at 94%, or paper at 96% when a sheet is under the header) fades out 1.5rem below, so scrolling copy never runs into the keys. Below 760px the booking key shows its short label; below 420px the language key is dropped and the menu's language link carries the switch.
+- **Menu:** a full-screen studio layer; items in the display face (clamp(2.2rem, 1.2rem + 4vw, 4.6rem)) divided by dark hairlines, each with a mono note; hover and the current page light in Lit Copper; a copper key and plain links at the foot.
+- **Chapter rail (home):** a row of keys on the bottom edge of the film in a studio tray (0.9rem corner, 0.3rem padding, 12% rim). Rail keys are Martian Mono labels in Dim Stone; the chapter on screen is a copper cap with the cap skirt. Below 760px the other chapters shrink to 2.75rem graphite keys carrying one letter each, and the current one keeps its name. The rail belongs to the film: it slides down out of view while a sheet or the footer passes under it.
 
-### Leader Line (signature)
-Name, a row of dots, value: the directory's basic line. The dots are a repeating radial gradient in the current color (0.075em dots at 0.36em by 0.3em, 0.9 opacity); the value never wraps and sets in tabular figures. It carries the register, the index rows, the entry lines, the rate cards, the benchmark, ad signatures, contact lines, the Spis, the FastBot listing and the greeked rows of the 3-in-100 sheet. A register row inverts to ink with yellow type on hover; a checked index row stays inverted. On first view the register lays its dots down row by row (0.7s each, 45ms apart) while its counts roll in from zero.
+### The Board (signature)
+A machined 96% keyboard, procedurally built in three.js: 100 caps as one instanced 1u cap stretched nine-slice to any width, switches, a brushed aluminium plate, a matte black PCB with copper pads and traces, an anodised graphite case. Legends are printed from an atlas set in Martian Mono (dye-sublimated on PBT, engraved on copper). Five poses blend on a damped chapter coordinate while the camera rides a rail, each chapter with its own lens (fov 22 to 32) and light: the floating board in a steep three-quarter view; the caps filed into a 10 x 10 grid with the three copper caps stepping out; the board typing the greeting by itself while the page spells it in step; the exploded build (caps, switches, plate, PCB, case); a macro on the copper Enter as it goes down once. Studio light only: softbox reflections from a baked environment, one warm key with a contact shadow, a cool rim, a narrow glint that tracks the copper caps; post adds depth of field, a lens vignette, Khronos PBR Neutral tone mapping, a black level lifted to Studio Black so canvas and page share one ground, fine grain and dither. Keys under the pointer press.
 
-### Category Head (signature)
-An 8px ink rule, 0.9rem of air, the department name in Category caps, usually followed by a Statement. Inside a department, sheet heads set listing caps above an 8px rule.
+### Stills
+Every stage and subpage opener carries a pre-rendered still of its pose (desktop and phone crops) that stands in until the film runs and stays for good without a GPU; the film fades in over it (0.9s).
 
-### Index Result Page (signature interaction)
-Picking a sector and a city re-typesets a white directory page framed in 3px ink: a sheet bar with the sector and city, two counts in the display voice (the sector count in Spot Red Deep), and the first line of an email with the city re-declined under a yellow highlighter band (inset 0.42em). Counts roll to their new value in 900ms on a critically damped curve, changed words rise 0.35em into place in 320ms, and the printed map pings the city.
+### Rows (signature)
+The sheets' one table language: label left, value right, a hairline between rows, 1rem of block padding, tabular figures right-aligned, an optional full-width note in the small size. Prices, plans, company facts, contact lines and case metadata all use it.
 
-### Printed Map (signature)
-A three.js point cloud on a fixed canvas behind the pages (`src/scene/`): 32 000, 16 000 or 8 000 points by device tier, device pixel ratio capped at 1.5 (1.0 on the low tier), premultiplied ink composited over the stock, no post-processing.
-- **Screen:** the map chapters print as an ordered hex halftone at full ink; dot diameter is the lattice pitch times (0.22 + 0.28 × tone), about 12% ink in open country and 45% around the large cities. Below the 2px sprite floor ink falls with the dot's area, so small dots keep their tone. The border and city dots print solid.
-- **Spot:** Gliwice carries a red marker ring. A picked city spreads red ink outward (radius by the square root of its share of firms, critically damped), prints a ring and gets an HTML callout: a yellow chip with the name in 850 listing caps, the count in Spot Red Deep and a 16px red leader to the ring, flipped to the other side near the edge, hidden below 960px.
-- **Traffic:** email arcs in black ink leave Gliwice and stand up off the paper; replies return in red; arrivals ripple as rings of full-ink dots that thin by size.
-- **Motion:** scrolling through a window turns the map in its own plane like a turntable (0.55 rad of turn for the index map, 1.15 for traffic, 0.4 for the Gliwice close-up; 60% of that on phones), and the shape follows the visible middle of its window. The map prints in over 2.8s the first time a window is on screen, and stops rendering under opaque stock. Reduced motion holds a still frame.
-- **Poster:** `public/map-poster.svg` (653 by 620, the same halftone in black ink with the red Gliwice mark) stands in each window, fading out 1.2s after the live map mounts. Software GL, Save-Data and 2G connections keep the poster.
+### Step lists
+Numbered process steps: a Copper Ink numeral beside each step on phones, and from 960px a row of equal columns with the numeral (3.4rem) above the text, hairlines above and below the row.
 
-### FastBot Chat
-A white sheet in a 3px yellow frame on reversed black, under a listing line with the firm's opening hours. Bubbles are square with a 2px ink border: the customer on yellow at the right, the bot on Knockout White at the left, chips between. The typing indicator is three 7px ink squares pulsing 0.15s apart; the transcript replays once when it scrolls into view.
+### FastBot chat
+A cream chat card on the graphite sheet: a header with an ink avatar disc and the hours in mono, the day as a mono label, visitor bubbles in ink with cream text, bot bubbles in Second Stock, quick-reply chips, a confirmation line with a Copper Ink tick, and a mono disclaimer row. On play, lines still to come wait at 40% opacity and appear in turn (0.45s), so the card never changes height.
+
+### Day keys
+The booking picker shows the next five working days as keys with a paper hairline: weekday and month in Martian Mono, the date in the display face at 1.75rem; hover fills them with ink.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** print every section on one stock class (`.stock-yellow`, `.stock-white`, `.stock-black`) and let `--fg-2` (76%) and `--fg-3` (62%) derive from it.
-- **Do** put prices on the red sticker, and keep red fills to prices and active states.
-- **Do** set name and value pairs as leader lines: registers, rate cards, contacts, signatures, menus.
-- **Do** open a department with the category head: an 8px ink rule over 900-weight caps at 62% width.
-- **Do** sign each display ad at its foot: a 2px rule, the advertiser's name, a leader, and a cross-reference or place.
-- **Do** make every action an order slip: square, 48px minimum, 800-weight caps at 75% width; hover inks it red, press drops it 1px with the red plate 1.5px out of register.
-- **Do** separate rows with 1px ink rules, close sections with 2px rules and frame ads and inner sheets at 3px.
-- **Do** set counts, prices and times in tabular lining figures, and roll changing numbers with damping (900ms) under reduced-motion guards.
-- **Do** keep the map printed in black ink and the red spot, tone carried by dot size, with the SVG poster as the fallback for no GPU, no WebGL and no JavaScript.
-- **Do** collapse every transition and animation under `prefers-reduced-motion: reduce`: no turntable, no roll, no print-in, no smooth scroll.
+- **Do** make every new control a keycap: the 0.6rem corner, an inset 3px skirt, 2px of travel on press.
+- **Do** give each screen one copper key for its single primary action; the second action is a ghost key.
+- **Do** put facts on cream sheets laid over the film, in the rows pattern with tabular figures and a source line under every number.
+- **Do** use Lit Copper for copper type on dark and Copper Ink for copper type on paper.
+- **Do** keep chapter copy on one half of the grid and leave the other half to the object; on phones keep the object in the top half and the copy on an opaque studio floor.
+- **Do** keep the page complete without the film: a still for every pose, shorter tracks when the film is off, collapsed tracks and no reveals under reduced motion.
+- **Do** let the object move and the type hold still: one line-mask reveal per chapter headline; beyond that only live values move (the greeting typed in step with the keys, a readout count rolling, a swapped word rising 0.35em).
 
 ### Don't:
-- **Don't** add gray tokens; secondary type is ink mixed into its stock.
-- **Don't** round a corner or lift a surface with a shadow.
-- **Don't** add a second typeface, italics or monospace, or set proportional figures.
-- **Don't** let anything glow: no bloom, no additive light, no transparency fades on halftone dots.
-- **Don't** introduce a second accent hue; red is the only spot ink.
-- **Don't** use em dashes in copy; an en dash appears only inside numeric ranges.
-- **Don't** put eyebrow labels above headings; the department name is the category head itself.
-- **Don't** fold answers into accordions; questions print open in ruled columns.
-- **Don't** put arrows on buttons; an external link names its domain in the label.
+- **Don't** introduce a second hue, a gradient on type, or a glow or bloom in the page UI; copper is the only colour on the page, and in the film only a pressed legend emits light.
+- **Don't** add a second 3D object or any abstract form (sculpture, blob, particles, globe); the keyboard is the one object.
+- **Don't** set Copper (#C8703F) as text on paper (2.92:1); use Copper Ink.
+- **Don't** put a mono label above a heading as a kicker, and don't set sentences in Martian Mono.
+- **Don't** give controls pill or square corners, floating drop shadows or hover lifts.
+- **Don't** add print texture to the sheets (halftone, registration, grain, leader dots); they are flat cream stock, and grain belongs only to the film.
+- **Don't** park the object behind a block of copy on a phone or let copy sit on see-through metal.

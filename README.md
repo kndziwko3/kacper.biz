@@ -6,7 +6,7 @@ trzy są z litej miedzi (Esc, K, Enter: 3 na 100 mikrofirm w CEIDG podaje adres 
 pozy rozdziałów, a między rozdziałami na film nasuwają się kremowe arkusze z dowodami (indeks branż z CEIDG, wyniki
 kampanii, cenniki, realizacje, kontakt). PL + EN, zbudowana pod SEO, GEO i AEO oraz jako źródło
 zapytań.
-Stan prac i otwarte poprawki: `docs/HANDOFF.md`. System wizualny: `DESIGN.md` (do przepisania, patrz HANDOFF); kontrakt kierunku: `.impeccable/surfaces/`; fakty o produkcie: `PRODUCT.md`;
+Stan prac i otwarte poprawki: `docs/HANDOFF.md`. System wizualny: `DESIGN.md` (tokeny także w `.impeccable/design.json`); kontrakt kierunku: `.impeccable/surfaces/`; fakty o produkcie: `PRODUCT.md`;
 idea i zasady tekstów: `docs/art-direction.md`.
 
 ## Stack
@@ -48,6 +48,7 @@ node scripts/validate-seo.mjs   # po buildzie: title, description, h1, canonical
 node scripts/test-lead.mjs      # testy endpointu formularza
 npm run stills -- --base http://localhost:4321   # przy działającym `npm run dev`: stills filmu (supersampling, GPU)
 npm run og                      # karty OG i ikony (Chromium z playwright-core), po zmianie stills
+npm run provenance              # po stills i og: zapisuje w każdym rastrze jego pochodzenie (impeccable)
 npm run fonts                   # po zmianach w tekstach z nowymi znakami (wymaga: pip install fonttools brotli)
 ```
 Podgląd filmu na maszynie bez GPU (np. w CI): dopisz `?gl=high|mid|low` do adresu. W dev jest też `/lab/still?a=0&l=0`
@@ -81,6 +82,7 @@ z GPU (Metal) i trwa kilkanaście sekund; bez GPU (np. w kontenerze) wraca do Sw
 npm run dev
 npm run stills -- --base http://localhost:4321
 npm run og
+npm run provenance
 ```
 W dev `window.__film` pozwala zmieniać kadry i pozy z konsoli (`__film.SHOTS[0].fx = 0.3`, `__film.rig(0, [x, y, z], [rx, ry, rz])`).
 

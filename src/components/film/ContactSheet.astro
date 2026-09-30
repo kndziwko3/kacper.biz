@@ -64,7 +64,7 @@ const ui = c.ui;
   }
 </style>
 <style is:global>
-  .days a { display: grid; gap: 0.15rem; justify-items: center; padding: 0.8rem 0.2rem 0.85rem; border-radius: 0.8rem; box-shadow: inset 0 0 0 1px var(--line-p); transition: background-color 0.15s, color 0.15s, box-shadow 0.15s; }
+  .days a { display: grid; gap: 0.15rem; justify-items: center; padding: 0.8rem 0.2rem 0.85rem; border-radius: var(--cap-r); box-shadow: inset 0 0 0 1px var(--line-p); transition: background-color 0.15s, color 0.15s, box-shadow 0.15s; }
   .days a:hover { background: var(--ink); color: var(--paper); box-shadow: none; }
   .days .d-w, .days .d-m { font: 500 0.7rem/1.2 var(--f-mono); text-transform: uppercase; letter-spacing: 0.02em; }
   .days .d-n { font: 500 1.75rem/1 var(--f-display); letter-spacing: -0.03em; }
