@@ -178,6 +178,7 @@ html.film-off .ch { height: calc(var(--len, 260svh) * 0.55); }
 .sheet .t-src { color: var(--ink-2); }
 .sheet .dim { color: var(--ink-2); }
 .sheet--dark { background: var(--graphite); color: var(--text); --text: #ede6da; --text-2: #a8a092; --line-d: rgba(237, 230, 218, 0.14); }
+.sheet--dark .dim, .sheet--dark .t-src { color: #a8a092; }
 .rule { border: 0; border-top: 1px solid var(--line-d); margin: 0; }
 .sec-head { display: grid; gap: 1.1rem; margin-bottom: clamp(2.5rem, 6vh, 4rem); }
 
