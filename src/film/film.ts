@@ -26,6 +26,8 @@ export interface FilmOptions {
   still?: State;
   /** Keep full quality on software GL (QA). */
   forceQuality?: boolean;
+  /** Render at the page's full devicePixelRatio, past the pixel budget (supersampled stills). */
+  supersample?: boolean;
 }
 
 export interface State { a: number; b: number; t: number; local: number }
@@ -50,7 +52,7 @@ const SHOTS: Shot[] = [
 const TIERS: Record<Tier, { dpr: number; shadows: boolean; shadow: number; msaa: number }> = {
   high: { dpr: 1.5, shadows: true, shadow: 2048, msaa: 4 },
   mid: { dpr: 1.35, shadows: true, shadow: 1024, msaa: 2 },
-  low: { dpr: 1, shadows: false, shadow: 512, msaa: 0 },
+  low: { dpr: 1, shadows: false, shadow: 512, msaa: 2 },
 };
 const PIXEL_BUDGET = 2560 * 1440;
 
@@ -116,7 +118,7 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
   scene.add(mono.reflection, mono.mesh);
 
   const camera = new PerspectiveCamera(30, 1, 0.1, 80);
-  const rt = new WebGLRenderTarget(1, 1, { type: HalfFloatType, samples: cfg.msaa });
+  const rt = new WebGLRenderTarget(1, 1, { type: HalfFloatType, samples: opts.supersample ? 0 : cfg.msaa });
   const post = finalPass();
   post.setInput(rt.texture);
 
@@ -136,7 +138,8 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     if (!force && w === width && Math.abs(h - height) / Math.max(1, height) < 0.25) return;
     width = w; height = h; mobile = w < 900;
     dpr = Math.min(window.devicePixelRatio || 1, mobile ? Math.min(1.5, cfg.dpr + 0.15) : cfg.dpr) * dprScale;
-    if (w * h * dpr * dpr > PIXEL_BUDGET) dpr = Math.sqrt(PIXEL_BUDGET / (w * h));
+    if (opts.supersample) { dpr = window.devicePixelRatio || 1; mono.setPxScale(dpr); }
+    else if (w * h * dpr * dpr > PIXEL_BUDGET) dpr = Math.sqrt(PIXEL_BUDGET / (w * h));
     renderer.setPixelRatio(dpr);
     renderer.setSize(w, h, false);
     rt.setSize(Math.round(w * dpr), Math.round(h * dpr));
@@ -151,7 +154,7 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     if (i === 2) { P.z -= local * 1.6; Tg.z -= local * 1.6; }
     off.subVectors(P, Tg);
     if (s.drift) off.applyAxisAngle(new Vector3(0, 1, 0), (local - 0.5) * s.drift);
-    if (mobile) off.multiplyScalar(1.55);
+    if (mobile) off.multiplyScalar(1.72);
     P.copy(Tg).add(off);
     return { fov: s.fov, fx: s.fx };
   };
@@ -168,7 +171,7 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     camera.lookAt(tgt);
     camera.fov = A.fov + (B.fov - A.fov) * e;
     const fx = mobile ? 0 : A.fx + (B.fx - A.fx) * e;
-    const shiftY = mobile ? height * 0.12 : 0;
+    const shiftY = mobile ? height * 0.09 : 0;
     camera.setViewOffset(width, height, -fx * width, shiftY, width, height);
     camera.updateProjectionMatrix();
     mono.apply(st.a, st.b, st.t, st.local, time);

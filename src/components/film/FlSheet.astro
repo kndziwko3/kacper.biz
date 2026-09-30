@@ -20,7 +20,6 @@ const price = (o: { price: string; priceEn: string }) => typo(lang === 'pl' ? o.
   {work ? (
     <>
       <div class="grid sec-head">
-        <p class="t-label c-1-8">FastLanding.io</p>
         <h2 class="t-display c-1-8" id={`${id}-h`}>{f.fl.workH2}</h2>
         <p class="t-lead dim c-1-7">{fl.showcase.note}</p>
       </div>
@@ -46,7 +45,7 @@ const price = (o: { price: string; priceEn: string }) => typo(lang === 'pl' ? o.
     <div class="fl-contract">
       <h3 class="t-h2">{fl.clauses.h3}</h3>
       <ol class="fl-clauses">
-        {fl.clauses.items.map((t, i) => (<li><span class="t-label dim num">{String(i + 1).padStart(2, '0')}</span><span class="t-body">{t}</span></li>))}
+        {fl.clauses.items.map((t) => (<li class="t-body">{t}</li>))}
       </ol>
     </div>
   </div>
@@ -84,8 +83,7 @@ const price = (o: { price: string; priceEn: string }) => typo(lang === 'pl' ? o.
   .fl-prices .rows .v { white-space: nowrap; }
   .fl-note { margin-top: 0.5rem; }
   .fl-clauses { border-top: 1px solid var(--line-p); margin-top: 0.5rem; }
-  .fl-clauses li { display: grid; grid-template-columns: 2.5rem 1fr; gap: 1rem; padding-block: 1.1rem; border-bottom: 1px solid var(--line-p); }
-  .fl-clauses .t-label { padding-top: 0.3rem; }
+  .fl-clauses li { padding-block: 1.1rem; border-bottom: 1px solid var(--line-p); }
 
   .fl-process { margin-top: clamp(5rem, 13vh, 9rem); display: grid; gap: 2rem; }
   .fl-steps { display: grid; border-top: 1px solid var(--line-p); }

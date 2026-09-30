@@ -1,7 +1,7 @@
 ---
 /**
  * The header floats over the film and the sheets: every item is a solid pill, so it reads on black and on cream.
- * Centre: the chapter in view (main.ts keeps it current). The copper pill books the call from anywhere.
+ * The copper pill books the call from anywhere; on the home page the chapter rail (Rail.astro) does the wayfinding.
  */
 import { NAV, ROUTE_PAIRS, CONTACT, SALES, type Lang } from '../content/site';
 import { copy } from '../content/copy';
@@ -19,7 +19,6 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
 ---
 <header class="hd" transition:animate="none">
   <a class="hp hd-mark" href={home} aria-label={`Kacper Rękawek, ${ui.home}`}>kacper.biz</a>
-  <span class="hd-ch t-label" aria-hidden="true"><span data-guide-word>{f.chapters[0]}</span></span>
   <div class="hd-end">
     <a class="hp hd-lang" href={otherHref} hreflang={otherLang === 'pl' ? 'pl-PL' : 'en'} lang={otherLang} aria-label={ui.langLabel} data-astro-reload>{ui.langSwitch}</a>
     <a class="btn hd-book" href={SALES.bookingUrl} data-outbound data-cta="head-booking" rel="noopener"><span class="hd-lg">{f.book}</span><span class="hd-sm">{f.bookShort}</span></a>
@@ -48,17 +47,15 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
 </div>
 
 <style>
-  .hd { position: fixed; z-index: 50; inset: 0 0 auto; height: var(--head-h); padding-inline: var(--gutter); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; pointer-events: none; }
+  .hd { position: fixed; z-index: 50; inset: 0 0 auto; height: var(--head-h); padding-inline: var(--gutter); display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; pointer-events: none; }
   .hd > * { pointer-events: auto; }
   .hp { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0.55rem 1.05rem; border-radius: 999px; background: var(--studio); color: var(--text); box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.12); font: 500 0.95rem/1 var(--f-sans); letter-spacing: -0.01em; transition: box-shadow 0.2s var(--ease); }
   .hp:hover { box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.42); }
   .hd-mark { justify-self: start; font-weight: 600; }
-  .hd-ch { justify-self: center; padding: 0.5rem 0.9rem; border-radius: 999px; background: var(--studio); color: var(--text-2); display: none; overflow: hidden; height: 2.1rem; align-items: center; }
-  .hd-ch span { display: block; }
   .hd-end { justify-self: end; display: flex; gap: 0.5rem; align-items: center; }
   .hd-book { min-height: 2.75rem; padding: 0.55rem 1.1rem; font-size: 0.95rem; }
   .hd-lg { display: none; }
-  @media (min-width: 760px) { .hd-ch { display: inline-flex; } .hd-lg { display: inline; } .hd-sm { display: none; } }
+  @media (min-width: 760px) { .hd-lg { display: inline; } .hd-sm { display: none; } }
   @media (max-width: 420px) { .hd-lang { display: none; } }
 
   .menu { position: fixed; inset: 0; z-index: 60; background: var(--studio); color: var(--text); display: flex; flex-direction: column; padding: 0 var(--gutter) max(1.5rem, env(safe-area-inset-bottom)); visibility: hidden; opacity: 0; transition: opacity 0.3s var(--ease), visibility 0s linear 0.3s; overflow-y: auto; }

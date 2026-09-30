@@ -19,7 +19,7 @@ const faq = [c.faq[2]!, c.faq[3]!];
 <Base lang={lang} path={path} title={f.title} description={f.description} kind="product"
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: f.crumb, path }]} faq={faq}
   ogImage={isPl ? '/og/fastlanding.png' : '/og/fastlanding-en.png'} still="p3">
-  <PageHead lang={lang} crumb={f.crumb} label={f.kicker} h1={f.h1} lead={f.lead} pose={3} guide="FastLanding.io">
+  <PageHead lang={lang} crumb={f.crumb} h1={f.h1} lead={f.lead} pose={3} guide="FastLanding.io">
     <Btn href={PRODUCTS.fastlanding.quote} outbound cta="fl-page-quote">{c.home.fl.cta}</Btn>
     <Btn href={SALES.bookingUrl} variant="ghost" outbound cta="fl-page-booking">{c.home.fl.ctaAlt}</Btn>
   </PageHead>

@@ -49,7 +49,9 @@ function monolith(yaw: number): Pose {
   const P = blank();
   const turn = qEuler(0, yaw, 0);
   for (let i = 0; i < N; i++) {
-    P.p[i]!.set((i - (N - 1) / 2) * PITCH, H / 2, 0).applyQuaternion(turn);
+    // the three copper slices stand a few millimetres proud of the block, so their edges take the key light
+    const proud = isCopper(i) ? 1 : 0;
+    P.p[i]!.set((i - (N - 1) / 2) * PITCH, H / 2 + proud * 0.14, proud * 0.06).applyQuaternion(turn);
     P.q[i]!.copy(turn);
     P.order[i] = Math.abs(i - (N - 1) / 2) / ((N - 1) / 2);
     P.occ[i * 2] = i > 0 ? 1 : 0;
@@ -173,18 +175,21 @@ export interface Monolith {
   poses: Pose[];
   /** Blend pose a -> b at t (0..1), with `local` the in-chapter progress for per-chapter motion. */
   apply(a: number, b: number, t: number, local: number, time: number): void;
+  /** Device pixels per output pixel (the supersample factor for stills). */
+  setPxScale(v: number): void;
   dispose(): void;
 }
 
 export function buildMonolith(shadows: boolean): Monolith {
-  const geo = new RoundedBoxGeometry(T, H, D, 2, T * 0.16);
+  const geo = new RoundedBoxGeometry(T, H, D, 5, T * 0.16);
   const mat = new MeshPhysicalMaterial({
     color: '#ffffff', metalness: 1, roughness: 0.3, envMapIntensity: 1.25,
   });
   const mesh = new InstancedMesh(geo, mat, N);
   mesh.instanceMatrix.setUsage(DynamicDrawUsage);
   mesh.castShadow = shadows;
-  mesh.receiveShadow = shadows;
+  // plates cast the contact shadow but never receive one: self-shadowing on 12 mm slices is all acne, no form
+  mesh.receiveShadow = false;
   mesh.frustumCulled = false;
   // anodized aluminium, a warm space grey; polished copper
   const steel = new Color('#8f8b84');
@@ -198,12 +203,15 @@ export function buildMonolith(shadows: boolean): Monolith {
   occ.setUsage(DynamicDrawUsage);
   geo.setAttribute('aOcc', occ);
   const VARY = 'varying float vRough;\nvarying vec2 vOcc;\nvarying vec3 vLocalN;\nvarying float vWorldY;\nvarying vec3 vWorldP;\nvarying vec3 vAx;\nvarying vec3 vAy;\nvarying vec3 vAz;\n';
-  const patch = (reflection: boolean) => (s: { vertexShader: string; fragmentShader: string }) => {
+  // device pixels per output pixel: 1 live, the supersample factor when a still is rendered large and downsampled
+  const pxScale = { value: 1 };
+  const patch = (reflection: boolean) => (s: { vertexShader: string; fragmentShader: string; uniforms: Record<string, { value: unknown }> }) => {
+    s.uniforms.uPxScale = pxScale;
     s.vertexShader = 'attribute float aRough;\nattribute vec2 aOcc;\n' + VARY + s.vertexShader
       .replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\n vLocalN = objectNormal;\n mat3 plIm = normalMatrix * mat3(instanceMatrix);\n vAx = normalize(plIm * vec3(1.0, 0.0, 0.0)); vAy = normalize(plIm * vec3(0.0, 1.0, 0.0)); vAz = normalize(plIm * vec3(0.0, 0.0, 1.0));')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\n vRough = aRough; vOcc = aOcc;')
       .replace('#include <project_vertex>', '#include <project_vertex>\n vWorldP = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz; vWorldY = vWorldP.y;');
-    s.fragmentShader = VARY + s.fragmentShader
+    s.fragmentShader = 'uniform float uPxScale;\n' + VARY + s.fragmentShader
       .replace(
         '#include <roughnessmap_fragment>',
         '#include <roughnessmap_fragment>\n roughnessFactor = clamp(roughnessFactor + (vRough - 0.5) * 0.015, 0.05, 1.0);',
@@ -213,7 +221,7 @@ export function buildMonolith(shadows: boolean): Monolith {
         // where one plate is only a few pixels wide its rounded chamfers would alias into a moire: flatten the
         // shading normal toward the face it belongs to, so the stack reads as a clean block at a distance
         '#include <normal_fragment_maps>\n'
-        + ` float pitchPx = ${PITCH.toFixed(5)} / max(length(fwidth(vWorldP)), 1e-5);\n`
+        + ` float pitchPx = ${PITCH.toFixed(5)} / max(length(fwidth(vWorldP)) * uPxScale, 1e-5);\n`
         + ' vec3 la = abs(vLocalN);\n'
         // a face pressed against a neighbour (and its chamfer) takes the stack face's normal, never its own
         + ' float pressed = step(0.0, -vLocalN.x) * vOcc.x + step(0.0, vLocalN.x) * vOcc.y;\n'
@@ -224,15 +232,15 @@ export function buildMonolith(shadows: boolean): Monolith {
         + ' bool xDom = la.x > la.y && la.x > la.z;\n'
         + ' vec3 flatN = xDom ? (pressed < 0.4 ? sign(vLocalN.x) * vAx : faceN) : (la.y > la.z ? sign(vLocalN.y) * vAy : sign(vLocalN.z) * vAz);\n'
         // (three's specular anti-aliasing reads nonPerturbedNormal, so it has to agree)
-        + (reflection ? '' : ' normal = normalize(mix(normal, flatN * faceDirection, 1.0 - smoothstep(2.5, 7.0, pitchPx)));\n nonPerturbedNormal = normal;\n'),
+        + (reflection ? '' : ' normal = normalize(mix(normal, flatN * faceDirection, 1.0 - smoothstep(2.0, 4.5, pitchPx)));\n nonPerturbedNormal = normal;\n'),
       )
       .replace(
         '#include <opaque_fragment>',
         // faces pressed against a neighbour get no light: the stack reads as machined slices with bright edges
         // (a slice narrower than a few pixels would alias into a moire, so the gaps fade out with distance)
         ' float occN = smoothstep(0.5, 0.92, -vLocalN.x) * vOcc.x + smoothstep(0.5, 0.92, vLocalN.x) * vOcc.y;\n'
-        + ' outgoingLight *= 1.0 - 0.94 * occN * smoothstep(2.5, 6.0, pitchPx);\n'
-        + (reflection ? ' diffuseColor.a *= 0.14 * exp(vWorldY * 1.2);\n' : '')
+        + ' outgoingLight *= 1.0 - 0.94 * occN * smoothstep(2.0, 4.5, pitchPx);\n'
+        + (reflection ? ' diffuseColor.a *= 0.22 * exp(vWorldY * 1.1);\n' : '')
         + '#include <opaque_fragment>',
       );
   };
@@ -305,6 +313,7 @@ export function buildMonolith(shadows: boolean): Monolith {
   apply(0, 0, 0, 0, 0);
   return {
     mesh, reflection, poses, apply,
+    setPxScale(v: number): void { pxScale.value = v; },
     dispose(): void { geo.dispose(); mat.dispose(); refMat.dispose(); mesh.dispose(); },
   };
 }

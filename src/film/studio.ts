@@ -74,7 +74,7 @@ export function buildStudio(scene: Scene, shadows: boolean, shadowSize: number):
   // a soft, warm pool under the object (reads as the key's footprint even without shadows)
   const pool = new Mesh(
     new CircleGeometry(4.2, 48),
-    new MeshBasicMaterial({ color: '#2a221b', transparent: true, opacity: 0.55, depthWrite: false }),
+    new MeshBasicMaterial({ color: '#4a2f1d', transparent: true, opacity: 0.8, depthWrite: false }),
   );
   pool.rotation.x = -Math.PI / 2;
   pool.position.y = 0.002;
@@ -103,6 +103,14 @@ export function buildStudio(scene: Scene, shadows: boolean, shadowSize: number):
     key.shadow.camera.far = 22;
   }
 
+  // a low copper spill from the front left: it rakes the floor and warms the foot of the object, so the dark field
+  // reads as a lit studio rather than a void
+  const spill = new SpotLight('#ff9a5c', 38, 18, 0.62, 1, 1.4);
+  spill.position.set(-6.5, 0.9, 4.5);
+  spill.target = new Object3D();
+  spill.target.position.set(0.5, 0.2, -0.5);
+  scene.add(spill, spill.target);
+
   const rim = new DirectionalLight('#f3efe8', 1.4);
   rim.position.set(6, 5, -7);
   scene.add(rim);
@@ -112,7 +120,7 @@ export function buildStudio(scene: Scene, shadows: boolean, shadowSize: number):
   back.position.set(0, 12, -9);
   back.receiveShadow = false;
   scene.add(back);
-  const wash = new SpotLight('#ffe7cf', 60, 30, 0.55, 1, 1.2);
+  const wash = new SpotLight('#ffcf9f', 70, 30, 0.55, 1, 1.2);
   wash.position.set(1.5, 3, 4);
   wash.target = new Object3D();
   wash.target.position.set(0.5, 4.2, -9);

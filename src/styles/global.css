@@ -101,7 +101,7 @@ input, textarea { caret-color: var(--copper); }
 .t-body { font-size: var(--t-body); line-height: 1.6; }
 .t-small { font-size: var(--t-small); line-height: 1.5; }
 .t-label { font: 500 var(--t-label)/1.35 var(--f-mono); font-stretch: 87.5%; letter-spacing: 0.01em; text-transform: uppercase; }
-.t-src { font: 400 0.75rem/1.6 var(--f-mono); font-stretch: 87.5%; letter-spacing: 0; color: var(--text-2); max-width: 70ch; }
+.t-src { font: 400 0.8125rem/1.55 var(--f-sans); letter-spacing: 0; color: var(--text-2); max-width: 70ch; }
 .num, .t-num { font-variant-numeric: tabular-nums lining-nums; }
 .dim { color: var(--text-2); }
 .measure { max-width: 62ch; }
@@ -136,28 +136,17 @@ html.film-live .still { opacity: 0; }
 @media (max-width: 959px) {
   .ch { height: var(--len-m, var(--len, 220svh)); }
   /* the object lives in the top half; copy sits low, on a quiet floor */
-  .stage-in { padding-top: 52svh; }
+  .stage-in { padding-top: 48svh; }
+  .ch--first .stage-in { padding-top: 44svh; }
 }
 
+/* the object moves, the type holds still: one line-mask reveal per chapter headline, on the track's own timeline */
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    .ch .copy { animation: copy linear both; animation-timeline: --ch; animation-range: contain 0% contain 100%; }
-    .ch--first .copy { animation-name: copy-first; }
-    .ch--last .copy { animation-name: copy-last; }
-    .ch:not(.ch--first) .copy { opacity: 0; }
-    .ch .reveal { animation: reveal linear both; animation-timeline: --ch; animation-range: contain 0% contain 40%; }
-    .ch--first .reveal { animation: none; }
-    .beat { animation: beat linear both; animation-timeline: --ch; }
-    .beat:nth-child(1) { animation-range: contain 38% contain 58%; }
-    .beat:nth-child(2) { animation-range: contain 52% contain 72%; }
-    .beat:nth-child(3) { animation-range: contain 66% contain 86%; }
+    .ch:not(.ch--first) .reveal { animation: reveal linear both; animation-timeline: --ch; animation-range: contain 0% contain 22%; }
   }
 }
-@keyframes copy { 0% { opacity: 0; transform: translateY(3rem); } 14%, 86% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-2rem); } }
-@keyframes copy-first { 0%, 80% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-2.5rem); } }
-@keyframes copy-last { 0% { opacity: 0; transform: translateY(3rem); } 18%, 100% { opacity: 1; transform: none; } }
-@keyframes reveal { 0%, 10% { clip-path: inset(0 0 100% 0); transform: translateY(0.35em); } 60%, 100% { clip-path: inset(0 0 -0.2em 0); transform: none; } }
-@keyframes beat { 0% { opacity: 0.18; transform: translateY(0.6rem); } 40%, 100% { opacity: 1; transform: none; } }
+@keyframes reveal { 0% { clip-path: inset(0 0 100% 0); transform: translateY(0.4em); } 100% { clip-path: inset(0 0 -0.25em 0); transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   .ch { height: auto; view-timeline: none; }

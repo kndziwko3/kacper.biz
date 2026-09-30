@@ -1,15 +1,15 @@
 ---
 /**
  * Subpage opener: one viewport of the studio. The film holds this route's pose (data-film-pose, read by
- * src/film/film.ts) and the still of that pose stands in until it runs. Breadcrumb, label, the H1 and the actions.
+ * src/film/film.ts) and the still of that pose stands in until it runs. Breadcrumb, the H1, the lead and the actions.
  */
 import { copy } from '../../content/copy';
 import type { Lang } from '../../content/site';
 interface Props {
-  lang: Lang; crumb: string; h1: string; label?: string; lead?: string;
+  lang: Lang; crumb: string; h1: string; lead?: string;
   pose: number; still?: string; guide?: string; stillPos?: string; short?: boolean;
 }
-const { lang, crumb, h1, label, lead, pose, still = `p${pose}`, guide, stillPos, short = false } = Astro.props;
+const { lang, crumb, h1, lead, pose, still = `p${pose}`, guide, stillPos, short = false } = Astro.props;
 const home = lang === 'pl' ? '/' : '/en';
 ---
 <section class:list={['ph', short && 'ph--short']} data-film-pose={pose} data-guide={guide ?? crumb} aria-labelledby="page-h1" style={stillPos ? `--still-pos:${stillPos}` : undefined}>
@@ -22,7 +22,6 @@ const home = lang === 'pl' ? '/' : '/en';
   <div class="wrap grid ph-grid">
     <div class="ph-in">
       <nav class="t-label ph-crumbs" aria-label={lang === 'pl' ? 'Ścieżka nawigacji' : 'Breadcrumb'}><a class="tlink" href={home}>{copy[lang].ui.home}</a><span aria-hidden="true">/</span><span aria-current="page">{crumb}</span></nav>
-      {label && <p class="t-label dim">{label}</p>}
       <h1 class="t-display ph-h1" id="page-h1">{h1}</h1>
       {lead && <p class="t-lead dim ph-lead">{lead}</p>}
       {Astro.slots.has('default') && <div class="btn-row ph-actions"><slot /></div>}

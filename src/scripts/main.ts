@@ -20,22 +20,24 @@ let film: Film | null = null;
 let filmState: 'idle' | 'starting' | 'live' | 'off' = 'idle';
 let cleanups: Cleanup[] = [];
 
-/* ── wayfinding: the header's centre pill names the chapter or sheet in view ── */
-function wayfinding(): Cleanup {
-  const word = document.querySelector<HTMLElement>('[data-guide-word]');
-  const marks = Array.from(document.querySelectorAll<HTMLElement>('main [data-guide]'));
-  if (!word || !marks.length) return () => undefined;
-  const set = (el: HTMLElement) => {
-    const w = el.dataset.guide ?? '';
-    if (!w || word.textContent === w) return;
-    word.textContent = w;
-    if (!reduced) word.animate([{ opacity: 0, transform: 'translateY(60%)' }, { opacity: 1, transform: 'none' }], { duration: 380, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
-  };
+/* ── chapter rail: lights the chapter whose track holds the viewport centre ── */
+function rail(): Cleanup {
+  const nav = document.querySelector<HTMLElement>('[data-rail]');
+  if (!nav) return () => undefined;
+  const links = new Map(Array.from(nav.querySelectorAll<HTMLAnchorElement>('[data-rail-to]')).map((a) => [a.dataset.railTo!, a]));
+  const set = (id: string) => links.forEach((a, k) => { if (k === id) a.setAttribute('aria-current', 'step'); else a.removeAttribute('aria-current'); });
   const io = new IntersectionObserver((entries) => {
-    for (const e of entries) if (e.isIntersecting) set(e.target as HTMLElement);
-  }, { rootMargin: '-45% 0px -54% 0px' });
-  marks.forEach((m) => io.observe(m));
-  return () => io.disconnect();
+    for (const e of entries) if (e.isIntersecting && links.has(e.target.id)) set(e.target.id);
+  }, { rootMargin: '-50% 0px -50% 0px' });
+  document.querySelectorAll<HTMLElement>('[data-ch]').forEach((ch) => io.observe(ch));
+  // the rail belongs to the film: it steps aside while a sheet or the footer passes under it
+  const under = new Set<Element>();
+  const io2 = new IntersectionObserver((entries) => {
+    for (const e of entries) { if (e.isIntersecting) under.add(e.target); else under.delete(e.target); }
+    root.classList.toggle('rail-hide', under.size > 0);
+  }, { rootMargin: '-88% 0px 0px 0px' });
+  document.querySelectorAll('[data-sheet], footer').forEach((el) => io2.observe(el));
+  return () => { io.disconnect(); io2.disconnect(); root.classList.remove('rail-hide'); };
 }
 
 /* ── menu: a full-screen dialog over everything ── */
@@ -160,7 +162,7 @@ function onPage(): void {
   initAttribution();
   initLeadForms();
   cleanups.push(
-    wayfinding(),
+    rail(),
     menu(),
     initRegistry(reduced),
     initShowcase(reduced),
