@@ -5,7 +5,7 @@ Strona to ciemne studio z jedną rzeźbą: monolitem ze 100 frezowanych płyt (t
 składa się w kolejne pozy rozdziałów, a między rozdziałami na film nasuwają się kremowe arkusze z dowodami (indeks
 branż z CEIDG, wyniki kampanii, cenniki, realizacje, kontakt). PL + EN, zbudowana pod SEO, GEO i AEO oraz jako źródło
 zapytań.
-System wizualny: `DESIGN.md`; kontrakt kierunku: `.impeccable/surfaces/`; fakty o produkcie: `PRODUCT.md`;
+Stan prac i otwarte poprawki: `docs/HANDOFF.md`. System wizualny: `DESIGN.md` (do przepisania, patrz HANDOFF); kontrakt kierunku: `.impeccable/surfaces/`; fakty o produkcie: `PRODUCT.md`;
 idea i zasady tekstów: `docs/art-direction.md`.
 
 ## Stack
