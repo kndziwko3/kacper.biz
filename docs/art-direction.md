@@ -6,46 +6,40 @@ idea and the copy rules in one place for people editing texts.
 
 ## Idea
 
-**kacper.biz is a printed business directory,** the book OutreachPilot reads companies from. Kacper has an entry;
-his products are the display ads; the directory's own furniture is the interface: running heads with guide words,
-thumb-index tabs, leader dots, category heads, a rate card, an order coupon, a colophon on the back cover.
+**kacper.biz is a dark product studio with one sculpture in it.** The object is a monolith of 100 machined
+aluminium slices, three of them copper: 100 micro-firms in CEIDG, of which only 3 list a website. Scrolling is the
+camera moving round the studio while the slices re-form into each chapter's pose; between chapters cream evidence
+sheets slide over the film carrying the facts (the index of sectors, campaign results, prices, client sites, contact).
+Chosen by the owner on 30.09.2026 as the category standard played straight, with Oryzo (oryzo.ai) as the craft bar.
 
-Why it belongs to Kacper and nobody else:
-- OutreachPilot literally finds companies by sector and city in CEIDG, Google Maps and PKT.pl: a directory.
-- The boxed display ad in the phone book was a small business's landing page; FastLanding builds today's version.
-- The numbers are his: 3 181 616 active sole proprietorships in 30 sectors (CEIDG via outreachpilot.pl/firmy,
-  29.09.2026); 3 in 100 micro-firms list a website in CEIDG (sample 4 700, 7.07.2026).
+The numbers are his: 3 181 616 active sole proprietorships in 30 sectors (CEIDG via outreachpilot.pl/firmy,
+29.09.2026); 3 in 100 micro-firms list a website in CEIDG (sample 4 700, 7.07.2026).
 
-## Stocks and inks
+## Grounds and the one accent
 
-Directory yellow for business pages, white pages for the personal and reading parts (the 3-in-100 register, work,
-about, questions), reversed black for FastBot at night and the back cover. Black ink plus one red spot ink (prices,
-the Gliwice marker, active states). Secondary text is black tinted by its stock, never gray.
+Studio #0E0C0A for the film, graphite #191613 for the dark sheet (FastBot at night), cream #EDE7DC for the evidence
+sheets. Text #EDE6DA on dark, ink #15120F on cream. Copper is the only hue: the three slices, the primary action,
+the lit chapter on the rail. No second hue, no gradients on type.
 
 ## Type
 
-Archivo only, in four voices by width: 62 black caps for display and category heads, 72 heavy for statements, 75
-bold caps for listings, 100 regular for reading. Tabular lining numerals everywhere. No mono, no serif, no italics.
+Funnel Display for the name and headings (500, tight tracking; the name in two lines at about 11vw, 18vw on a
+phone), Funnel Sans for reading, Martian Mono only for short labels and data (counts, dates, the rail). Tabular
+lining numerals for figures. No kickers above headings.
 
-## The printed map (WebGL)
+## The film (WebGL)
 
-One point cloud printed in ink on the stock, visible through transparent map windows. The map is an ordered
-halftone screen: an even hex lattice at full ink, tone carried by dot size (bigger around the cities, from a density
-field over the published cities), a solid border, city dots, a small red Gliwice marker. Traffic prints the same way:
-full-ink dots that thin by size, never by transparency. The shape sits in its window and travels with it; scrolling
-through a window turns the map in its own plane like a turntable, and the email arcs stand up off the paper.
-Picking a city in the index spreads red ink from it across the screen, prints a ring and a callout label (HTML type
-placed by projecting the city through the frame).
-
-| chapter | shape | where |
+| chapter | pose | camera |
 |---|---|---|
-| 1 | Poland, Gliwice in red with its marker ring; the chosen city pings in the index | index of sectors, OutreachPilot page head |
-| 2 | Same map, email trails in black ink leave Gliwice, replies come back in red | OutreachPilot window |
-| 3 | Landing-page wireframe | FastLanding page head |
-| 5 | Close-up low over Gliwice | About, Contact, 404 |
+| 0 Start | monolith, copper slices standing proud | three-quarter, object right |
+| 1 3 na 100 | rotunda: the slices fan round a spine, copper rises | high, looking down into it |
+| 2 OutreachPilot | the drawer: slices filed like registry cards, a wave flicks through them | low along the drawer |
+| 3 FastLanding | the slices laid out as a landing page on a plinth | front, page turned to the light |
+| 4 Kontakt | monolith again | low, close, object left |
 
-It prints (a wave from Gliwice) the first time a window is on screen, sleeps under opaque stock, and falls back to
-the SVG poster (`public/map-poster.svg`, `npm run poster`) without a GPU, WebGL or JavaScript.
+Motion grammar: machined, weighted, damped; the object moves, the type holds still; one line-mask reveal per chapter
+headline. Subpages hold one pose (`data-film-pose`). Without a GPU every stage shows the still of its pose
+(`npm run stills`, rendered from the same scene).
 
 ## Copy rules (hard)
 
