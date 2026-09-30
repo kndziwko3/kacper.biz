@@ -22,8 +22,12 @@ const { chapters, label } = Astro.props;
   .rail-n { opacity: 0.7; }
   :global(html.rail-hide) .rail { opacity: 0; translate: -50% 150%; pointer-events: none; }
   @media (max-width: 759px) {
-    .rail a { padding: 0.35rem 0.6rem; }
-    .rail a:not([aria-current]) .rail-name { display: none; }
+    .rail a { padding: 0.35rem 0.8rem; }
+    .rail-n { display: none; }
+    /* the chapters you are not in shrink to ticks; the current one keeps its name */
+    .rail a:not([aria-current]) { min-width: 1.6rem; padding-inline: 0; justify-content: center; }
+    .rail a:not([aria-current]) .rail-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .rail a:not([aria-current])::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
   }
   @media (prefers-reduced-motion: reduce) { .rail { transition: none; } }
 </style>

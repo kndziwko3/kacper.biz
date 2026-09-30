@@ -136,7 +136,7 @@ html.film-live .still { opacity: 0; }
 @media (max-width: 959px) {
   .ch { height: var(--len-m, var(--len, 220svh)); }
   /* the object lives in the top half; copy sits low, on a quiet floor */
-  .stage-in { padding-top: 48svh; }
+  .stage-in { padding-top: 44svh; }
   .ch--first .stage-in { padding-top: 44svh; }
 }
 

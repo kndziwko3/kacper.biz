@@ -31,7 +31,6 @@ const alt = (name: string, kind: string) => (isPl ? `Strona ${name}, ${kind}` : 
       return (
         <article class="grid case" aria-labelledby={`case-${p.key}`}>
           <header class="case-meta">
-            <p class="t-label dim num">{String(i + 1).padStart(2, '0')} / {String(PROJECTS.length).padStart(2, '0')}</p>
             <h3 class="t-h2" id={`case-${p.key}`}>{p.name}</h3>
             <p class="t-body dim">{p.blurb[lang]}</p>
             <dl class="rows">

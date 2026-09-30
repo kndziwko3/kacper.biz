@@ -260,7 +260,6 @@ const pl = {
   op: {
     title: 'OutreachPilot.pl: cold mailing do firm z CEIDG | Kacper Rękawek',
     description: 'OutreachPilot.pl to moje narzędzie do cold mailingu B2B: firmy z CEIDG i Google Maps, maile po polsku pisane przez AI, wysyłka z Twojej skrzynki. Od 0 zł.',
-    kicker: 'OutreachPilot.pl · mój produkt',
     h1: 'Cold mailing do firm z CEIDG i Google Maps.',
     lead: 'Polskie narzędzie SaaS do cold mailingu B2B. Wpisujesz branżę i miasto, AI pisze po polsku sekwencję trzech maili, a wysyłka idzie z Twojej własnej skrzynki.',
     what: {
@@ -307,7 +306,6 @@ const pl = {
   fl: {
     title: 'FastLanding.io: strony w 7–14 dni, chatboty AI | Kacper Rękawek',
     description: 'FastLanding.io to moje studio z Gliwic: landing page za 1 499 zł netto w 7 dni, strona firmowa w 14, chatboty AI, automatyzacje i widoczność w wyszukiwarkach AI.',
-    kicker: 'FastLanding.io · moje studio',
     h1: 'Strona w 7–14 dni, chatbot w 3–5. Termin jest w umowie.',
     lead: 'Studio z Gliwic, które pracuje zdalnie z firmami z całej Polski. Projekt graficzny, teksty i kod pisany ręcznie za stałą cenę.',
     usUk: 'Oferty na rynek amerykański i brytyjski mają osobne ceny w USD i GBP.',
@@ -318,7 +316,6 @@ const pl = {
   work: {
     title: 'Realizacje FastLanding: strony klientów | Kacper Rękawek',
     description: 'Strony klientów FastLanding, które możesz otworzyć: gabinet Stomatologia Mikroskopowa, agencja nieruchomości Hello Home i willa wakacyjna Casa Flamingo.',
-    kicker: 'Realizacje',
     h1: 'Strony klientów, które możesz otworzyć.',
     lead: 'Każdą opisuję tak, jak wygląda dziś. Wyników klientów nie podaję. Zrzuty ekranu pochodzą z portfolio FastLanding.',
     onPage: 'Na stronie',
@@ -338,7 +335,6 @@ const pl = {
   about: {
     title: 'O mnie | Kacper Rękawek, OutreachPilot.pl i FastLanding.io',
     description: 'Kacper Rękawek, przedsiębiorca z Gliwic, założyciel OutreachPilot.pl i FastLanding.io. Czym się zajmuje, dane firmy i profile, które potwierdzają jego tożsamość.',
-    kicker: 'O mnie',
     h1: 'Kacper Rękawek',
     lead: 'Jestem przedsiębiorcą z Gliwic. Prowadzę OutreachPilot.pl, narzędzie do cold mailingu B2B na polskich danych, i FastLanding.io, studio stron, chatbotów AI i aplikacji.',
     body: [
@@ -364,7 +360,6 @@ const pl = {
   contact: {
     title: 'Kontakt | Kacper Rękawek, OutreachPilot.pl i FastLanding.io',
     description: 'Umów 30 minut z Justyną Lajcą (Head of Sales) albo napisz. Wycena strony, chatbota lub pokaz OutreachPilot. Odpowiedź w ciągu 24 godzin w dni robocze.',
-    kicker: 'Kontakt',
     h1: 'Umów rozmowę albo napisz.',
     lead: 'Rozmowę z Justyną umówisz w kalendarzu. Na formularz i maile odpowiadam w ciągu 24 godzin w dni robocze.',
     crumb: 'Kontakt',
@@ -677,7 +672,6 @@ const en: Copy = {
   op: {
     title: 'OutreachPilot.pl: cold outreach in Poland | Kacper Rękawek',
     description: 'OutreachPilot.pl is my B2B cold-outreach tool for Poland: companies from CEIDG and Google Maps, AI-written emails in Polish, sent from your own mailbox. From PLN 0.',
-    kicker: 'OutreachPilot.pl · my product',
     h1: 'Cold outreach to companies from CEIDG and Google Maps.',
     lead: 'A Polish SaaS for B2B cold outreach. You enter a sector and a city, the AI writes a three-email sequence in Polish, and it is sent from your own mailbox.',
     what: {
@@ -724,7 +718,6 @@ const en: Copy = {
   fl: {
     title: 'FastLanding.io: websites and AI chatbots | Kacper Rękawek',
     description: 'FastLanding.io is my Gliwice studio: a landing page for PLN 1,499 net in 7 days, a business site in 14, AI chatbots, automations and visibility in AI search.',
-    kicker: 'FastLanding.io · my studio',
     h1: 'A website in 7–14 days, a chatbot in 3–5. The deadline is in the contract.',
     lead: 'A Gliwice studio working remotely with companies across Poland. Design, copy and hand-written code for a fixed price.',
     usUk: 'US and UK offers have their own USD and GBP pricing.',
@@ -735,7 +728,6 @@ const en: Copy = {
   work: {
     title: 'FastLanding work: client websites | Kacper Rękawek',
     description: 'Client websites delivered by FastLanding that you can open: Stomatologia Mikroskopowa dental clinic, Hello Home real estate and Casa Flamingo holiday villa.',
-    kicker: 'Work',
     h1: 'Client websites you can open.',
     lead: 'Each one is described as it looks today. No client results are quoted. Screenshots come from the FastLanding portfolio.',
     onPage: 'On the site',
@@ -755,7 +747,6 @@ const en: Copy = {
   about: {
     title: 'About | Kacper Rękawek, OutreachPilot.pl and FastLanding.io',
     description: 'Kacper Rękawek, entrepreneur from Gliwice, Poland, founder of OutreachPilot.pl and FastLanding.io. What he does, company details and his profiles elsewhere.',
-    kicker: 'About',
     h1: 'Kacper Rękawek',
     lead: 'I am an entrepreneur from Gliwice, Poland. I run OutreachPilot.pl, a B2B cold-outreach tool on Polish company data, and FastLanding.io, a studio for websites, AI chatbots and apps.',
     body: [
@@ -781,7 +772,6 @@ const en: Copy = {
   contact: {
     title: 'Contact | Kacper Rękawek, OutreachPilot.pl and FastLanding.io',
     description: 'Book 30 minutes with Justyna Lajca (Head of Sales) or write. A quote for a website or chatbot, or an OutreachPilot demo. Reply within 24 hours on working days.',
-    kicker: 'Contact',
     h1: 'Book a call or write to me.',
     lead: 'Book a call with Justyna in the calendar. I answer the form and emails within 24 hours on working days.',
     crumb: 'Contact',

@@ -40,6 +40,18 @@ function rail(): Cleanup {
   return () => { io.disconnect(); io2.disconnect(); root.classList.remove('rail-hide'); };
 }
 
+/* ── header ground: the band under the pills turns to paper while a light sheet runs beneath it ── */
+function headerGround(): Cleanup {
+  const light = Array.from(document.querySelectorAll<HTMLElement>('[data-sheet]:not(.sheet--dark)'));
+  const under = new Set<Element>();
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) { if (e.isIntersecting) under.add(e.target); else under.delete(e.target); }
+    root.classList.toggle('hd-paper', under.size > 0);
+  }, { rootMargin: '0px 0px -92% 0px' });
+  light.forEach((el) => io.observe(el));
+  return () => { io.disconnect(); root.classList.remove('hd-paper'); };
+}
+
 /* ── menu: a full-screen dialog over everything ── */
 function menu(): Cleanup {
   const btn = document.querySelector<HTMLButtonElement>('.hd-menu');
@@ -163,6 +175,7 @@ function onPage(): void {
   initLeadForms();
   cleanups.push(
     rail(),
+    headerGround(),
     menu(),
     initRegistry(reduced),
     initShowcase(reduced),

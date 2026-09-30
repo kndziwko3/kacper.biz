@@ -93,6 +93,7 @@ const rail = [['start', ch[0]], ['trzy', ch[1]], ['film-op', ch[2]], ['film-fl',
   .beat-n { grid-row: span 2; padding-top: 0.4rem; color: var(--copper-hi); }
   .beats--plain .beat { grid-template-columns: 1fr; }
   .beats--plain .beat > * { grid-column: 1; }
+  @media (max-width: 759px) { .beat .t-small { display: none; } .beat { padding-block: 0.7rem; } }
   /* room at the foot of each stage for the chapter rail */
   :global(.ch .stage-in) { padding-bottom: calc(clamp(2.5rem, 7svh, 5.5rem) + 4.5rem); }
 </style>

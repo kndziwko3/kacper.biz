@@ -49,6 +49,11 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
 <style>
   .hd { position: fixed; z-index: 50; inset: 0 0 auto; height: var(--head-h); padding-inline: var(--gutter); display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; pointer-events: none; }
   .hd > * { pointer-events: auto; }
+  /* a band of the ground under the pills, so copy scrolling up never runs into them (paper over a sheet) */
+  .hd::before { content: ''; position: absolute; inset: 0 0 -1.5rem; z-index: -1; pointer-events: none; background: linear-gradient(to bottom, rgba(14, 12, 10, 0.94) 0%, rgba(14, 12, 10, 0.94) 58%, rgba(14, 12, 10, 0)); transition: opacity 0.25s var(--ease); }
+  .hd::after { content: ''; position: absolute; inset: 0 0 -1.5rem; z-index: -1; pointer-events: none; background: linear-gradient(to bottom, rgba(237, 231, 220, 0.96) 0%, rgba(237, 231, 220, 0.96) 58%, rgba(237, 231, 220, 0)); opacity: 0; transition: opacity 0.25s var(--ease); }
+  :global(html.hd-paper) .hd::before { opacity: 0; }
+  :global(html.hd-paper) .hd::after { opacity: 1; }
   .hp { display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0.55rem 1.05rem; border-radius: 999px; background: var(--studio); color: var(--text); box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.12); font: 500 0.95rem/1 var(--f-sans); letter-spacing: -0.01em; transition: box-shadow 0.2s var(--ease); }
   .hp:hover { box-shadow: inset 0 0 0 1px rgba(237, 230, 218, 0.42); }
   .hd-mark { justify-self: start; font-weight: 600; }

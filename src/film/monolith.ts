@@ -6,6 +6,7 @@
  * Plate local axes: X = thickness, Y = height, Z = depth.
  */
 import {
+  AdditiveBlending,
   Color, DynamicDrawUsage, InstancedBufferAttribute, InstancedMesh, Matrix4, MeshPhysicalMaterial, Quaternion, Vector3,
   Euler,
 } from 'three';
@@ -161,7 +162,7 @@ function page(): Pose {
   const plateQ = pageRot.clone().multiply(faceOn);
   const centre = v(0.1, plinthTop + 2.2 * Math.cos(LEAN) + 0.04, 0.2);
   for (const { i, b } of assign) {
-    P.p[i]!.set(b.u, b.v, 0.02 + b.layer * 0.34).applyQuaternion(pageRot).add(centre);
+    P.p[i]!.set(b.u, b.v, 0.02 + b.layer * 0.58).applyQuaternion(pageRot).add(centre);
     P.q[i]!.copy(plateQ);
     P.s[i]!.set(b.layer === 0 ? 2.2 : 1.4, b.h / H, b.w / D);
     P.order[i] = 0.5 * (1 - (b.v + 2.2) / 4.4);
@@ -183,7 +184,7 @@ export interface Monolith {
 export function buildMonolith(shadows: boolean): Monolith {
   const geo = new RoundedBoxGeometry(T, H, D, 5, T * 0.16);
   const mat = new MeshPhysicalMaterial({
-    color: '#ffffff', metalness: 1, roughness: 0.3, envMapIntensity: 1.25,
+    color: '#ffffff', metalness: 1, roughness: 0.28, envMapIntensity: 1.25,
   });
   const mesh = new InstancedMesh(geo, mat, N);
   mesh.instanceMatrix.setUsage(DynamicDrawUsage);
@@ -231,8 +232,10 @@ export function buildMonolith(shadows: boolean): Monolith {
         + ' vec3 faceN = abs(fy) > abs(fz) ? sign(fy) * vAy : sign(fz) * vAz;\n'
         + ' bool xDom = la.x > la.y && la.x > la.z;\n'
         + ' vec3 flatN = xDom ? (pressed < 0.4 ? sign(vLocalN.x) * vAx : faceN) : (la.y > la.z ? sign(vLocalN.y) * vAy : sign(vLocalN.z) * vAz);\n'
+        // the block's own outer corners keep their rounded chamfer: that is where the strip light glints
+        + ' float outer = step(0.2, -vLocalN.x) * (1.0 - vOcc.x) + step(0.2, vLocalN.x) * (1.0 - vOcc.y);\n'
         // (three's specular anti-aliasing reads nonPerturbedNormal, so it has to agree)
-        + (reflection ? '' : ' normal = normalize(mix(normal, flatN * faceDirection, 1.0 - smoothstep(2.0, 4.5, pitchPx)));\n nonPerturbedNormal = normal;\n'),
+        + (reflection ? '' : ' normal = normalize(mix(normal, flatN * faceDirection, (1.0 - smoothstep(2.0, 4.5, pitchPx)) * (1.0 - clamp(outer, 0.0, 1.0))));\n nonPerturbedNormal = normal;\n'),
       )
       .replace(
         '#include <opaque_fragment>',
@@ -240,7 +243,7 @@ export function buildMonolith(shadows: boolean): Monolith {
         // (a slice narrower than a few pixels would alias into a moire, so the gaps fade out with distance)
         ' float occN = smoothstep(0.5, 0.92, -vLocalN.x) * vOcc.x + smoothstep(0.5, 0.92, vLocalN.x) * vOcc.y;\n'
         + ' outgoingLight *= 1.0 - 0.94 * occN * smoothstep(2.0, 4.5, pitchPx);\n'
-        + (reflection ? ' diffuseColor.a *= 0.22 * exp(vWorldY * 1.1);\n' : '')
+        + (reflection ? ' diffuseColor.a *= 0.09 * exp(vWorldY * 2.4);\n' : '')
         + '#include <opaque_fragment>',
       );
   };
@@ -251,6 +254,8 @@ export function buildMonolith(shadows: boolean): Monolith {
   refMat.transparent = true;
   refMat.depthWrite = false;
   refMat.depthTest = false;
+  // the floor only ever adds light: dark faces vanish into it, the copper and the strip highlights mirror softly
+  refMat.blending = AdditiveBlending;
   refMat.onBeforeCompile = patch(true);
   refMat.customProgramCacheKey = () => 'plate-reflection';
   const reflection = new InstancedMesh(geo, refMat, N);

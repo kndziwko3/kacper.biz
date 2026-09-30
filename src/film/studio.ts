@@ -35,7 +35,9 @@ export function studioEnvironment(renderer: WebGLRenderer): Texture {
   // second strip, right front, lower: a cool-neutral kicker for the plate faces
   card(1.2, 7, 3.2, '#efeee9', 7, 3, 7, [0, 1.5, 0]);
   // softbox on the right: the page and the drawer faces pick it up
-  card(3, 6, 1.1, '#f6efe6', 9, 3, 0, [0, 1.5, 0]);
+  card(3, 6, 0.55, '#f6efe6', 9, 3, 0, [0, 1.5, 0]);
+  // a narrow hard strip beside it: on the broad aluminium faces it reads as the crisp band that says polished metal
+  card(1.1, 9, 7, '#fbf6ef', 9, 3.2, 1.7, [0, 1.5, 0]);
   // dark grey studio walls all round, so no metal face ever reads as a hole
   const walls = new Mesh(new CylinderGeometry(15, 15, 7, 32, 1, true), new MeshBasicMaterial({ color: new Color('#b8b0a6').multiplyScalar(0.09), side: BackSide }));
   walls.position.y = 2.5;

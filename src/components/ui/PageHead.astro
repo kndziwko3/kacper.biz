@@ -1,7 +1,7 @@
 ---
 /**
  * Subpage opener: one viewport of the studio. The film holds this route's pose (data-film-pose, read by
- * src/film/film.ts) and the still of that pose stands in until it runs. Breadcrumb, the H1, the lead and the actions.
+ * src/film/film.ts) and the still of that pose stands in until it runs. The H1, the lead, the actions, the breadcrumb.
  */
 import { copy } from '../../content/copy';
 import type { Lang } from '../../content/site';
@@ -21,10 +21,10 @@ const home = lang === 'pl' ? '/' : '/en';
   </div>
   <div class="wrap grid ph-grid">
     <div class="ph-in">
-      <nav class="t-label ph-crumbs" aria-label={lang === 'pl' ? 'Ścieżka nawigacji' : 'Breadcrumb'}><a class="tlink" href={home}>{copy[lang].ui.home}</a><span aria-hidden="true">/</span><span aria-current="page">{crumb}</span></nav>
       <h1 class="t-display ph-h1" id="page-h1">{h1}</h1>
       {lead && <p class="t-lead dim ph-lead">{lead}</p>}
       {Astro.slots.has('default') && <div class="btn-row ph-actions"><slot /></div>}
+      <nav class="t-small ph-crumbs" aria-label={lang === 'pl' ? 'Ścieżka nawigacji' : 'Breadcrumb'}><a class="tlink" href={home}>{copy[lang].ui.home}</a><span aria-hidden="true">/</span><span aria-current="page">{crumb}</span></nav>
     </div>
   </div>
 </section>
@@ -33,7 +33,7 @@ const home = lang === 'pl' ? '/' : '/en';
   .ph--short { min-height: min(78svh, 52rem); }
   .ph-grid { padding-top: calc(var(--head-h) + 2rem); padding-bottom: clamp(3rem, 9svh, 6rem); }
   .ph-in { display: grid; gap: 1.35rem; justify-items: start; }
-  .ph-crumbs { display: flex; gap: 0.6rem; color: var(--text-2); margin-bottom: 0.5rem; }
+  .ph-crumbs { display: flex; gap: 0.5rem; color: var(--text-2); margin-top: 0.75rem; }
   .ph-h1 { max-width: 16ch; }
   .ph-lead { max-width: 44ch; }
   .ph-actions { margin-top: 0.75rem; }
