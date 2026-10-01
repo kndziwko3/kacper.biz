@@ -68,7 +68,7 @@ interface Shot {
 /** Camera and light per pose. */
 export const SHOTS: Shot[] = [
   { pos: [3.6, 2.7, 5.4], tgt: [0.6, 1.45, 0], fov: 28, fx: 0.4, drift: 0.22, env: 1, key: [0.3, 1.2, 0], cone: 0.42, ap: 0.035, vig: 0.42, exp: 1, rim: 0.8, mob: [1.8, 0.2] },
-  { pos: [1.3, 8.4, 8.2], tgt: [0.15, 1.75, 0], fov: 24, fx: 0.29, drift: 0.16, env: 1, key: [0.2, 1.9, 0.2], cone: 0.42, ap: 0.03, vig: 0.42, exp: 0.86, rim: 0.8, mob: [2.3, 0.27] },
+  { pos: [1.3, 8.4, 8.2], tgt: [0.15, 1.75, 0], fov: 24, fx: 0.29, drift: 0.16, env: 1, key: [0.2, 1.9, 0.2], cone: 0.42, ap: 0.03, vig: 0.42, exp: 0.86, rim: 0.8, mob: [1.85, 0.24] },
   { pos: [-2.2, 2.9, 4.4], tgt: [-0.95, 1.2, 0.25], fov: 28, fx: -0.25, drift: 0.1, env: 0.9, key: [0, 1.0, 0], cone: 0.42, ap: 0.06, vig: 0.45, exp: 1, rim: 0.7, mob: [2.2, 0.3] },
   { pos: [3.46, 3.54, 6.89], tgt: [0.1, 1.45, 0], fov: 32, fx: 0.24, drift: 0.2, env: 1, key: [0.1, 1.2, 0], cone: 0.42, ap: 0.03, vig: 0.42, exp: 1, rim: 3.2, mob: [1.72, 0.1] },
   { pos: [0.15, 2.2, 1.7], tgt: [0.94, 1.2, 0.48], fov: 22, fx: 0.3, drift: 0.08, env: 0.55, key: [0.94, 1.2, 0.48], cone: 0.3, ap: 0.12, vig: 0.5, exp: 1, rim: 0.5, mob: [1.35, 0.27] },
@@ -205,6 +205,8 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
   let width = 1, height = 1, dpr = 1, dprScale = 1, mobile = false;
   let yD = window.scrollY, time = 0, raf = 0, last = 0, destroyed = false, asleep = false;
   let px = 0, py = 0, tpx = 0, tpy = 0, pointerAt = -1e9;
+  // a finger on the board presses the cap under it for a moment (touch has no hover)
+  let tapX = 0, tapY = 0, tapUntil = -1;
   let lastTyped = -1;
   const raycaster = new Raycaster(), ndc = new Vector2();
   let ema = 16.7, frames = 0, shifts = 0;
@@ -214,7 +216,9 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     const w = window.innerWidth, h = window.innerHeight;
     // the phone URL bar changes the height by a few percent: ignore those
     if (!force && w === width && Math.abs(h - height) / Math.max(1, height) < 0.25) return;
-    width = w; height = h; mobile = w < 900;
+    width = w; height = h;
+    // a phone held sideways takes the desktop composition (copy one side, object the other)
+    mobile = w < 900 && !(h <= 520 && w > h * 1.25);
     dpr = Math.min(window.devicePixelRatio || 1, mobile ? Math.min(1.5, cfg.dpr + 0.15) : cfg.dpr) * dprScale;
     if (opts.supersample) dpr = window.devicePixelRatio || 1;
     else if (w * h * dpr * dpr > PIXEL_BUDGET) dpr = Math.sqrt(PIXEL_BUDGET / (w * h));
@@ -268,9 +272,10 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     // a sheet sliding over the film takes some of the light with it, so the handoff reads as paper over a lit set
     pu.uExposure!.value = mix(A.exp, B.exp) * (1 - 0.4 * tracks.sheetCover(yD, height));
     // the pointer presses the cap it rests on (mouse only, and only while it keeps moving now and then)
-    if (!mobile && time - pointerAt < 4) {
+    const tapping = time < tapUntil;
+    if (tapping || (!mobile && time - pointerAt < 4)) {
       camera.updateMatrixWorld();
-      raycaster.setFromCamera(ndc.set(tpx, tpy), camera);
+      raycaster.setFromCamera(tapping ? ndc.set(tapX, tapY) : ndc.set(tpx, tpy), camera);
       kb.pointer(raycaster.ray);
     } else kb.pointer(null);
     kb.apply(st.a, st.b, st.t, st.local, time);
@@ -333,6 +338,12 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
   };
 
   const onResize = (): void => { resize(); tracks.measure(); if (opts.reduced) render(); };
+  const onTap = (e: PointerEvent): void => {
+    if (e.pointerType === 'mouse') return;
+    tapX = (e.clientX / Math.max(1, width)) * 2 - 1;
+    tapY = -((e.clientY / Math.max(1, height)) * 2 - 1);
+    tapUntil = time + 0.32;
+  };
   const onPointer = (e: PointerEvent): void => {
     if (e.pointerType === 'touch') return;
     tpx = (e.clientX / Math.max(1, width)) * 2 - 1;
@@ -366,6 +377,7 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
     step(1 / 60); draw();
     start();
     window.addEventListener('pointermove', onPointer, { passive: true });
+    window.addEventListener('pointerdown', onTap, { passive: true });
     document.addEventListener('visibilitychange', onVisibility);
   }
   window.addEventListener('resize', onResize, { passive: true });
@@ -389,6 +401,7 @@ export async function createFilm(canvas: HTMLCanvasElement, opts: FilmOptions): 
       ro.disconnect();
       window.removeEventListener('resize', onResize);
       window.removeEventListener('pointermove', onPointer);
+      window.removeEventListener('pointerdown', onTap);
       window.removeEventListener('scroll', onStillScroll);
       document.removeEventListener('visibilitychange', onVisibility);
       kb.dispose(); studio.dispose(); post.dispose(); rt.dispose();

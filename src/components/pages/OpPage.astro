@@ -15,7 +15,7 @@ const steps = c.home.op.steps;
 const isPl = lang === 'pl';
 const path = isPl ? '/outreachpilot' : '/en/outreachpilot';
 const home = isPl ? '/' : '/en';
-const faq = [c.faq[1]!, c.faq[4]!, c.faq[5]!];
+const faq = [c.faq[1]!, c.faq[8]!, c.faq[4]!, c.faq[9]!, c.faq[5]!];
 ---
 <Base lang={lang} path={path} title={o.title} description={o.description} kind="product"
   breadcrumbs={[{ name: c.ui.home, path: home }, { name: o.crumb, path }]} faq={faq}
@@ -33,8 +33,8 @@ const faq = [c.faq[1]!, c.faq[4]!, c.faq[5]!];
         <p class="t-body dim">{o.what.p2}</p>
       </div>
       <div class="pg-side">
-        <h3 class="t-label dim">{o.forWho.h2}</h3>
-        <ul class="rows">
+        <h3 class="t-h3">{o.forWho.h2}</h3>
+        <ul class="rows op-for">
           {o.forWho.items.map(([label, href]) => <li><a class="k tlink" href={href} data-outbound data-cta="op-vertical" rel="noopener">{label}</a><span class="v t-label dim">{href.replace('https://', '')}</span></li>)}
         </ul>
       </div>
@@ -65,3 +65,11 @@ const faq = [c.faq[1]!, c.faq[4]!, c.faq[5]!];
 
   <Faq lang={lang} items={faq} />
 </Base>
+
+<style>
+  /* sector pages: on a phone the name and its address stack, so neither wraps into a ragged column */
+  @media (max-width: 559px) {
+    .op-for > li { grid-template-columns: 1fr; gap: 0.2rem; }
+    .op-for .v { text-align: left; overflow-wrap: anywhere; }
+  }
+</style>

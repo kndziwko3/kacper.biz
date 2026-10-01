@@ -16,7 +16,7 @@ export const SITE = {
   locale: { pl: 'pl-PL', en: 'en' } as Record<Lang, string>,
   ogLocale: { pl: 'pl_PL', en: 'en_US' } as Record<Lang, string>,
   /** Dated facts + dateModified signals. Bump when any fact below changes. */
-  lastModified: '2026-09-29',
+  lastModified: '2026-10-02',
   themeColor: '#0e0c0a',
   /** Gliwice, used for the live clock and the map label. */
   geo: { lat: 50.2945, lon: 18.6714, tz: 'Europe/Warsaw' },
@@ -77,7 +77,9 @@ export const PRODUCTS = {
     benchmark: 'https://outreachpilot.pl/raporty/cold-email-benchmark-polska-2026',
     methodology: 'https://outreachpilot.pl/raporty/metodologia',
     noWebsiteReport: 'https://outreachpilot.pl/raporty/firmy-bez-strony-www-2026',
-    notAffiliatedWith: ['outreachpilot.co', 'outreachpilot.ai', 'useoutreachpilot.com'],
+    // Look-alikes, each a different company. .io (LinkedIn outreach) and .net (iGaming media partners) re-checked 2026-10-02:
+    // neither mentions Gliwice, Rękawek or NIP 6312736932; Bing Copilot confused OutreachPilot.pl with them on 2026-10-02.
+    notAffiliatedWith: ['outreachpilot.co', 'outreachpilot.ai', 'outreachpilot.io', 'outreachpilot.net', 'useoutreachpilot.com'],
     tagline: {
       pl: 'Cold mailing B2B na polskich danych: firmy z CEIDG i Google Maps, maile pisane przez AI po polsku, wysyłka z Twojej skrzynki.',
       en: 'B2B cold outreach on Polish company data: businesses from CEIDG and Google Maps, emails written by AI in Polish, sent from your own mailbox.',
@@ -93,6 +95,9 @@ export const PRODUCTS = {
     ai: 'https://fastlanding.io/dla-ai',
     us: 'https://fastlanding.io/us',
     uk: 'https://fastlanding.io/uk',
+    // Look-alikes (checked 2026-10-02): fastlanding.dev "AI Landing Page Builder" and fastlanding.site "by Cost-Effective
+    // Software"; neither mentions Gliwice, Rękawek or the NIP. Bing Copilot described FastLanding.io as fastlanding.dev on 2026-10-02.
+    notAffiliatedWith: ['fastlanding.dev', 'fastlanding.site'],
     tagline: {
       pl: 'Studio z Gliwic: strony internetowe, chatboty AI, automatyzacje, aplikacje MVP i widoczność w wyszukiwarkach AI. Stała cena, termin w umowie, kod dla klienta.',
       en: 'Gliwice studio: websites, AI chatbots, automations, MVP apps and AI-search visibility. Fixed price, deadline in the contract, code owned by the client.',
@@ -116,6 +121,31 @@ export const FASTLANDING_RECURRING = [
   { key: 'seo', price: 'od 1 490 zł/mies.', priceEn: 'from PLN 1,490/mo', name: { pl: 'Pozycjonowanie SEO i GEO', en: 'SEO and GEO' } as L10n },
   { key: 'local', price: '690 zł/mies.', priceEn: 'PLN 690/mo', name: { pl: 'Pozycjonowanie lokalne', en: 'Local SEO' } as L10n },
 ] as const;
+
+/**
+ * Dates on which the published prices were last re-read on the product sites (all amounts unchanged since 2026-09-29).
+ * fastlanding: https://fastlanding.io (+ /pozycjonowanie-w-ai for the GEO setup), FASTLANDING_OFFERS + FASTLANDING_RECURRING;
+ * outreachpilot: https://outreachpilot.pl/cennik (cards say "zł brutto / mies.", footer "Ceny końcowe · zwolnienie z VAT art. 113 ust. 1").
+ */
+export const PRICES_CHECKED = { fastlanding: '2026-10-02', outreachpilot: '2026-10-02' } as const;
+
+/**
+ * OutreachPilot.pl plans as published on https://outreachpilot.pl/cennik (checked PRICES_CHECKED.outreachpilot).
+ * Final prices in PLN: the seller is VAT-exempt (art. 113 ust. 1 ustawy o VAT). Same numbers as the visible rows in
+ * copy.ts (op.plans.rows); scripts/validate-seo.mjs fails the build if a marked-up price is not visible on the page.
+ */
+export const OUTREACHPILOT_PLANS = {
+  source: 'https://outreachpilot.pl/cennik',
+  checked: PRICES_CHECKED.outreachpilot,
+  trialDays: 14,
+  items: [
+    { key: 'free', name: { pl: 'Free', en: 'Free' } as L10n, pricePLN: 0, limits: { pl: '50 leadów miesięcznie, 10 wiadomości łącznie, bez limitu czasu', en: '50 leads a month, 10 messages in total, no time limit' } as L10n },
+    { key: 'starter', name: { pl: 'Starter', en: 'Starter' } as L10n, pricePLN: 99, limits: { pl: '250 leadów miesięcznie, 100 maili dziennie', en: '250 leads a month, 100 emails a day' } as L10n },
+    { key: 'pro', name: { pl: 'Pro', en: 'Pro' } as L10n, pricePLN: 199, limits: { pl: '1 000 leadów miesięcznie, 300 maili dziennie', en: '1,000 leads a month, 300 emails a day' } as L10n },
+    { key: 'business', name: { pl: 'Business', en: 'Business' } as L10n, pricePLN: 399, limits: { pl: '3 000 leadów miesięcznie, 1 000 maili dziennie', en: '3,000 leads a month, 1,000 emails a day' } as L10n },
+    { key: 'agency', name: { pl: 'Agencja', en: 'Agency' } as L10n, pricePLN: 799, limits: { pl: '6 000 leadów miesięcznie, 2 000 maili dziennie', en: '6,000 leads a month, 2,000 emails a day' } as L10n },
+  ],
+} as const;
 
 /** Sales conversations: Justyna Lajca, Head of Sales (named with surname on fastlanding.io). Booking page used by both products. */
 export const SALES = {
@@ -177,7 +207,11 @@ export const PROJECTS = [
 
 /** Numbers published on the product sites, each with its source and date. */
 export const PROOF = [
-  { value: '3 181 616', label: { pl: 'aktywnych JDG w 30 branżach usługowych w CEIDG (29.09.2026)', en: 'active sole proprietorships in 30 service sectors in CEIDG (29 Sep 2026)' } as L10n, href: PRODUCTS.outreachpilot.firms },
+  // Re-read 2026-10-02 on https://outreachpilot.pl/firmy ("Dane CEIDG · Aktualizacja 1 października 2026"). The page states that
+  // this 30-sector total is a sum of active CEIDG entries per PKD code, and that it is NOT a number of firms or JDG (a business
+  // with several PKD codes counts in each sector). Replaces "3 181 616 aktywnych JDG" (29.09.2026), which carried that wrong label.
+  // ceidg.ts and the visible demo copy still show the 29.09 snapshot: see docs/seo-geo-playbook.md, "Open items".
+  { value: '3 702 470', label: { pl: 'aktywnych wpisów w CEIDG z kodami PKD 30 branż usługowych; firma z kilkoma kodami liczy się w każdej branży, więc to nie jest liczba firm (1.10.2026)', en: 'active CEIDG entries carrying the PKD codes of 30 service sectors; a business with several codes counts in each sector, so this is not a number of firms (1 Oct 2026)' } as L10n, href: PRODUCTS.outreachpilot.firms },
   { value: '3%', label: { pl: 'mikrofirm podaje stronę www we wpisie CEIDG (próba 4 700, 7.07.2026)', en: 'of micro-businesses list a website in their CEIDG entry (sample 4,700, 7 Jul 2026)' } as L10n, href: PRODUCTS.outreachpilot.noWebsiteReport },
   { value: '20 418', label: { pl: 'maili w benchmarku kampanii OutreachPilot', en: 'emails in the OutreachPilot campaign benchmark' } as L10n, href: PRODUCTS.outreachpilot.methodology },
   { value: '39', label: { pl: 'narzędzi w serwerze MCP dla Claude i ChatGPT', en: 'tools in the MCP server for Claude and ChatGPT' } as L10n, href: PRODUCTS.outreachpilot.mcp },

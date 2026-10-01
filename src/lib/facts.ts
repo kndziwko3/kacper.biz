@@ -14,6 +14,10 @@ import {
   SALES,
   CONTACT,
   FASTLANDING_OFFERS,
+  FASTLANDING_RECURRING,
+  OUTREACHPILOT_PLANS,
+  PRICES_CHECKED,
+  BENCHMARK,
   LEGAL_NOTE,
   type Lang,
 } from '../content/site';
@@ -65,7 +69,8 @@ export const CITY_GENITIVE_PL = 'Gliwic';
 /** Localise a published proof value for the EN surfaces ("20 418" -> "20,418", "7 dni" -> "7 days"). PL stays verbatim. */
 export function localizeValue(value: string, lang: Lang): string {
   if (lang === 'pl') return value;
-  return value.replace(/(\d)\s(\d{3})\b/g, '$1,$2').replace(/\bdni\b/g, 'days');
+  // lookahead, so every thousands group is converted ("3 181 616" -> "3,181,616", not "3,181 616")
+  return value.replace(/(\d)[\s\u00a0\u202f](?=\d{3}(?!\d))/g, '$1,').replace(/\bdni\b/g, 'days');
 }
 
 /** The look-alike domains OutreachPilot.pl must not be confused with (from site.ts). */
@@ -79,6 +84,15 @@ export function outreachpilotDisambiguation(lang: Lang): string {
   return `Polish product from ${PERSON.city}, Poland; founder: ${PERSON.name}. Not affiliated with ${list}.`;
 }
 
+/** The look-alike domains FastLanding.io must not be confused with (from site.ts). */
+export function fastlandingDisambiguation(lang: Lang): string {
+  const others = PRODUCTS.fastlanding.notAffiliatedWith;
+  const list = (sep: string) => (others.length > 1 ? `${others.slice(0, -1).join(', ')} ${sep} ${others[others.length - 1]}` : others.join(''));
+  return lang === 'pl'
+    ? `Studio z ${CITY_GENITIVE_PL}; założyciel: ${PERSON.name}. Nie jest powiązane z ${list('ani')} (generatory landing page innych firm).`
+    : `Studio from ${PERSON.city}, Poland; founder: ${PERSON.name}. Not affiliated with ${list('or')} (other companies' AI landing-page builders).`;
+}
+
 /* ───────────────────────── Offers ───────────────────────── */
 
 export type FastLandingOffer = (typeof FASTLANDING_OFFERS)[number];
@@ -88,8 +102,10 @@ export interface ParsedPrice {
   amount: number | null;
   /** True when the published price is a starting price ("od …" / "from …"). */
   from: boolean;
-  /** Recurring monthly amount in PLN (e.g. the FastBot subscription), if the published string has one. */
+  /** Recurring monthly amount in PLN on top of a one-off amount (e.g. the FastBot subscription "+ 190 zł/mies."). */
   monthly: number | null;
+  /** True when the only amount is itself a monthly price ("690 zł/mies.", "od 1 490 zł/mies."). */
+  perMonth: boolean;
 }
 
 /** Parse the published PL price string ("od 1 990 zł + 190 zł/mies.") into numbers. The visible string is kept verbatim elsewhere. */
@@ -99,8 +115,9 @@ export function parsePrice(published: string): ParsedPrice {
     const digits = (m[1] ?? '').replace(/[\s  ]/g, '');
     if (digits) nums.push(Number(digits));
   }
-  const monthly = /\/\s*mies/i.test(published) && nums.length > 1 ? (nums[nums.length - 1] ?? null) : null;
-  return { amount: nums[0] ?? null, from: /^\s*od\b/i.test(published), monthly };
+  const hasMonth = /\/\s*mies/i.test(published);
+  const monthly = hasMonth && nums.length > 1 ? (nums[nums.length - 1] ?? null) : null;
+  return { amount: nums[0] ?? null, from: /^\s*od\b/i.test(published), monthly, perMonth: hasMonth && nums.length === 1 };
 }
 
 /* ───────────────────────── Page labels (llms.txt link lists) ───────────────────────── */
@@ -145,6 +162,23 @@ export const PAGE_LABELS: Record<string, { pl: string; en: string; note: { pl: s
 };
 
 /* ───────────────────────── FAQ (optional, owned by the lead) ───────────────────────── */
+
+/**
+ * Stable fragment id for a FAQ question ("Kim jest Kacper Rękawek?" -> "faq-kim-jest-kacper-rekawek"), shared by the
+ * visible FAQ (Faq.astro) and FAQPage markup (Question.url), so an answer can be linked and cited directly.
+ * Works on raw copy (with no-break spaces / word joiners) and on stripped text alike.
+ */
+export function faqAnchor(question: string): string {
+  const ascii = question
+    .replace(/<[^>]+>/g, '')
+    .replace(/[łŁ]/g, (c) => (c === 'ł' ? 'l' : 'L'))
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return `faq-${ascii.slice(0, 64).replace(/-+$/, '')}`;
+}
 
 export interface FaqItem {
   q: string;
@@ -226,10 +260,9 @@ export function getFaq(lang: Lang): FaqItem[] {
  */
 export function buildFactsDocument(): Record<string, unknown> {
   const both = <T>(pl: T, en: T) => ({ pl, en });
-  const onDate = SITE.lastModified;
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     site: {
       url: SITE.url,
       name: SITE.name,
@@ -249,6 +282,7 @@ export function buildFactsDocument(): Record<string, unknown> {
       alternateName: [...PERSON.alternateName],
       jobTitle: both(PERSON.jobTitle.pl, PERSON.jobTitle.en),
       location: { city: PERSON.city, region: PERSON.region, country: PERSON.country },
+      languages: ['pl', 'en'],
       knowsAbout: both([...PERSON.knowsAbout.pl], [...PERSON.knowsAbout.en]),
       sameAs: personSameAs(),
       disambiguation: both(PERSON.disambiguation.pl, PERSON.disambiguation.en),
@@ -273,6 +307,7 @@ export function buildFactsDocument(): Record<string, unknown> {
         url: PRODUCTS.fastlanding.url,
         founder: PERSON.id,
         description: both(PRODUCTS.fastlanding.tagline.pl, PRODUCTS.fastlanding.tagline.en),
+        notAffiliatedWith: [...PRODUCTS.fastlanding.notAffiliatedWith],
         registry: { nip: PERSON.business.nip, regon: PERSON.business.regon },
         location: { city: PERSON.city, country: PERSON.country },
         areaServed: 'PL',
@@ -293,8 +328,24 @@ export function buildFactsDocument(): Record<string, unknown> {
         name: PRODUCTS.fastlanding.name,
         url: PRODUCTS.fastlanding.url,
         quoteForm: PRODUCTS.fastlanding.quote,
+        chatbotPage: PRODUCTS.fastlanding.bot,
         aiPage: PRODUCTS.fastlanding.ai,
       },
+    },
+    outreachpilotPlans: {
+      seller: ORG_IDS.outreachpilot,
+      currency: 'PLN',
+      vat: 'final price, seller VAT-exempt (art. 113 ust. 1 of the Polish VAT Act)',
+      trialDays: OUTREACHPILOT_PLANS.trialDays,
+      checkedOn: OUTREACHPILOT_PLANS.checked,
+      source: OUTREACHPILOT_PLANS.source,
+      plans: OUTREACHPILOT_PLANS.items.map((p) => ({
+        key: p.key,
+        name: both(p.name.pl, p.name.en),
+        pricePLN: p.pricePLN,
+        billing: p.pricePLN === 0 ? 'free, no time limit' : 'monthly',
+        limits: both(p.limits.pl, p.limits.en),
+      })),
     },
     offers: FASTLANDING_OFFERS.map((o) => {
       const p = parsePrice(o.price);
@@ -309,15 +360,47 @@ export function buildFactsDocument(): Record<string, unknown> {
         currency: 'PLN',
         vat: 'net',
         turnaround: both(o.time.pl, o.time.en),
-        publishedOn: onDate,
+        checkedOn: PRICES_CHECKED.fastlanding,
         source: PRODUCTS.fastlanding.url,
       };
     }),
+    recurringOffers: FASTLANDING_RECURRING.map((o) => {
+      const p = parsePrice(o.price);
+      return {
+        seller: ORG_IDS.fastlanding,
+        key: o.key,
+        name: both(o.name.pl, o.name.en),
+        priceAsPublished: both(o.price, o.priceEn),
+        priceType: p.from ? 'starting-from' : 'fixed',
+        amountPLN: p.amount,
+        billing: p.perMonth ? 'monthly' : 'one-off',
+        currency: 'PLN',
+        vat: 'net',
+        checkedOn: PRICES_CHECKED.fastlanding,
+        source: PRODUCTS.fastlanding.url,
+      };
+    }),
+    benchmark: {
+      emails: Number(BENCHMARK.emails.en.replace(/\D/g, '')),
+      campaignsWithSends: BENCHMARK.campaignsWithSends,
+      campaignsTotal: BENCHMARK.campaignsTotal,
+      openRatePct: Number(BENCHMARK.openRate.en.replace('%', '')),
+      replyRatePct: Number(BENCHMARK.replyRate.en.replace('%', '')),
+      bounceRatePct: Number(BENCHMARK.bounceRate.en.replace('%', '')),
+      dataFrozenOn: BENCHMARK.frozen,
+      representative: false,
+      source: PRODUCTS.outreachpilot.benchmark,
+      methodology: PRODUCTS.outreachpilot.methodology,
+    },
+    registryStatistics: {
+      systemOfRecord: PRODUCTS.outreachpilot.firms,
+      note: 'Sector figures are active CEIDG entries per PKD code; a business with several PKD codes counts in each sector, so they must not be added up into a number of firms. Use the current figures on the source page.',
+    },
     proof: PROOF.map((p) => ({
       value: p.value,
       label: both(p.label.pl, p.label.en),
       source: p.href,
-      publishedOn: onDate,
+      // the date of each number is part of its label (e.g. "29.09.2026", "sample 4,700, 7 Jul 2026")
     })),
     clientWork: PROJECTS.map((p) => ({
       name: p.name,
@@ -356,7 +439,7 @@ export function notClaimed(lang: Lang): string[] {
         'Na kacper.biz nie ma opinii ani ocen klientów i nie są one oznaczane w danych strukturalnych.',
         LEGAL_NOTE.pl,
         'outreachpilot.pl to własny produkt założyciela, nie realizacja dla klienta; projekty w zakładce Realizacje to prace klientów FastLanding.',
-        `Ceny to ceny netto w PLN opublikowane na fastlanding.io w dniu ${SITE.lastModified}; mogą się zmienić, a cena „od” jest ceną startową. Wiążąca jest oferta na fastlanding.io.`,
+        `Ceny FastLanding to ceny netto w PLN opublikowane na fastlanding.io (sprawdzone ${PRICES_CHECKED.fastlanding}); mogą się zmienić, a cena „od” jest ceną startową. Wiążąca jest oferta na fastlanding.io, a dla OutreachPilot cennik na outreachpilot.pl/cennik.`,
         `Jako lokalizacja publikowane jest tylko miasto (${PERSON.city}); adres ulicy nie jest publikowany.`,
         'Numer telefonu w danych kontaktowych obsługuje asystenta AI, który na początku rozmowy informuje, że jest AI.',
       ]
@@ -365,7 +448,7 @@ export function notClaimed(lang: Lang): string[] {
         'kacper.biz publishes no customer reviews or ratings and marks none up as structured data.',
         LEGAL_NOTE.en,
         'outreachpilot.pl is the founder\'s own product, not client work; the projects on the Work page are FastLanding client work.',
-        `Prices are net PLN prices published on fastlanding.io on ${SITE.lastModified}; they may change, and a "from" price is a starting price. The offer on fastlanding.io is the binding one.`,
+        `FastLanding prices are net PLN prices published on fastlanding.io (checked ${PRICES_CHECKED.fastlanding}); they may change, and a "from" price is a starting price. The offer on fastlanding.io is binding, and for OutreachPilot the price list on outreachpilot.pl/cennik.`,
         `Only the city (${PERSON.city}) is published as location; no street address is published.`,
         'The phone number in the contact details is answered by an AI assistant that says it is an AI at the start of each call.',
       ];

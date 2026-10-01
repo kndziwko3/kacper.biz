@@ -39,4 +39,5 @@ const home = lang === 'pl' ? '/' : '/en';
   .ph-actions { margin-top: 0.75rem; }
   @media (min-width: 960px) { .ph-in { grid-column: 1 / 8; } }
   @media (max-width: 959px) { .ph:not(.ph--short) .ph-grid { padding-top: 50svh; } }
+  @media (max-width: 959px) and (max-height: 520px) and (orientation: landscape) { .ph:not(.ph--short) .ph-grid { padding-top: calc(var(--head-h) + 1rem); } .ph { min-height: 100svh; } .ph-h1 { font-size: clamp(1.6rem, 0.4rem + 8vh, 2.6rem); } }
 </style>

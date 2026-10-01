@@ -1,8 +1,10 @@
 {
+  "id": "/",
   "name": "Kacper Rękawek",
   "short_name": "kacper.biz",
   "description": "Kacper Rękawek, założyciel OutreachPilot.pl i FastLanding.io. Gliwice.",
   "lang": "pl-PL",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "browser",

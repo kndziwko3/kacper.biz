@@ -4,7 +4,18 @@
  * Strings are passed through typoDeep() for Polish micro-typography (no-break spaces) at build time.
  */
 import { typoDeep } from '../lib/typo';
-import { BENCHMARK, CONTACT, PERSON, SALES, SITE, LEGAL_NOTE } from './site';
+import { BENCHMARK, CONTACT, FASTLANDING_OFFERS, PERSON, PRODUCTS, SALES, SITE, LEGAL_NOTE } from './site';
+import { CEIDG } from './ceidg';
+
+/** Date of the CEIDG snapshot shown on the site, so FAQ answers follow ceidg.ts when it is refreshed. */
+const ceidgDate = (lang: 'pl' | 'en') =>
+  new Date(CEIDG.date).toLocaleDateString(lang === 'pl' ? 'pl-PL' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+const offer = (key: string) => FASTLANDING_OFFERS.find((o) => o.key === key)!;
+/** "a, b i c" / "a, b and c" */
+const list = (items: readonly string[], and: string) =>
+  items.length > 1 ? `${items.slice(0, -1).join(', ')} ${and} ${items[items.length - 1]}` : items.join('');
+const OP_LOOKALIKES = PRODUCTS.outreachpilot.notAffiliatedWith;
+const FL_LOOKALIKES = PRODUCTS.fastlanding.notAffiliatedWith;
 
 const pl = {
   ui: {
@@ -31,7 +42,7 @@ const pl = {
       privacy: 'Polityka prywatności',
       linkedin: 'LinkedIn',
       company: `${PERSON.business.legalName} · NIP ${PERSON.business.nip} · REGON ${PERSON.business.regon}`,
-      disambig: 'OutreachPilot.pl nie jest powiązany z outreachpilot.co, outreachpilot.ai ani useoutreachpilot.com.',
+      disambig: `OutreachPilot.pl nie jest powiązany z ${list(OP_LOOKALIKES, 'ani')}.`,
     },
   },
 
@@ -85,7 +96,7 @@ const pl = {
     contactH2: 'Umów rozmowę albo napisz.',
     faqH2: 'Pytania',
     guide: { lookup: 'Indeks branż', work: 'Realizacje', bot: 'FastBot', faq: 'Pytania', about: 'O mnie', privacy: 'Prywatność', notFound: '404' },
-    lookup: { list: 'Branże i aktywne JDG w całej Polsce', result: 'Twój rynek', pick: 'Wybierz branżę i miasto' },
+    lookup: { list: 'Branże i aktywne wpisy w CEIDG w całej Polsce', result: 'Twój rynek', pick: 'Wybierz branżę i miasto' },
     free: { h3: 'Zacznij od planu Free', p: 'Plan Free kosztuje 0 zł i nie ma limitu czasu. Każde nowe konto dostaje 14 dni planu Pro bez karty.' },
     rateOnce: 'Jednorazowo',
     botHours: 'czynne pn–pt 8–16',
@@ -115,11 +126,11 @@ const pl = {
     demo: {
       label: 'Dane z rejestru',
       h2: 'Sprawdź swój rynek w CEIDG.',
-      p: 'Wybierz branżę i miasto. Liczby dotyczą aktywnych jednoosobowych działalności z publicznych statystyk OutreachPilot.',
+      p: 'Wybierz branżę i miasto. Liczby to aktywne wpisy w CEIDG z danym kodem PKD, z publicznych statystyk OutreachPilot.',
       sector: 'Branża',
       city: 'Miasto',
-      sectorCount: 'aktywnych JDG w tej branży w całej Polsce',
-      cityCount: 'aktywnych JDG {in}, łącznie w 30 branżach',
+      sectorCount: 'aktywnych wpisów z tym kodem PKD w całej Polsce',
+      cityCount: 'aktywnych wpisów {in}, łącznie w 30 branżach',
       mailLabel: 'Pierwsze zdanie maila z odmianą miasta.',
       mail: 'Dzień dobry, Panie Tomaszu, widzę, że prowadzi Pan firmę {in}.',
       mailNote: 'W OutreachPilot treść maila pisze AI na podstawie Twojej oferty.',
@@ -127,8 +138,8 @@ const pl = {
       all: 'Wszystkie 30 branż',
       tableSector: 'Branża',
       tablePkd: 'PKD',
-      tableCount: 'Aktywne JDG',
-      source: 'CEIDG przez outreachpilot.pl/firmy, stan na 29 września 2026. Łącznie 3 181 616 aktywnych JDG w 30 branżach usługowych.',
+      tableCount: 'Aktywne wpisy',
+      source: 'CEIDG przez outreachpilot.pl/firmy, stan na 1 października 2026. Łącznie 3 702 470 aktywnych wpisów w 30 branżach usługowych. To nie jest liczba firm: firma z kilkoma kodami PKD liczy się w każdej branży.',
     },
 
     op: {
@@ -300,7 +311,7 @@ const pl = {
     },
     disambig: {
       h2: 'Nie mylić z innymi serwisami o tej nazwie',
-      p: `OutreachPilot.pl to polski produkt z Gliwic (${PERSON.business.legalName}, NIP ${PERSON.business.nip}). Domeny outreachpilot.co, outreachpilot.ai i useoutreachpilot.com należą do innych, niepowiązanych firm.`,
+      p: `OutreachPilot.pl to polski produkt z Gliwic (${PERSON.business.legalName}, NIP ${PERSON.business.nip}). Domeny ${list(OP_LOOKALIKES, 'i')} należą do innych, niepowiązanych firm.`,
     },
     cta: { h2: 'Zacznij od planu Free.', btn: 'Załóż darmowe konto', alt: 'Umów pokaz z Justyną' },
     crumb: 'OutreachPilot',
@@ -336,7 +347,7 @@ const pl = {
   },
 
   about: {
-    title: 'O mnie | Kacper Rękawek, OutreachPilot.pl i FastLanding.io',
+    title: 'Kacper Rękawek z Gliwic: o mnie, dane firmy i profile',
     description: 'Kacper Rękawek, przedsiębiorca z Gliwic, założyciel OutreachPilot.pl i FastLanding.io. Czym się zajmuje, dane firmy i profile, które potwierdzają jego tożsamość.',
     h1: 'Kacper Rękawek',
     lead: 'Jestem przedsiębiorcą z Gliwic. Prowadzę OutreachPilot.pl, narzędzie do cold mailingu B2B na polskich danych, i FastLanding.io, studio stron, chatbotów AI i aplikacji.',
@@ -401,7 +412,7 @@ const pl = {
       a: 'OutreachPilot.pl to polskie narzędzie SaaS do cold mailingu B2B. Wpisujesz branżę i miasto, dostajesz firmy z Google Maps, PKT.pl i CEIDG, AI pisze sekwencję trzech maili po polsku, a wysyłka idzie z Twojej skrzynki (Gmail, Outlook albo SMTP). Plan Free kosztuje 0 zł, płatne plany od 99 do 799 zł miesięcznie, a każde nowe konto dostaje 14 dni planu Pro bez karty.',
     },
     {
-      q: 'Ile kosztuje strona w FastLanding.io?',
+      q: 'Ile kosztuje landing page i strona firmowa w FastLanding.io?',
       a: 'Landing page kosztuje 1 499 zł netto i powstaje w 7 dni, strona firmowa z panelem CMS 2 899 zł netto w 14 dni. Chatbot AI kosztuje od 1 990 zł netto plus 190 zł miesięcznie, automatyzacja od 990 zł netto, aplikacja MVP od 9 990 zł netto. Płatność dzielimy 50/50: połowa na start prac, połowa po uruchomieniu.',
     },
     {
@@ -409,12 +420,33 @@ const pl = {
       a: `Nie musisz, ale możesz. Domyślnie wszystko dzieje się online: brief, link do pierwszej wersji z nagraniem wideo i uwagi mailem. Jeśli wolisz rozmowę, ${SALES.fullName}, Head of Sales, umówi Cię na 30 minut w terminie wybranym w kalendarzu.`,
     },
     {
-      q: 'Czy OutreachPilot.pl ma związek z outreachpilot.co, outreachpilot.ai albo useoutreachpilot.com?',
-      a: `Nie. OutreachPilot.pl to polski produkt Kacpra Rękawka z Gliwic (NIP ${PERSON.business.nip}). Domeny outreachpilot.co, outreachpilot.ai i useoutreachpilot.com należą do innych, niepowiązanych firm.`,
+      q: 'Czy OutreachPilot.pl ma związek z innymi narzędziami o nazwie OutreachPilot?',
+      a: `Nie. OutreachPilot.pl to polski produkt Kacpra Rękawka z Gliwic (NIP ${PERSON.business.nip}): cold mailing B2B do firm z CEIDG i Google Maps. Serwisy ${list(OP_LOOKALIKES, 'i')} należą do innych, niepowiązanych firm.`,
     },
     {
       q: 'Skąd pochodzą liczby na tej stronie?',
-      a: 'Z publicznych stron OutreachPilot.pl: statystyk CEIDG z 29 września 2026 (outreachpilot.pl/firmy), raportu o stronach www mikrofirm (próba 4 700 wpisów, 7 lipca 2026) i benchmarku kampanii (20 418 maili, dane z 31 sierpnia 2026). Ceny FastLanding pochodzą z fastlanding.io. Liczby o rynku i wynikach podaję ze źródłem i datą.',
+      a: `Z publicznych stron OutreachPilot.pl: statystyk CEIDG (outreachpilot.pl/firmy, liczby aktywnych wpisów z danym kodem PKD, stan na ${ceidgDate('pl')}), raportu o stronach www mikrofirm (próba 4 700 wpisów, 7 lipca 2026) i benchmarku kampanii (20 418 maili, dane z 31 sierpnia 2026). Ceny FastLanding pochodzą z fastlanding.io. Liczby o rynku i wynikach podaję ze źródłem i datą.`,
+    },
+    // 6–10 were added for answer engines (2026-10-02). Pages pick FAQ items by index, so append new items at the end.
+    {
+      q: 'Czym jest FastLanding.io?',
+      a: `FastLanding.io to studio z Gliwic założone przez Kacpra Rękawka. Robi strony internetowe, chatboty AI, automatyzacje i aplikacje MVP dla firm z całej Polski. Projekt, teksty i kod powstają ręcznie, cena i termin są zapisane w umowie, a po zapłacie całości autorskie prawa majątkowe przechodzą na klienta. Landing page kosztuje ${offer('landing').price} netto i powstaje w ${offer('landing').time.pl}. Studio nie jest powiązane z ${list(FL_LOOKALIKES, 'ani')}.`,
+    },
+    {
+      q: 'Ile kosztuje chatbot AI dla firmy w FastLanding.io?',
+      a: 'FastBot, chatbot AI od FastLanding.io, kosztuje od 1 990 zł netto za wdrożenie plus 190 zł netto miesięcznie za hosting i model AI. Działa po 3–5 dniach, zna ofertę i cennik firmy, odpowiada klientom także wieczorem, a dane kontaktowe razem z całą rozmową wysyła na adres e-mail firmy. Instaluje się jedną linijką kodu na WordPressie, Wixie, Shopify albo stronie od innej agencji.',
+    },
+    {
+      q: 'Czym jest cold mailing do firm z CEIDG?',
+      a: `To wysyłka pierwszego maila B2B do firm wyszukanych w CEIDG, publicznym rejestrze jednoosobowych działalności, na przykład według branży (kodu PKD) i miasta. W OutreachPilot.pl lista firm powstaje z CEIDG, Google Maps, PKT.pl i OpenStreetMap, AI pisze po polsku trzy maile, a wysyłka idzie z Twojej skrzynki. ${LEGAL_NOTE.pl}`,
+    },
+    {
+      q: 'Ile mikrofirm w Polsce podaje stronę www w CEIDG?',
+      a: 'Według raportu OutreachPilot tylko 3 na 100 mikrofirm podaje adres strony internetowej we wpisie w CEIDG (próba 4 700 wpisów, stan na 7 lipca 2026). Raport liczy tylko adresy wpisane do rejestru, więc część pozostałych firm ma stronę, ale jej nie wpisała.',
+    },
+    {
+      q: 'Jak skontaktować się z Kacprem Rękawkiem?',
+      a: `Napisz na ${CONTACT.studioEmail} w sprawie stron, chatbotów i SEO albo na ${CONTACT.productEmail} w sprawie OutreachPilot. Odpowiadam w ciągu 24 godzin w dni robocze. Jeśli wolisz rozmowę, umów 30 minut z Justyną Lajcą, Head of Sales, w jej kalendarzu. Numer ${CONTACT.aiPhone.display} odbiera asystent AI, który na początku rozmowy mówi, że jest AI.`,
     },
   ],
 };
@@ -446,7 +478,7 @@ const en: Copy = {
       privacy: 'Privacy policy',
       linkedin: 'LinkedIn',
       company: `${PERSON.business.legalName} · NIP ${PERSON.business.nip} · REGON ${PERSON.business.regon}`,
-      disambig: 'OutreachPilot.pl is not affiliated with outreachpilot.co, outreachpilot.ai or useoutreachpilot.com.',
+      disambig: `OutreachPilot.pl is not affiliated with ${list(OP_LOOKALIKES, 'or')}.`,
     },
   },
 
@@ -530,11 +562,11 @@ const en: Copy = {
     demo: {
       label: 'Registry data',
       h2: 'Check your market in CEIDG.',
-      p: 'Pick a sector and a city. The figures count active sole proprietorships, from OutreachPilot’s public statistics of the Polish business registry.',
+      p: 'Pick a sector and a city. The figures are active entries in CEIDG, the Polish register of sole proprietorships, carrying that PKD code, from OutreachPilot’s public statistics.',
       sector: 'Sector',
       city: 'City',
-      sectorCount: 'active sole proprietorships in this sector across Poland',
-      cityCount: 'active sole proprietorships in {name}, all 30 sectors combined',
+      sectorCount: 'active entries with this PKD code across Poland',
+      cityCount: 'active entries in {name}, all 30 sectors combined',
       mailLabel: 'The first line of an email, with the city inflected in Polish.',
       mail: 'Dzień dobry, Panie Tomaszu, widzę, że prowadzi Pan firmę {in}.',
       mailNote: 'In OutreachPilot the email itself is written by AI from your offer.',
@@ -542,8 +574,8 @@ const en: Copy = {
       all: 'All 30 sectors',
       tableSector: 'Sector',
       tablePkd: 'PKD',
-      tableCount: 'Active sole proprietorships',
-      source: 'CEIDG via outreachpilot.pl/firmy, as of 29 September 2026. 3,181,616 active sole proprietorships across 30 service sectors.',
+      tableCount: 'Active entries',
+      source: 'CEIDG via outreachpilot.pl/firmy, as of 1 October 2026. 3,702,470 active entries across 30 service sectors. This is not a number of businesses: an entry with several PKD codes counts in each sector.',
     },
 
     op: {
@@ -715,7 +747,7 @@ const en: Copy = {
     },
     disambig: {
       h2: 'Not to be confused with other services of the same name',
-      p: `OutreachPilot.pl is a Polish product from Gliwice (${PERSON.business.legalName}, NIP ${PERSON.business.nip}). The domains outreachpilot.co, outreachpilot.ai and useoutreachpilot.com belong to other, unrelated companies.`,
+      p: `OutreachPilot.pl is a Polish product from Gliwice (${PERSON.business.legalName}, NIP ${PERSON.business.nip}). The domains ${list(OP_LOOKALIKES, 'and')} belong to other, unrelated companies.`,
     },
     cta: { h2: 'Start with the Free plan.', btn: 'Create a free account', alt: 'Book a demo with Justyna' },
     crumb: 'OutreachPilot',
@@ -751,7 +783,7 @@ const en: Copy = {
   },
 
   about: {
-    title: 'About | Kacper Rękawek, OutreachPilot.pl and FastLanding.io',
+    title: 'About Kacper Rękawek, Gliwice, Poland: company and profiles',
     description: 'Kacper Rękawek, entrepreneur from Gliwice, Poland, founder of OutreachPilot.pl and FastLanding.io. What he does, company details and his profiles elsewhere.',
     h1: 'Kacper Rękawek',
     lead: 'I am an entrepreneur from Gliwice, Poland. I run OutreachPilot.pl, a B2B cold-outreach tool on Polish company data, and FastLanding.io, a studio for websites, AI chatbots and apps.',
@@ -816,7 +848,7 @@ const en: Copy = {
       a: 'OutreachPilot.pl is a Polish SaaS for B2B cold outreach. You enter a sector and a city, get companies from Google Maps, PKT.pl and CEIDG, the AI writes a three-email sequence in Polish, and it is sent from your own mailbox (Gmail, Outlook or SMTP). The Free plan costs PLN 0, paid plans PLN 99 to 799 a month, and every new account gets 14 days of Pro with no card.',
     },
     {
-      q: 'How much does a website from FastLanding.io cost?',
+      q: 'How much do a landing page and a business site cost at FastLanding.io?',
       a: 'A landing page costs PLN 1,499 net and takes 7 days, a business site with a CMS PLN 2,899 net in 14 days. An AI chatbot starts at PLN 1,990 net plus PLN 190 a month, an automation at PLN 990 net, an MVP app at PLN 9,990 net. Payment is split 50/50: half when work starts, half after launch.',
     },
     {
@@ -824,12 +856,33 @@ const en: Copy = {
       a: `No, but you can. By default everything happens online: a brief, a link to the first version with a video walkthrough and feedback by email. If you prefer to talk, ${SALES.fullName}, Head of Sales, will book 30 minutes with you at a time you pick in the calendar.`,
     },
     {
-      q: 'Is OutreachPilot.pl related to outreachpilot.co, outreachpilot.ai or useoutreachpilot.com?',
-      a: `No. OutreachPilot.pl is a Polish product by Kacper Rękawek from Gliwice (NIP ${PERSON.business.nip}). The domains outreachpilot.co, outreachpilot.ai and useoutreachpilot.com belong to other, unrelated companies.`,
+      q: 'Is OutreachPilot.pl related to other tools called OutreachPilot?',
+      a: `No. OutreachPilot.pl is a Polish product by Kacper Rękawek from Gliwice (NIP ${PERSON.business.nip}): B2B cold outreach to companies from CEIDG and Google Maps. The sites ${list(OP_LOOKALIKES, 'and')} belong to other, unrelated companies.`,
     },
     {
       q: 'Where do the numbers on this site come from?',
-      a: 'From public OutreachPilot.pl pages: CEIDG statistics as of 29 September 2026 (outreachpilot.pl/firmy), a report on micro-business websites (4,700 entries, 7 July 2026) and a campaign benchmark (20,418 emails, data from 31 August 2026). FastLanding prices come from fastlanding.io. I give a source and date for every market and results figure.',
+      a: `From public OutreachPilot.pl pages: CEIDG statistics (outreachpilot.pl/firmy, counts of active entries with a given PKD code, as of ${ceidgDate('en')}), a report on micro-business websites (4,700 entries, 7 July 2026) and a campaign benchmark (20,418 emails, data from 31 August 2026). FastLanding prices come from fastlanding.io. I give a source and date for every market and results figure.`,
+    },
+    // 6–10: same order as the Polish list (pages pick FAQ items by index).
+    {
+      q: 'What is FastLanding.io?',
+      a: `FastLanding.io is a studio from Gliwice, Poland, founded by Kacper Rękawek. It builds websites, AI chatbots, automations and MVP apps for companies across Poland. Design, copy and code are done by hand, the price and the deadline are written into the contract, and after full payment the copyright passes to the client. A landing page costs ${offer('landing').priceEn} net and takes ${offer('landing').time.en}. The studio is not affiliated with ${list(FL_LOOKALIKES, 'or')}.`,
+    },
+    {
+      q: 'How much does an AI chatbot for a business cost at FastLanding.io?',
+      a: 'FastBot, the AI chatbot from FastLanding.io, costs from PLN 1,990 net to set up plus PLN 190 net a month for hosting and the AI model. It is live in 3–5 days, knows the company’s offer and prices, answers customers in the evening too, and emails the contact details with the whole conversation to the business. It installs with one line of code on WordPress, Wix, Shopify or a site built by another agency.',
+    },
+    {
+      q: 'What is cold outreach to companies from CEIDG?',
+      a: `It means sending a first B2B email to businesses found in CEIDG, Poland’s public register of sole proprietorships, for example by sector (PKD code) and city. In OutreachPilot.pl the list comes from CEIDG, Google Maps, PKT.pl and OpenStreetMap, the AI writes three emails in Polish, and they are sent from your own mailbox. ${LEGAL_NOTE.en}`,
+    },
+    {
+      q: 'How many Polish micro-businesses list a website in CEIDG?',
+      a: 'According to an OutreachPilot report, only 3 in 100 micro-businesses list a website address in their CEIDG entry (sample of 4,700 entries, 7 July 2026). The report counts only addresses entered in the registry, so some of the others have a site and never listed it.',
+    },
+    {
+      q: 'How do I contact Kacper Rękawek?',
+      a: `Write to ${CONTACT.studioEmail} about websites, chatbots and SEO, or to ${CONTACT.productEmail} about OutreachPilot. I reply within 24 hours on working days. If you prefer to talk, book 30 minutes with ${SALES.fullName}, Head of Sales, in her calendar. The number ${CONTACT.aiPhone.display} is answered by an AI assistant that says it is an AI at the start of the call.`,
     },
   ],
 };

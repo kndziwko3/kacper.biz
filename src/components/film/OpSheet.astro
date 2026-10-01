@@ -63,12 +63,12 @@ const bench = isPl
 </Sheet>
 
 <style>
-  .op-proof { margin-top: clamp(4.5rem, 12vh, 8rem); row-gap: 4rem; align-items: start; }
+  .op-proof { margin-top: var(--gap-sec); row-gap: var(--gap-sec); align-items: start; }
   .op-bench, .op-plans { display: grid; gap: 1.5rem; align-content: start; }
   .op-line { font: 500 var(--t-h3)/1.3 var(--f-display); margin: 0; letter-spacing: -0.015em; padding-block: 1.25rem; border-block: 1px solid var(--line-p); text-wrap: pretty; }
   .op-plans .rows .k { font-weight: 500; }
   .op-plans-note { margin-top: -0.25rem; }
-  .op-go { margin-top: clamp(4.5rem, 12vh, 8rem); padding-top: clamp(2.5rem, 6vh, 4rem); border-top: 1px solid var(--line-p); row-gap: 2rem; align-items: end; }
+  .op-go { margin-top: var(--gap-sec); padding-top: clamp(2.25rem, 1.4rem + 2.6vw, 4rem); border-top: 1px solid var(--line-p); row-gap: 2rem; align-items: end; }
   .op-go-in { display: grid; gap: 1.25rem; justify-items: start; }
   .op-go-in .btn-row { margin-top: 0.75rem; }
   @media (min-width: 960px) {

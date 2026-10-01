@@ -16,6 +16,9 @@
  * page and excludes /lab and /api, llms.txt / llms-full.txt / facts.json / manifest / icons / IndexNow key.
  * Hard rules of this project are enforced too: no GitHub links, no AggregateRating/Review, no streetAddress, exactly one
  * Person node (Kacper), none for anybody else.
+ * Also (2026-10-02): every Offer price in JSON-LD must be visible on the page, FAQ Question.url fragments must exist,
+ * no em dash (U+2014) in any built text file, no word joiner (U+2060) in titles / meta / JSON-LD, og:locale matches the
+ * page language, sitemap <lastmod> on every URL, a raster favicon is declared, and llms.txt H2 sections are link lists.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -61,6 +64,16 @@ const add = (scope, level, msg) => {
 const err = (scope, msg) => add(scope, 'error', msg);
 const warn = (scope, msg) => add(scope, 'warn', msg);
 const len = (s) => [...s].length;
+const EM_DASH = '\u2014';
+const WORD_JOINER = '\u2060';
+/** Visible-text forms of a PLN amount: "1 499 zł", "1499 zł", "PLN 1,499", "PLN 1 499". */
+function priceVisible(text, n) {
+  const pl = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const en = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp(`(^|[^\\d,.])(${esc(pl)}|${esc(String(n))})\\s?zł|PLN\\s?(${esc(en)}|${esc(pl)}|${esc(String(n))})(?![\\d,])`);
+  return re.test(text);
+}
 
 /* ───────────────────────── tiny HTML toolkit ───────────────────────── */
 const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
@@ -383,8 +396,24 @@ for (const page of pages.values()) {
     }
   }
 
+  /* invisible / banned characters in search-result text */
+  for (const [k, v] of [['<title>', page.title ?? ''], ...Object.entries(page.metas)]) {
+    if (!/^(<title>|description|og:|twitter:)/.test(k)) continue;
+    if (v.includes(WORD_JOINER)) err(S, `${k} contains a word joiner (U+2060); strip it from search-result text`);
+    if (v.includes(EM_DASH)) err(S, `${k} contains an em dash (U+2014)`);
+  }
+  if (full && page.metas['og:locale']) {
+    const want = page.lang === 'pl' ? 'pl_PL' : 'en_';
+    if (!page.metas['og:locale'].startsWith(want)) warn(S, `og:locale ${page.metas['og:locale']} does not match page language ${page.lang}`);
+  }
+
   /* JSON-LD */
   for (const e of page.ldErrors) err(S, `JSON-LD does not parse: ${e}`);
+  for (const b of page.ld) {
+    const j = JSON.stringify(b);
+    if (j.includes(WORD_JOINER) || j.includes('\\u2060')) err(S, 'JSON-LD contains a word joiner (U+2060)');
+    if (j.includes(EM_DASH) || j.includes('\\u2014')) err(S, 'JSON-LD contains an em dash (U+2014)');
+  }
   if (page.ld.length === 0 && page.ldErrors.length === 0) level(full)(S, 'no JSON-LD block');
   if (page.ld.length > 0) {
     const g = analyseGraph(page.ld);
@@ -423,8 +452,35 @@ for (const page of pages.values()) {
       if (types.includes('FAQPage')) {
         for (const q of n.mainEntity ?? []) {
           if (q?.name && !page.text.toLowerCase().includes(norm(q.name))) warn(S, `FAQPage question is not visible on the page (markup must match content): "${q.name}"`);
+          if (typeof q?.url === 'string') {
+            const u = new URL(q.url);
+            const frag = decodeURIComponent(u.hash.replace(/^#/, ''));
+            if (`${u.origin}${u.pathname}` !== want) err(S, `FAQ Question.url is not on this page: ${q.url}`);
+            else if (!frag || !page.ids.has(frag)) err(S, `FAQ Question.url fragment #${frag} has no element with that id on the page`);
+          }
         }
       }
+    }
+    // Every Offer price that is marked up must be visible on the page (Google: markup must match visible content).
+    const offers = [];
+    const collectOffers = (v) => {
+      if (Array.isArray(v)) return v.forEach(collectOffers);
+      if (typeof v !== 'object' || v === null) return;
+      if (g.typeOf(v).includes('Offer')) offers.push(v);
+      Object.values(v).forEach(collectOffers);
+    };
+    page.ld.forEach(collectOffers);
+    for (const o of offers) {
+      if (!o.priceCurrency) err(S, `Offer "${o.name ?? '?'}" has no priceCurrency`);
+      const amounts = new Set();
+      const take = (x) => {
+        if (!x || typeof x !== 'object') return;
+        for (const k of ['price', 'minPrice']) if (typeof x[k] === 'number') amounts.add(x[k]);
+      };
+      take(o);
+      [].concat(o.priceSpecification ?? []).forEach(take);
+      if (amounts.size === 0) err(S, `Offer "${o.name ?? '?'}" has no price, minPrice or priceSpecification`);
+      for (const n of amounts) if (!priceVisible(page.text, n)) err(S, `Offer "${o.name ?? '?'}": price ${n} PLN is marked up but not visible on the page`);
     }
   }
 
@@ -520,9 +576,14 @@ else {
   for (const bot of SEARCH_BOTS) if (!groups.some((g) => g.agents.includes(bot.toLowerCase()))) warn(SITEWIDE, `robots.txt has no explicit group for ${bot} (allowed via *, listed for clarity elsewhere)`);
 }
 
+function readIfEarly(rel) {
+  return isFile(path.join(DIST, rel)) ? fs.readFileSync(path.join(DIST, rel), 'utf8') : null;
+}
+
 /* sitemap */
 const sitemapUrls = [];
 const sitemapAlternates = new Map();
+const sitemapLastmods = new Set();
 {
   const indexFile = path.join(DIST, 'sitemap-index.xml');
   const roots = [];
@@ -545,6 +606,11 @@ const sitemapAlternates = new Map();
       if (!l) continue;
       const url = decodeEntities(l[1]);
       sitemapUrls.push(url);
+      const lm = block.match(/<lastmod>\s*([^<]+?)\s*<\/lastmod>/);
+      if (!lm) warn(SITEWIDE, `sitemap URL has no <lastmod>: ${url}`);
+      else if (Number.isNaN(Date.parse(lm[1]))) err(SITEWIDE, `sitemap <lastmod> is not a W3C date: ${lm[1]} (${url})`);
+      else if (Date.parse(lm[1]) > Date.now() + 36e5 * 24) err(SITEWIDE, `sitemap <lastmod> is in the future: ${lm[1]} (${url})`);
+      else sitemapLastmods.add(lm[1].slice(0, 10));
       const alts = new Map();
       for (const a of block.matchAll(/<xhtml:link\b([^>]*)\/?>/g)) {
         const at = parseAttrs(a[1]);
@@ -585,7 +651,26 @@ const sitemapAlternates = new Map();
 }
 
 /* entity / AI surfaces */
-const readIf = (rel) => (isFile(path.join(DIST, rel)) ? fs.readFileSync(path.join(DIST, rel), 'utf8') : null);
+// llms.txt (llmstxt.org): H2 sections hold only "- [label](https://...)" items, no H3+, every URL listed once.
+{
+  const t = readIfEarly('llms.txt');
+  if (t !== null) {
+    let section = null;
+    const seen = new Set();
+    t.split(/\r?\n/).forEach((raw, i) => {
+      const line = raw.trim();
+      if (!line) return;
+      if (/^###/.test(line)) return err(SITEWIDE, `llms.txt line ${i + 1}: only H1 and H2 headings are allowed`);
+      if (/^##\s/.test(line)) return void (section = line);
+      if (!section) return;
+      const m = line.match(/^-\s+\[([^\]]+)]\((https:\/\/[^\s)]+)\)(?::\s*(.*))?$/);
+      if (!m) return err(SITEWIDE, `llms.txt line ${i + 1}: lines under an H2 must be "- [label](https://...)" link items`);
+      if (seen.has(m[2].toLowerCase())) err(SITEWIDE, `llms.txt line ${i + 1}: URL listed twice: ${m[2]}`);
+      seen.add(m[2].toLowerCase());
+    });
+  }
+}
+const readIf = readIfEarly;
 for (const f of ['llms.txt', 'llms-full.txt']) {
   const t = readIf(f);
   if (t === null) err(SITEWIDE, `${f} missing`);
@@ -635,6 +720,41 @@ for (const f of ['favicon.svg', 'apple-touch-icon.png', 'site.webmanifest']) if 
   for (const f of keyFiles) if (fs.readFileSync(f, 'utf8').trim() !== path.basename(f, '.txt')) err(SITEWIDE, `IndexNow key file ${path.basename(f)} does not contain its own name as the key`);
 }
 if (!pages.has('/404')) warn(SITEWIDE, '404.html missing');
+
+/* sitemap lastmod agrees with facts.json site.lastModified (both come from SITE.lastModified) */
+{
+  try {
+    const lm = JSON.parse(readIf('facts.json') ?? '{}')?.site?.lastModified;
+    if (lm && sitemapLastmods.size && !(sitemapLastmods.size === 1 && sitemapLastmods.has(lm)))
+      warn(SITEWIDE, `sitemap <lastmod> dates (${[...sitemapLastmods].join(', ')}) differ from facts.json site.lastModified (${lm})`);
+  } catch {
+    /* facts.json errors are reported above */
+  }
+}
+
+/* favicon: the home page declares an icon, and at least one raster icon is a square multiple of 48 px */
+{
+  const home = pages.get('/');
+  if (home) {
+    const icons = startTags(home.html, 'link').filter((l) => (l.rel ?? '').toLowerCase().split(/\s+/).includes('icon'));
+    if (icons.length === 0) err(SITEWIDE, 'home page declares no <link rel="icon">');
+    const rasterOk = icons.some((l) => {
+      const f = l.href ? distFileFor(new URL(l.href, SITE).pathname) : null;
+      const sz = f ? pngSize(f) : null;
+      return sz && sz.w === sz.h && sz.w % 48 === 0;
+    });
+    // /favicon.ico is only a fallback for clients that ignore <link rel="icon">; required only when no raster icon is declared.
+    if (icons.length && !rasterOk && !isFile(path.join(DIST, 'favicon.ico')))
+      warn(SITEWIDE, 'no raster favicon declared (PNG, square, multiple of 48 px) and no /favicon.ico; Bing and older Safari ignore SVG icons');
+  }
+}
+
+/* em dash (U+2014) anywhere in built text output (owner rule) */
+for (const f of allFiles.filter((x) => /\.(html|txt|json|xml|webmanifest)$/.test(x))) {
+  const t = fs.readFileSync(f, 'utf8');
+  const i = t.indexOf(EM_DASH);
+  if (i >= 0) err(SITEWIDE, `em dash (U+2014) in ${path.relative(DIST, f)}: "...${t.slice(Math.max(0, i - 40), i + 20).replace(/\s+/g, ' ')}..."`);
+}
 
 /* ───────────────────────── output ───────────────────────── */
 const scopes = [...new Set([...[...pages.values()].map((p) => (p.route === '/' ? '/ (index.html)' : p.route)), SITEWIDE])];

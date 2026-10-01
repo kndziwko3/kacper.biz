@@ -51,6 +51,8 @@ const jsonLd = buildJsonLd({ lang, path: cleanPath, title, description, kind, br
   <link rel="alternate" hreflang="en" href={altEn} />
   <link rel="alternate" hreflang="x-default" href={altPl} />
 </>)}
+{/* Raster first (48px-multiple square, for Bing, older Safari and tools that ignore SVG), SVG last so browsers that support it use it. */}
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <link rel="manifest" href="/site.webmanifest" />

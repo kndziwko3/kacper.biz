@@ -29,5 +29,6 @@ const { chapters, label } = Astro.props;
     .rail a:not([aria-current]) .rail-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .rail a:not([aria-current]) .rail-key { display: block; }
   }
+  @media (max-height: 520px) and (orientation: landscape) { .rail { display: none; } }
   @media (prefers-reduced-motion: reduce) { .rail { transition: none; } }
 </style>

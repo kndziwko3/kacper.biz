@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import { ROUTE_PAIRS } from './src/content/site.ts';
+import { ROUTE_PAIRS, SITE } from './src/content/site.ts';
 
 const ORIGIN = 'https://kacper.biz';
 const toPath = (url) => new URL(url).pathname.replace(/\/$/, '') || '/';
@@ -16,7 +16,9 @@ export default defineConfig({
     sitemap({
       filter: (page) => !page.includes('/lab'),
       // PL and EN slugs differ, so pair them explicitly (hreflang in the sitemap must match the on-page tags).
+      // lastmod = SITE.lastModified, the same date every page states as JSON-LD dateModified (bump it when copy or facts change).
       serialize(item) {
+        item.lastmod = SITE.lastModified;
         const path = toPath(item.url);
         const pair = ROUTE_PAIRS.find((r) => r.pl === path || r.en === path);
         if (pair) {

@@ -41,7 +41,8 @@ export function initRegistry(reduced: boolean): () => void {
 
   const nf = new Intl.NumberFormat(data.lang === 'pl' ? 'pl-PL' : 'en-US');
   const fmt = (n: number) => nf.format(n).replace(/\s/g, ' ');
-  const out = (k: string) => section.querySelector<HTMLElement>(`[data-out="${k}"]`);
+  // every element showing a value (the readout card and, on a phone, its miniature at the foot of the form)
+  const outs = (k: string) => Array.from(section.querySelectorAll<HTMLElement>(`[data-out="${k}"]`));
   const val = (name: string) => (form.elements.namedItem(name) as RadioNodeList | null)?.value ?? '';
   const cta = section.querySelector<HTMLAnchorElement>('[data-cta="registry-sector"]');
   const cancels = new Map<HTMLElement, () => void>();
@@ -71,15 +72,15 @@ export function initRegistry(reduced: boolean): () => void {
     const s = data.sectors.find((x) => x.slug === val('sector'));
     const c = data.cities.find((x) => x.slug === val('city'));
     if (s) {
-      count(out('sector'), s.count);
-      swap(out('sectorName'), s.name);
+      outs('sector').forEach((el) => count(el, s.count));
+      outs('sectorName').forEach((el) => swap(el, s.name));
       if (cta) cta.href = s.url;
     }
     if (c) {
-      count(out('city'), c.count);
-      swap(out('cityName'), c.name);
-      swap(out('cityLoc'), data.lang === 'pl' ? c.in : c.name);
-      swap(out('cityIn'), c.in);
+      outs('city').forEach((el) => count(el, c.count));
+      outs('cityName').forEach((el) => swap(el, c.name));
+      outs('cityLoc').forEach((el) => swap(el, data.lang === 'pl' ? c.in : c.name));
+      outs('cityIn').forEach((el) => swap(el, c.in));
       const ln = label('name'), lc = label('count');
       if (ln) ln.textContent = c.name;
       if (lc) lc.textContent = fmt(c.count);
@@ -88,6 +89,21 @@ export function initRegistry(reduced: boolean): () => void {
   };
 
   form.addEventListener('change', update);
+  // phone: the list opens to all sectors and closes again
+  const more = form.querySelector<HTMLButtonElement>('[data-lk-more]');
+  const onMore = () => {
+    if (!more) return;
+    const open = more.getAttribute('aria-expanded') !== 'true';
+    more.setAttribute('aria-expanded', String(open));
+    more.closest('.lk-set')?.classList.toggle('is-open', open);
+    more.textContent = (open ? more.dataset.less : more.dataset.more) ?? '';
+  };
+  if (more) { more.hidden = false; more.addEventListener('click', onMore); }
+  // the miniature readout steps aside once the full readout card is on screen
+  const peek = section.querySelector<HTMLElement>('.lk-peek');
+  const card = section.querySelector<HTMLElement>('.lk-card');
+  const peekIo = new IntersectionObserver(([e]) => peek?.classList.toggle('is-away', !!e?.isIntersecting), { threshold: 0.15 });
+  if (peek && card) peekIo.observe(card);
   // register rows in the entry pick their sector here (the link still jumps to the index without JS)
   const onPick = (e: Event) => {
     const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('[data-pick]');
@@ -102,6 +118,8 @@ export function initRegistry(reduced: boolean): () => void {
   return () => {
     io.disconnect();
     form.removeEventListener('change', update);
+    more?.removeEventListener('click', onMore);
+    peekIo.disconnect();
     document.removeEventListener('click', onPick);
     cancels.forEach((f) => f());
     visible = false;

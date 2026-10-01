@@ -69,7 +69,7 @@ const alt = (name: string, kind: string) => (isPl ? `Strona ${name}, ${kind}` : 
 </Base>
 <style>
   .case { row-gap: 2.5rem; align-items: start; }
-  .case + .case { margin-top: clamp(5rem, 14vh, 9rem); padding-top: clamp(3rem, 8vh, 5rem); border-top: 1px solid var(--line-p); }
+  .case + .case { margin-top: var(--gap-block); padding-top: clamp(2.5rem, 1.4rem + 3vw, 5rem); border-top: 1px solid var(--line-p); }
   .case-meta { display: grid; gap: 1.1rem; align-content: start; }
   .case-meta .rows { margin-top: 0.5rem; }
   .case-meta .rows .v { text-align: right; }

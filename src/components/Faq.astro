@@ -3,6 +3,7 @@
 import Sheet from './ui/Sheet.astro';
 import { copy } from '../content/copy';
 import type { Lang } from '../content/site';
+import { faqAnchor } from '../lib/facts';
 interface Props { lang: Lang; items?: { q: string; a: string }[]; h2?: string }
 const { lang, items, h2 } = Astro.props;
 const list = items ?? copy[lang].faq;
@@ -15,7 +16,7 @@ const f = copy[lang].film;
     </div>
     <dl class="faq-list">
       {list.map((it) => (
-        <div class="faq-item">
+        <div class="faq-item" id={faqAnchor(it.q)}>
           <dt class="t-h3">{it.q}</dt>
           <dd class="t-body dim">{it.a}</dd>
         </div>

@@ -19,16 +19,21 @@ import {
   PROJECTS,
   CONTACT,
   FASTLANDING_OFFERS,
+  FASTLANDING_RECURRING,
+  OUTREACHPILOT_PLANS,
   type Lang,
 } from '../content/site';
 import {
   ORG_IDS,
   absUrl,
+  faqAnchor,
+  fastlandingDisambiguation,
   normalizePath,
   outreachpilotDisambiguation,
   parsePrice,
   personDescription,
   personSameAs,
+  stripHtml,
 } from './facts';
 
 export interface JsonLdOptions {
@@ -90,6 +95,8 @@ function personNode(lang: Lang): Node {
     homeLocation: { '@type': 'Place', address: postalAddress() },
     address: postalAddress(),
     knowsAbout: [...PERSON.knowsAbout[lang]],
+    // Visible on /o-mnie (facts row "Języki: polski, angielski"). BCP 47 codes.
+    knowsLanguage: ['pl', 'en'],
     sameAs: personSameAs(),
     worksFor: [ref(ORG_IDS.outreachpilot), ref(ORG_IDS.fastlanding)],
   };
@@ -153,6 +160,7 @@ function fastlandingOrgNode(lang: Lang, withContact: boolean): Node {
     legalName: PERSON.business.legalName,
     url: PRODUCTS.fastlanding.url,
     description: PRODUCTS.fastlanding.tagline[lang],
+    disambiguatingDescription: fastlandingDisambiguation(lang),
     founder: ref(PERSON.id),
     taxID: PERSON.business.nip,
     identifier: NIP_IDENTIFIERS(),
@@ -176,6 +184,10 @@ function outreachpilotServiceNode(lang: Lang): Node {
   // Typed Service (semantics of software via additionalType) on purpose: a literal SoftwareApplication needs offers AND a
   // rating/review for Google's "Software app" rich result, and we neither invent ratings nor mirror pricing that is not in
   // site.ts, so it would only produce invalid-item noise in Search Console. Pricing lives on outreachpilot.pl/cennik.
+  // The plans ARE shown on the page (OpSheet renders copy.op.plans.rows), so they are marked up as offers; numbers come from
+  // OUTREACHPILOT_PLANS in site.ts and validate-seo.mjs checks that each price is visible. Final prices: the seller is
+  // VAT-exempt, so valueAddedTaxIncluded is deliberately omitted (there is no VAT to include or add).
+  const vatNote = lang === 'pl' ? 'cena końcowa, sprzedawca zwolniony z VAT' : 'final price, seller VAT-exempt';
   return {
     '@type': 'Service',
     '@id': PRODUCTS.outreachpilot.id,
@@ -183,20 +195,55 @@ function outreachpilotServiceNode(lang: Lang): Node {
     name: PRODUCTS.outreachpilot.name,
     url: PRODUCTS.outreachpilot.url,
     description: PRODUCTS.outreachpilot.tagline[lang],
-    serviceType: 'B2B cold outreach',
+    serviceType: lang === 'pl' ? 'cold mailing B2B' : 'B2B cold outreach',
     provider: ref(ORG_IDS.outreachpilot),
+    areaServed: { '@type': 'Country', name: lang === 'pl' ? 'Polska' : 'Poland' },
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: lang === 'pl' ? 'Plany OutreachPilot.pl' : 'OutreachPilot.pl plans',
+      itemListElement: OUTREACHPILOT_PLANS.items.map((p) => ({
+        '@type': 'Offer',
+        name: `${PRODUCTS.outreachpilot.name} ${p.name[lang]}`,
+        description: `${p.limits[lang]} (${vatNote})`,
+        price: p.pricePLN,
+        priceCurrency: 'PLN',
+        ...(p.pricePLN > 0
+          ? {
+              priceSpecification: {
+                '@type': 'UnitPriceSpecification',
+                price: p.pricePLN,
+                priceCurrency: 'PLN',
+                unitCode: 'MON',
+                unitText: lang === 'pl' ? 'miesiąc' : 'month',
+              },
+            }
+          : {}),
+        seller: ref(ORG_IDS.outreachpilot),
+        url: PRODUCTS.outreachpilot.pricing,
+      })),
+    },
   };
 }
 
-function offerNode(o: (typeof FASTLANDING_OFFERS)[number], lang: Lang): Node {
+type PublishedOffer = { price: string; priceEn: string; name: { pl: string; en: string }; time?: { pl: string; en: string } };
+
+function offerNode(o: PublishedOffer, lang: Lang): Node {
   const published = lang === 'pl' ? o.price : o.priceEn;
   const parsed = parsePrice(o.price); // numbers come from the PL string; the EN string is the same amounts
   const specs: Node[] = [];
   if (parsed.amount !== null) {
+    const amount = parsed.from ? { minPrice: parsed.amount } : { price: parsed.amount };
     specs.push(
-      parsed.from
-        ? { '@type': 'PriceSpecification', minPrice: parsed.amount, priceCurrency: 'PLN', valueAddedTaxIncluded: false }
-        : { '@type': 'PriceSpecification', price: parsed.amount, priceCurrency: 'PLN', valueAddedTaxIncluded: false },
+      parsed.perMonth
+        ? {
+            '@type': 'UnitPriceSpecification',
+            ...amount,
+            priceCurrency: 'PLN',
+            unitCode: 'MON',
+            unitText: lang === 'pl' ? 'miesiąc' : 'month',
+            valueAddedTaxIncluded: false,
+          }
+        : { '@type': 'PriceSpecification', ...amount, priceCurrency: 'PLN', valueAddedTaxIncluded: false },
     );
   }
   if (parsed.monthly !== null) {
@@ -212,8 +259,8 @@ function offerNode(o: (typeof FASTLANDING_OFFERS)[number], lang: Lang): Node {
   return {
     '@type': 'Offer',
     name: o.name[lang],
-    // Text mirrors the visible price + turnaround, e.g. "od 1 499 zł · 7 dni".
-    description: `${published} · ${o.time[lang]}`,
+    // Text mirrors the visible price (+ turnaround when published), e.g. "1 499 zł · 7 dni".
+    description: o.time ? `${published} · ${o.time[lang]}` : published,
     priceCurrency: 'PLN',
     ...(specs.length ? { priceSpecification: specs.length === 1 ? specs[0] : specs } : {}),
     itemOffered: { '@type': 'Service', name: o.name[lang] },
@@ -236,7 +283,8 @@ function fastlandingServiceNode(lang: Lang): Node {
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: lang === 'pl' ? 'Oferta FastLanding.io (ceny netto)' : 'FastLanding.io offers (net prices)',
-      itemListElement: FASTLANDING_OFFERS.map((o) => offerNode(o, lang)),
+      // One-off prices first, then the monthly SEO / AI-visibility services, all as shown in the FastLanding price sheet.
+      itemListElement: [...FASTLANDING_OFFERS, ...FASTLANDING_RECURRING].map((o) => offerNode(o, lang)),
     },
   };
 }
@@ -257,6 +305,9 @@ function projectsListNode(canonical: string, lang: Lang): Node {
         url: p.url,
         description: p.blurb[lang],
         genre: p.kind[lang],
+        // Languages and the screenshot are both shown on the Work page (case rows + the full-page capture).
+        inLanguage: p.langs.split('·').map((l) => l.trim().toLowerCase()),
+        image: `${SITE.url}/work/${p.key}-hero.webp`,
         creator: ref(ORG_IDS.fastlanding),
       },
     })),
@@ -277,7 +328,7 @@ function pageNode(o: JsonLdOptions, canonical: string, hasBreadcrumb: boolean, p
 
   switch (o.kind) {
     case 'home':
-      return { '@type': 'WebPage', ...base, about: ref(PERSON.id) };
+      return { '@type': 'WebPage', ...base, about: ref(PERSON.id), mainEntity: ref(PERSON.id) };
     case 'about':
       // Google ProfilePage: mainEntity (Person) required, dateCreated + dateModified recommended.
       return {
@@ -331,10 +382,13 @@ function faqNode(canonical: string, lang: Lang, faq: NonNullable<JsonLdOptions['
     url: canonical,
     inLanguage: SITE.locale[lang],
     isPartOf: ref(`${canonical}#webpage`),
+    // Copy strings carry typography (no-break spaces, U+2060 word joiners in ranges, inline tags): plain text for machines.
     mainEntity: faq.map((f) => ({
       '@type': 'Question',
-      name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a },
+      name: stripHtml(f.q),
+      // the visible <div class="faq-item" id="…"> carries the same id (Faq.astro), so this URL lands on the answer
+      url: `${canonical}#${faqAnchor(f.q)}`,
+      acceptedAnswer: { '@type': 'Answer', text: stripHtml(f.a) },
     })),
   };
 }

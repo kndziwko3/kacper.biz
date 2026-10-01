@@ -35,18 +35,18 @@ const faq = [c.faq[0]!, c.faq[5]!];
         {a.body.map((p, i) => <p class:list={[i === 0 ? 't-h3' : 't-lead dim']}>{p}</p>)}
       </div>
       <div class="pg-side">
-        <h2 class="t-label dim" id="facts-h">{a.facts.h2}</h2>
+        <h2 class="t-h3" id="facts-h">{a.facts.h2}</h2>
         <dl class="rows about-facts">
           {a.facts.rows.map(([k, v]) => <div><dt class="t-label dim">{k}</dt><dd>{v}</dd></div>)}
         </dl>
         <p class="t-src">{c.ui.updated}: <time datetime={SITE.lastModified}>{formatDate(lang)}</time></p>
 
-        <h2 class="t-label dim about-h">{a.find.h2}</h2>
+        <h2 class="t-h3 about-h">{a.find.h2}</h2>
         <ul class="rows">
           {finds.map((f) => <li><a class="k tlink" href={f.href} rel={f.rel} target="_blank">{f.label}</a><span class="v t-label dim">{f.note}</span></li>)}
         </ul>
 
-        <h2 class="t-label dim about-h">{a.disambig.h2}</h2>
+        <h2 class="t-h3 about-h">{a.disambig.h2}</h2>
         <p class="t-small dim">{a.disambig.p}</p>
       </div>
     </div>
